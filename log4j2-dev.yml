@@ -1,0 +1,36 @@
+Configutation:
+  name: dev
+
+  Properties:
+    Property:
+      name: log-path
+      value: "logs"
+
+  Appenders:
+
+    Console:
+      name: Console_Appender
+      target: SYSTEM_OUT
+      PatternLayout:
+        pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} %level [%t] %logger{36} - %msg%n"
+
+    RollingFile:
+      name: RollingFile_Appender
+      fileName: logs/reserv-io.log
+      filePattern: "logs/archive/reservio.log.%d{yyyy-MM-dd-hh-mm}.gz"
+      PatternLayout:
+        pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} %level [%t] %logger{36} - %msg%n"
+      Policies:
+        SizeBasedTriggeringPolicy:
+          size: 5 MB
+      DefaultRollOverStrategy:
+        max: 30
+
+  Loggers:
+      Root:
+        level: debug
+        AppenderRef:
+          - ref: RollingFile_Appender
+            level: debug
+          - ref: Console_Appender
+            level: info

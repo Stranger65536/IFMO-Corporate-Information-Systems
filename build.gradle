@@ -1,0 +1,82 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.1.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        maven { url 'https://repo.spring.io/snapshot' }
+        maven { url 'https://repo.spring.io/milestone' }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'war'
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+war {
+    baseName = 'reserv-io'
+    version = '0.0.1-SNAPSHOT'
+}
+
+//noinspection GroovyUnusedAssignment
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
+}
+
+configurations {
+    compile.exclude module: 'spring-boot-starter-logging'
+}
+
+final def springSessionVersion = '1.3.0.RELEASE'
+final def springBootVersion = '1.5.1.RELEASE'
+final def mysqlVersion = '6.0.5'
+final def lombokVersion = '1.16.14'
+final def hibernateVersion = '5.2.8.Final'
+final def hibernateValidatorVersion = '5.4.0.Final'
+final def jacksonVersion = '2.8.6'
+
+dependencies {
+    compile(
+            [group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion],
+            [group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion],
+            [group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: springBootVersion],
+            [group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2', version: springBootVersion],
+            [group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion],
+            [group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: springBootVersion],
+            [group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: springBootVersion],
+
+            [group: 'org.hibernate', name: 'hibernate-core', version: hibernateVersion],
+            [group: 'org.hibernate', name: 'hibernate-entitymanager', version: hibernateVersion],
+            [group: 'org.hibernate', name: 'hibernate-validator', version: hibernateValidatorVersion],
+
+            [group: 'org.springframework.session', name: 'spring-session', version: springSessionVersion],
+
+            [group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonVersion],
+    )
+    runtime(
+            [group: 'mysql', name: 'mysql-connector-java', version: mysqlVersion],
+    )
+    compileOnly(
+            [group: 'org.projectlombok', name: 'lombok', version: lombokVersion],
+    )
+    providedRuntime(
+            [group: 'org.springframework.boot', name: 'spring-boot-starter-tomcat', version: springBootVersion],
+    )
+    testCompile(
+            [group: 'junit', name: 'junit', version: '4.12'],
+            [group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion],
+    )
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.4'
+}
+
+assemble.dependsOn(jar)
