@@ -1,0 +1,34 @@
+server:
+  port: 443
+  redirect-from-port: 80
+  ssl:
+    key-store: file:${spring.config.location}/keystore.p12
+    key-store-password: no_shutdown
+    keyStoreType: PKCS12
+    keyAlias: tomcat
+spring:
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/reserv-io?useSSL=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC
+    username: dbuser
+    password: awesomepassword
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    dbcp2:
+      test-while-idle: true
+      validation-query: SELECT 1
+  session:
+    store-type: jdbc
+  jpa:
+    database: MYSQL
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+      default-schema: reserv-io
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        current-session-context-class: org.springframework.orm.hibernate5.SpringSessionContext
+logging:
+  config: file:${spring.config.location}/log4j2-dev.yml

@@ -17,7 +17,7 @@ Configutation:
     RollingFile:
       name: RollingFile_Appender
       fileName: logs/reserv-io.log
-      filePattern: "logs/archive/reservio.log.%d{yyyy-MM-dd-hh-mm}.gz"
+      filePattern: "logs/archive/reserv-io.log.%d{yyyy-MM-dd-hh-mm}.gz"
       PatternLayout:
         pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} %level [%t] %logger{36} - %msg%n"
       Policies:

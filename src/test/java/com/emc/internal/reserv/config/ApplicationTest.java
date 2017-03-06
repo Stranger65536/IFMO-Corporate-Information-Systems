@@ -1,4 +1,4 @@
-package com.emc.internal;
+package com.emc.internal.reserv.config;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,6 +11,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static com.emc.internal.TestConstants.TEST_PROFILE;
 
+/**
+ * @author trofiv
+ * @date 21.02.2017
+ */
 @ActiveProfiles(TEST_PROFILE)
 @RunWith(SpringRunner.class)
 @SpringBootTest

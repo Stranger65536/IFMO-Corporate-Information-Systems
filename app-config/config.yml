@@ -3,4 +3,4 @@ spring:
     active: dev
 banner:
   charset: UTF-8
-  location: file:banner.txt
+  location: file:${spring.config.location}/banner.txt

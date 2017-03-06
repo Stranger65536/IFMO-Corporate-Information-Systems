@@ -4,4 +4,3 @@ build/
 .idea
 logs/
 logs-test/
-out/
