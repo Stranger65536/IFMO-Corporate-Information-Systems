@@ -1,6 +1,9 @@
-.gradle
-build/
 !gradle/wrapper/gradle-wrapper.jar
-.idea
+.gradle/
+build/
+.idea/
 logs/
 logs-test/
+/frontend/node_modules/
+/frontend/nodejs/
+/static/

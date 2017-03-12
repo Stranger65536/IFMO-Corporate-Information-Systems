@@ -4,3 +4,8 @@ spring:
 banner:
   charset: UTF-8
   location: file:${spring.config.location}/banner.txt
+server:
+  tomcat.uri-encoding: UTF-8
+  http:
+    encoding:
+      charset: UTF-8

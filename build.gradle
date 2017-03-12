@@ -12,6 +12,11 @@ buildscript {
     }
 }
 
+plugins {
+    id 'com.moowork.node' version '1.1.1'
+    id 'com.moowork.gulp' version '1.1.1'
+}
+
 apply plugin: 'war'
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
@@ -97,6 +102,27 @@ final hibernateValidatorVersion = '5.4.0.Final'
 final jacksonVersion = '2.8.6'
 final wsdl4jVersion = '1.6.3'
 final jaxbVersion = '2.2.11'
+final apacheCommonsLangVersion = '3.5'
+final jade4jVersion = '1.1.4'
+final frontendDir = 'frontend'
+final nodejsDir = "${project.projectDir}/" + frontendDir + '/nodejs'
+final nodejsModulesDir = "${project.projectDir}/" + frontendDir
+final gulpWorkDir = "${project.projectDir}/" + frontendDir
+
+node {
+    version = '7.7.2'
+    npmVersion = '4.4.1'
+    distBaseUrl = 'https://nodejs.org/dist'
+    download = true
+    workDir = file(nodejsDir)
+    nodeModulesDir = file(nodejsModulesDir)
+}
+
+gulp {
+    workDir = file(gulpWorkDir)
+    colors = true
+    bufferOutput = true
+}
 
 dependencies {
     //noinspection GroovyAssignabilityCheck
@@ -115,9 +141,11 @@ dependencies {
             [group: 'org.hibernate', name: 'hibernate-validator', version: hibernateValidatorVersion],
 
             [group: 'org.springframework.session', name: 'spring-session', version: springSessionVersion],
+            [group: 'org.springframework.session', name: 'spring-session-jdbc', version: springSessionVersion],
 
             [group: 'wsdl4j', name: 'wsdl4j', version: wsdl4jVersion],
-            [group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'],
+            [group: 'de.neuland-bfi', name: 'spring-jade4j', version: jade4jVersion],
+            [group: 'org.apache.commons', name: 'commons-lang3', version: apacheCommonsLangVersion],
             [group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonVersion],
             files(genJaxb.classesDir).builtBy(genJaxb)
     )
@@ -139,8 +167,39 @@ dependencies {
     )
 }
 
+task prepareEnvironment {
+    doLast {
+        nodeSetup.execute()
+        npmSetup.execute()
+        npmInstall.execute()
+        installGulp.execute()
+    }
+}
+
+task cleanFrontend {
+    doLast {
+        delete "${rootDir}/frontend/build/bundle"
+        delete "${rootDir}/static"
+    }
+}
+
+task gulpBuild(type: GulpTask) {
+    args = ['build']
+}
+
+task copyBundles(type: Copy) {
+    from 'frontend/build/'
+    into 'static'
+}
+
+task rebuildFrontend {
+    doLast {
+        cleanFrontend.execute()
+        gulpBuild.execute()
+        copyBundles.execute()
+    }
+}
+
 task wrapper(type: Wrapper) {
     gradleVersion = '3.4'
 }
-
-assemble.dependsOn(jar)

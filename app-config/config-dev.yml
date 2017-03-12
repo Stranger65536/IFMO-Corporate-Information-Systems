@@ -18,7 +18,7 @@ spring:
       test-while-idle: true
       validation-query: SELECT 1
   session:
-    store-type: jdbc
+    store-type: HASH_MAP
   jpa:
     database: MYSQL
     show-sql: true
@@ -30,5 +30,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5Dialect
         current-session-context-class: org.springframework.orm.hibernate5.SpringSessionContext
+  resources:
+    add-mappings: true
+    static-locations: file:${spring.config.location}../static/
 logging:
   config: file:${spring.config.location}/log4j2-dev.yml
