@@ -7,6 +7,8 @@ const less = require('gulp-less');
 const source = require('vinyl-source-stream');
 const jade = require('jade');
 const gulpJade = require('gulp-jade');
+const purge = require('gulp-css-purge');
+const minify = require('gulp-minify-css');
 
 const bundles = [
     'app-layout'
@@ -24,6 +26,8 @@ gulp.task('build', function () {
     gulp.src('./src/less/**/*.less')
         .pipe(less())
         .pipe(concat('styles-bundle.css'))
+        .pipe(purge())
+        .pipe(minify())
         .pipe(gulp.dest('./build/css'));
 
     gulp.src('./src/*.jade')

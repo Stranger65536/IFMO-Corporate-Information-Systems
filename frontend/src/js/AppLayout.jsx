@@ -13,7 +13,7 @@ import ActionSettings from "material-ui/svg-icons/action/settings";
 import PoolCreation from "./PoolCreation.jsx";
 import Monitor from "./Monitor.jsx";
 import Settings from "./Settings.jsx";
-import Login from "./Login.jsx";
+import WelcomePage from "./WelcomePage.jsx";
 
 const lightMuiTheme = getMuiTheme(lightBaseTheme);
 
@@ -86,7 +86,7 @@ export default class AppLayout extends React.Component {
     render() {
         return (
             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <Login/>
+                <WelcomePage/>
                 {/*<div>*/}
                     {/*<AppBar*/}
                         {/*className='app-bar'*/}
