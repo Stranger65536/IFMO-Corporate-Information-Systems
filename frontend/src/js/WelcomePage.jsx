@@ -5,6 +5,8 @@ import TextField from "material-ui/TextField";
 import FlatButton from "material-ui/FlatButton";
 import RaisedButton from "material-ui/RaisedButton";
 import getMuiTheme from "material-ui/styles/getMuiTheme";
+import AccountCircle from "material-ui/svg-icons/action/account-circle";
+import Lock from "material-ui/svg-icons/action/lock";
 import {MuiThemeProvider} from "material-ui/styles";
 
 const emcMuiTheme = getMuiTheme({
@@ -20,13 +22,28 @@ const Form = {
 };
 
 const emailPattern = /^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const usernamePattern = /^[\w!'#$%&'()*+,.\/:;<=>?@\[\] ^_`{|}~-]{6,}$/;
+const usernamePattern = /^[\w!'#$%&()*+,.\/:;<=>?@\[\] ^_`{|}~-]{6,}$/;
 const passwordPattern = /.{6,}/;
+
+const iconStyle = {
+    position: 'relative',
+    color: '#2c95dd',
+    top: '10px',
+    width: '30px',
+    height: '30px',
+    margin: '0 0 0 20px'
+};
 
 function validatePatterns(patterns, value) {
     return _.some(patterns, function (pattern) {
         return pattern.test(value);
     })
+}
+
+function validateForm(instance) {
+    return _.all(_.values(instance.constants.validation), function (obj) {
+        return validatePatterns(obj.patterns, instance.state[obj.stateField]);
+    });
 }
 
 class ValidTextField extends React.Component {
@@ -55,6 +72,11 @@ class ValidTextField extends React.Component {
         this.updateStateWithValue(this.state.value);
     }
 
+    errorStyle = {
+        position: 'absolute',
+        bottom: '-10px'
+    };
+
     render() {
         return (
             <TextField
@@ -62,6 +84,7 @@ class ValidTextField extends React.Component {
                 hintText={this.props.hintText}
                 onChange={this.onChange.bind(this)}
                 errorText={this.state.errorText}
+                errorStyle={this.errorStyle}
                 type={this.props.type}
                 value={this.state.value}
                 floatingLabelText={this.props.floatingLabelText}
@@ -100,16 +123,8 @@ export class Login extends React.Component {
         }
     }
 
-    validateForm() {
-        const instance = this;
-
-        return _.all(_.values(instance.constants.validation), function (obj) {
-            return validatePatterns(obj.patterns, instance.state[obj.stateField]);
-        });
-    }
-
     onLoginTouchTap = () => {
-        if (this.validateForm()) {
+        if (validateForm(this)) {
             alert('login');
             //TODO login
         } else {
@@ -134,6 +149,7 @@ export class Login extends React.Component {
     render() {
         return (
             <div>
+                <AccountCircle style={iconStyle}/>
                 <ValidTextField
                     className='login-input'
                     ref={this.constants.validation.username.ref}
@@ -147,6 +163,7 @@ export class Login extends React.Component {
                         this.props.rootStateUpdater(this.constants.validation.username.stateField, value)
                     }}
                 />
+                <Lock style={iconStyle}/>
                 <ValidTextField
                     className='login-input'
                     ref={this.constants.validation.password.ref}
@@ -209,15 +226,78 @@ export class ForgotPassword extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            forgotPasswordUsername: props.usrename
+            forgotPasswordUsername: props.username
         };
+
+        this.constants = {
+            validation: {
+                username: {
+                    patterns: [usernamePattern, emailPattern],
+                    ref: 'username',
+                    stateField: 'forgotPasswordUsername',
+                    hintText: 'Username / Email',
+                    floatingLabelText: 'Username / Email',
+                    errorText: 'Username must be at least 6 characters length / Invalid email'
+                }
+            }
+        }
     }
+
+    onResetPasswordTouchTap = () => {
+        if (validateForm(this)) {
+            alert('reset');
+            //TODO reset
+        } else {
+            const instance = this;
+            _.each(
+                _.values(instance.constants.validation), function (obj) {
+                    return instance.refs[obj.ref].forceInvalidCheck();
+                }
+            )
+        }
+    };
+
+    onLoginTouchTap = () => {
+        this.props.rootStateUpdater('activeForm', Form.LOGIN);
+    };
+
+    onSignUpTouchTap = () => {
+        this.props.rootStateUpdater('activeForm', Form.SIGN_UP);
+    };
 
     //noinspection JSMethodCanBeStatic
     render() {
         return (
             <div>
-                ForgotPassword
+                <AccountCircle style={iconStyle}/>
+                <ValidTextField
+                    className='login-input'
+                    ref={this.constants.validation.username.ref}
+                    value={this.state.forgotPasswordUsername}
+                    hintText={this.constants.validation.username.hintText}
+                    errorText={this.constants.validation.username.errorText}
+                    floatingLabelText={this.constants.validation.username.floatingLabelText}
+                    patterns={this.constants.validation.username.patterns}
+                    rootStateUpdater={(value) => {
+                        this.setState({...this.state, forgotPasswordUsername: value});
+                        this.props.rootStateUpdater(this.constants.validation.username.stateField, value)
+                    }}
+                />
+                <RaisedButton
+                    label='Reset password'
+                    primary={true}
+                    onTouchTap={this.onResetPasswordTouchTap}
+                    className='login-input button'/>
+                <FlatButton
+                    label='Login'
+                    onTouchTap={this.onLoginTouchTap}
+                    className='login-input button small left'
+                />
+                <FlatButton
+                    label='Sign up'
+                    onTouchTap={this.onSignUpTouchTap}
+                    className='login-input button small right'
+                />
             </div>
         )
     }

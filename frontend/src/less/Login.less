@@ -6,6 +6,7 @@
 @login-paper-logo-height: 185px;
 @login-elems-top-margin: 20px;
 @login-elems-horizontal-margin: 3px;
+@login-elems-icon-size: 30px;
 
 .inner {
   margin-left: auto;
@@ -41,9 +42,10 @@
 }
 
 .login-input {
-  margin: 0 @login-paper-padding;
-  width: @login-paper-width - 2 * @login-paper-padding !important;
+  margin: 0 @login-paper-padding 0 @login-paper-padding - 15px;
+  width: @login-paper-width - 2 * @login-paper-padding - @login-elems-icon-size - 5px !important;
   &.button {
+    width: @login-paper-width - 2 * @login-paper-padding !important;
     margin: @login-elems-top-margin @login-paper-padding 0 @login-paper-padding;
     &.small {
       width: (@login-paper-width - 2 * @login-paper-padding) / 2 - @login-elems-horizontal-margin * 2 !important;
