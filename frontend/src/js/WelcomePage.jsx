@@ -24,7 +24,7 @@ const Form = {
 };
 
 const emailPattern = /^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const usernamePattern = XRegExp('^[\\p{L}!\'#$%&()*+,.\/:;<=>?@\\[\\] ^_`{|}~-]{6,32}$');
+const usernamePattern = XRegExp('^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]{6,32}$');
 const passwordPattern = /.{6,32}/;
 const namePattern = XRegExp('^[\\p{L} .\'\-]{0,35}$');
 
@@ -38,14 +38,26 @@ const iconStyle = {
 };
 
 function validatePatterns(patterns, value) {
-    return _.some(patterns, function (pattern) {
+    return !(patterns && patterns.length > 0) || _.some(patterns, function (pattern) {
         return pattern.test(value);
     })
 }
 
+//noinspection FunctionWithMultipleReturnPointsJS
+function validateField(patterns, value, customValidationFun, afterGeneralValidation) {
+    if (customValidationFun === undefined) {
+        return validatePatterns(patterns, value);
+    } else {
+        return afterGeneralValidation
+            ? validatePatterns(patterns, value) && customValidationFun(value)
+            : customValidationFun(value);
+    }
+}
+
 function validateForm(instance) {
     return _.all(_.values(instance.constants.validation), function (obj) {
-        return validatePatterns(obj.patterns, instance.state[obj.stateField]);
+        return validateField(obj.patterns, instance.state[obj.stateField],
+            obj.validationFunction, obj.afterGeneralValidation);
     });
 }
 
@@ -63,7 +75,9 @@ class ValidTextField extends React.Component {
     }
 
     updateStateWithValue(value) {
-        if (validatePatterns(this.props.patterns, value)) {
+        if (validateField(this.props.patterns, value,
+                this.props.validationFunction,
+                this.props.afterGeneralValidation)) {
             this.setState({...this.state, errorText: '', value: value});
         } else {
             this.setState({...this.state, errorText: this.props.errorText, value: value});
@@ -127,7 +141,7 @@ export class Login extends React.Component {
     }
 
     onLoginTouchTap = () => {
-        if (validateForm(this)) {
+        if (validateForm(this, this.props.validationFunction, this.props.afterGeneralValidation)) {
             alert('login');
             //TODO login
         } else {
@@ -223,7 +237,9 @@ export class SignUp extends React.Component {
                     stateField: 'signUpUsername',
                     hintText: 'Username',
                     floatingLabelText: 'Username',
-                    errorText: 'Username must be 6-32 characters length'
+                    errorText: 'Username must be 6-32 characters length and must be not email-like',
+                    validationFunction: this.signUpUsernameValidation,
+                    afterGeneralValidation: true
                 },
                 email: {
                     patterns: [emailPattern],
@@ -242,12 +258,14 @@ export class SignUp extends React.Component {
                     errorText: 'Password must be 6-32 characters length'
                 },
                 passwordAgain: {
-                    patterns: [passwordPattern],
+                    patterns: [],
                     ref: 'passwordAgain',
                     stateField: 'signUpPasswordAgain',
                     hintText: 'Password again',
                     floatingLabelText: 'Password again',
-                    errorText: 'Password must be 6-32 characters length'
+                    errorText: 'Must be equal to the password',
+                    validationFunction: this.signUpPasswordAgainValidation,
+                    afterGeneralValidation: true
                 },
                 firstName: {
                     patterns: [namePattern],
@@ -299,6 +317,14 @@ export class SignUp extends React.Component {
         }
     };
 
+    signUpUsernameValidation = (value) => {
+        return !emailPattern.test(value);
+    };
+
+    signUpPasswordAgainValidation = (value) => {
+        return this.refs[this.constants.validation.password.ref].state.value == value;
+    };
+
     //noinspection JSMethodCanBeStatic
     render() {
         return (
@@ -312,6 +338,8 @@ export class SignUp extends React.Component {
                     errorText={this.constants.validation.username.errorText}
                     floatingLabelText={this.constants.validation.username.floatingLabelText}
                     patterns={this.constants.validation.username.patterns}
+                    validationFunction={this.constants.validation.username.validationFunction}
+                    afterGeneralValidation={this.constants.validation.username.afterGeneralValidation}
                     rootStateUpdater={(value) => {
                         this.setState({...this.state, signUpUsername: value});
                         this.props.rootStateUpdater(this.constants.validation.username.stateField, value)
@@ -356,6 +384,8 @@ export class SignUp extends React.Component {
                     errorText={this.constants.validation.passwordAgain.errorText}
                     floatingLabelText={this.constants.validation.passwordAgain.floatingLabelText}
                     patterns={this.constants.validation.passwordAgain.patterns}
+                    validationFunction={this.signUpPasswordAgainValidation}
+                    afterGeneralValidation={true}
                     rootStateUpdater={(value) => {
                         this.setState({...this.state, signUpPasswordAgain: value});
                         this.props.rootStateUpdater(this.constants.validation.passwordAgain.stateField, value)
@@ -445,7 +475,7 @@ export class ForgotPassword extends React.Component {
     }
 
     onResetPasswordTouchTap = () => {
-        if (validateForm(this)) {
+        if (validateForm(this, this.props.validationFunction, this.props.afterGeneralValidation)) {
             alert('reset');
             //TODO reset
         } else {
