@@ -39,8 +39,8 @@ const iconStyle = {
 
 function validatePatterns(patterns, value) {
     return !(patterns && patterns.length > 0) || _.some(patterns, function (pattern) {
-        return pattern.test(value);
-    })
+            return pattern.test(value);
+        })
 }
 
 //noinspection FunctionWithMultipleReturnPointsJS
@@ -558,28 +558,34 @@ export default class WelcomePage extends React.Component {
             forms: {
                 login: {
                     formIndicator: Form.LOGIN,
-                    viewElement: <Login
-                        username={this.state.loginUsername}
-                        password={this.state.loginPassword}
-                        rootStateUpdater={(prop, value) => this.updateStateProperty(prop, value)}/>
+                    viewElement: () => {
+                        return <Login
+                            username={this.state.loginUsername}
+                            password={this.state.loginPassword}
+                            rootStateUpdater={(prop, value) => this.updateStateProperty(prop, value)}/>
+                    }
                 },
                 signUp: {
                     formIndicator: Form.SIGN_UP,
-                    viewElement: <SignUp
-                        username={this.state.signUpUsername}
-                        email={this.state.signUpEmail}
-                        password={this.state.signUpPassword}
-                        passwordAgain={this.state.signUpPasswordAgain}
-                        firstName={this.state.signUpFirstName}
-                        lastName={this.state.signUpLastName}
-                        middleName={this.state.signUpMiddleName}
-                        rootStateUpdater={(prop, value) => this.updateStateProperty(prop, value)}/>
+                    viewElement: () => {
+                        return <SignUp
+                            username={this.state.signUpUsername}
+                            email={this.state.signUpEmail}
+                            password={this.state.signUpPassword}
+                            passwordAgain={this.state.signUpPasswordAgain}
+                            firstName={this.state.signUpFirstName}
+                            lastName={this.state.signUpLastName}
+                            middleName={this.state.signUpMiddleName}
+                            rootStateUpdater={(prop, value) => this.updateStateProperty(prop, value)}/>
+                    }
                 },
                 forgotPassword: {
                     formIndicator: Form.FORGOT_PASSWORD,
-                    viewElement: <ForgotPassword
-                        username={this.state.forgotPasswordUsername}
-                        rootStateUpdater={(prop, value) => this.updateStateProperty(prop, value)}/>
+                    viewElement: () => {
+                        return <ForgotPassword
+                            username={this.state.forgotPasswordUsername}
+                            rootStateUpdater={(prop, value) => this.updateStateProperty(prop, value)}/>
+                    }
                 }
             }
         };
@@ -599,7 +605,7 @@ export default class WelcomePage extends React.Component {
                     return instance.constants.forms[property];
                 }
             ), {formIndicator: instance.state.activeForm}
-        ).viewElement;
+        ).viewElement();
     };
 
     //noinspection JSMethodCanBeStatic
