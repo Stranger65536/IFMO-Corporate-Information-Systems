@@ -1,6 +1,9 @@
 @import "Common.less";
 
 @bar-height: 64px;
+@header-logo-height: 40px;
+@user-image-size: 200px;
+@menu-width: 250px;
 
 .app-bar {
   background-color: @emc-blue !important;
@@ -9,12 +12,30 @@
 .left-nav {
   top: @bar-height !important;
   position: absolute;
-}
-
-.two-line-icon {
-  height: 40px !important;
+  overflow-x: hidden !important;
 }
 
 .nav-overlay {
   top: @bar-height !important;
+}
+
+.username {
+  text-align: center;
+  width: @menu-width;
+  font-weight: 800;
+  margin: 20px 0;
+}
+
+.user-image {
+  height: @user-image-size !important;
+  width: @user-image-size !important;
+  margin: 0 (@menu-width - @user-image-size) / 2 !important;
+  color: @emc-blue !important;
+}
+
+.header-logo {
+  height: @bar-height;
+  background: url('/reserv-io/frontend/build/img/logo.png') no-repeat;
+  background-size: auto @header-logo-height;
+  margin: (@bar-height - @header-logo-height) / 2 0 0 0;
 }
