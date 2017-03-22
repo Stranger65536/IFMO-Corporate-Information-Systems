@@ -4,7 +4,7 @@ import Menu from "material-ui/Menu";
 import AppBar from "material-ui/AppBar";
 import Drawer from "material-ui/Drawer";
 import MenuItem from "material-ui/MenuItem";
-import IconButton from 'material-ui/IconButton';
+import IconButton from "material-ui/IconButton";
 import SocialPublic from "material-ui/svg-icons/social/public";
 import ActionSettings from "material-ui/svg-icons/action/settings";
 import ActionExitToApp from "material-ui/svg-icons/action/exit-to-app";
@@ -12,18 +12,24 @@ import ActionDateRange from "material-ui/svg-icons/action/date-range";
 import AccountCircle from "material-ui/svg-icons/action/account-circle";
 import getMuiTheme from "material-ui/styles/getMuiTheme";
 import {MuiThemeProvider} from "material-ui/styles";
-import WelcomePage from "./WelcomePage.jsx";
+import WelcomePage from "./welcome-page/WelcomePage.jsx";
 
 //TODO getLoggedInViewElement render error on invalid anchor
 //TODO modal warn before logout
 //TODO state clear on logout
-//TODO anchor clear on logout
 
 const emcMuiTheme = getMuiTheme({
     palette: {
         primary1Color: '#2c95dd',
     },
 });
+
+const Page = {
+    APPOINTMENTS: 'appointments',
+    RESOURCES: 'resources',
+    USERS: 'users',
+    SETTINGS: 'settings',
+};
 
 export default class AppLayout extends React.Component {
     constructor(props) {
@@ -33,31 +39,31 @@ export default class AppLayout extends React.Component {
             pageTitle: <div className='header-logo'/>,
             nav: {
                 width: 250,
-                swipeWidth: 100,
+                swipeWidth: 30,
                 items: {
                     appointments: {
-                        anchor: 'appointments',
+                        pageIndicator: Page.APPOINTMENTS,
                         label: 'Appointments',
                         viewElement: () => {
                             return <div>Appointments</div>
                         }
                     },
                     resources: {
-                        anchor: 'resources',
+                        pageIndicator: Page.RESOURCES,
                         label: 'Resources',
                         viewElement: () => {
                             return <div>Resources</div>
                         }
                     },
                     users: {
-                        anchor: 'users',
+                        pageIndicator: Page.USERS,
                         label: 'Users',
                         viewElement: () => {
                             return <div>Users</div>
                         }
                     },
                     settings: {
-                        anchor: 'settings',
+                        pageIndicator: Page.SETTINGS,
                         label: 'Settings',
                         viewElement: () => {
                             return <div>Settings</div>
@@ -79,7 +85,7 @@ export default class AppLayout extends React.Component {
                 middleNAme: 'Middlename',
                 email: ''
             },
-            navSelectedItemAnchor: this.getAnchorLink()
+            pageIndicator: Page.APPOINTMENTS
         };
     }
 
@@ -99,7 +105,7 @@ export default class AppLayout extends React.Component {
                 _.keys(this.constants.nav.items), function (property) {
                     return instance.constants.nav.items[property];
                 }
-            ), {anchor: instance.state.navSelectedItemAnchor}
+            ), {pageIndicator: instance.state.pageIndicator}
         ).viewElement();
     };
 
@@ -138,22 +144,22 @@ export default class AppLayout extends React.Component {
                         {this.state.user.username}
                     </div>
                     <MenuItem
-                        onTouchTap={(event) => this.onMenuItemTouchTap(event, this.constants.nav.items.appointments.anchor)}
+                        onTouchTap={(event) => this.onMenuItemTouchTap(event, this.constants.nav.items.appointments.pageIndicator)}
                         primaryText={this.constants.nav.items.appointments.label}
                         leftIcon={<ActionDateRange/>}
                     />
                     <MenuItem
-                        onTouchTap={(event) => this.onMenuItemTouchTap(event, this.constants.nav.items.resources.anchor)}
+                        onTouchTap={(event) => this.onMenuItemTouchTap(event, this.constants.nav.items.resources.pageIndicator)}
                         primaryText={this.constants.nav.items.resources.label}
                         leftIcon={<SocialPublic/>}
                     />
                     <MenuItem
-                        onTouchTap={(event) => this.onMenuItemTouchTap(event, this.constants.nav.items.users.anchor)}
+                        onTouchTap={(event) => this.onMenuItemTouchTap(event, this.constants.nav.items.users.pageIndicator)}
                         primaryText={this.constants.nav.items.users.label}
                         leftIcon={<AccountCircle/>}
                     />
                     <MenuItem
-                        onTouchTap={(event) => this.onMenuItemTouchTap(event, this.constants.nav.items.settings.anchor)}
+                        onTouchTap={(event) => this.onMenuItemTouchTap(event, this.constants.nav.items.settings.pageIndicator)}
                         primaryText={this.constants.nav.items.settings.label}
                         leftIcon={<ActionSettings/>}
                     />
@@ -163,27 +169,8 @@ export default class AppLayout extends React.Component {
         </div>
     };
 
-    getAnchorLink = () => {
-        const anchor = '#';
-        const anchorPos = window.location.hash.indexOf(anchor);
-        return anchorPos == -1
-            ? this.constants.nav.items.appointments.anchor
-            : window.location.hash.substring(anchorPos + anchor.length);
-    };
-
-    replaceAnchor = (value) => {
-        const anchor = '#';
-        const anchorPos = window.location.hash.indexOf(anchor);
-        if (anchorPos == -1) {
-            window.location += anchor + value;
-        } else {
-            window.location = window.location.hash.substring(0, anchorPos) + anchor + value;
-        }
-    };
-
-    onMenuItemTouchTap = (event, anchor) => {
-        this.setState({...this.state, navSelectedItemAnchor: anchor});
-        this.replaceAnchor(anchor);
+    onMenuItemTouchTap = (event, menuItem) => {
+        this.setState({...this.state, pageIndicator: menuItem, menuOpened: false});
     };
 
     onToggle = () => {

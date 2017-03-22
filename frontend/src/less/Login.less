@@ -17,6 +17,9 @@
 }
 
 .login-paper {
+  @media screen and (max-width: @login-paper-width) {
+    box-shadow: none !important;
+  }
   width: @login-paper-width;
   &.login {
     height: @login-paper-login-height;
