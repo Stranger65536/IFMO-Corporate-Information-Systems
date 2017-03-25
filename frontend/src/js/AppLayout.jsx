@@ -10,19 +10,13 @@ import ActionSettings from "material-ui/svg-icons/action/settings";
 import ActionExitToApp from "material-ui/svg-icons/action/exit-to-app";
 import ActionDateRange from "material-ui/svg-icons/action/date-range";
 import AccountCircle from "material-ui/svg-icons/action/account-circle";
-import getMuiTheme from "material-ui/styles/getMuiTheme";
 import {MuiThemeProvider} from "material-ui/styles";
 import WelcomePage from "./welcome-page/WelcomePage.jsx";
+import {Appointments} from "./Appointments.jsx";
+import {emcMuiTheme} from "./Common.jsx";
 
-//TODO getLoggedInViewElement render error on invalid anchor
 //TODO modal warn before logout
 //TODO state clear on logout
-
-const emcMuiTheme = getMuiTheme({
-    palette: {
-        primary1Color: '#2c95dd',
-    },
-});
 
 const Page = {
     APPOINTMENTS: 'appointments',
@@ -45,28 +39,28 @@ export default class AppLayout extends React.Component {
                         pageIndicator: Page.APPOINTMENTS,
                         label: 'Appointments',
                         viewElement: () => {
-                            return <div>Appointments</div>
+                            return <Appointments/>
                         }
                     },
                     resources: {
                         pageIndicator: Page.RESOURCES,
                         label: 'Resources',
                         viewElement: () => {
-                            return <div>Resources</div>
+                            return <div>Will look the same as the Appointments page</div>
                         }
                     },
                     users: {
                         pageIndicator: Page.USERS,
                         label: 'Users',
                         viewElement: () => {
-                            return <div>Users</div>
+                            return <div>Will look the same as the Appointments page</div>
                         }
                     },
                     settings: {
                         pageIndicator: Page.SETTINGS,
                         label: 'Settings',
                         viewElement: () => {
-                            return <div>Settings</div>
+                            return <div>Will look the same as the Appointments page</div>
                         }
                     }
                 }

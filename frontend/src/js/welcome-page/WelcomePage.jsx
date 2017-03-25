@@ -7,10 +7,10 @@ import {SignUp} from "./SignUp.jsx";
 import {ForgotPassword} from "./ForgotPassword.jsx";
 
 //TODO timeout for components rendering according to the transform duration
-//TODO WS API calls
 //TODO Modals with information about wrong login, etc.
 //TODO Perform main operation on Enter press
 //TODO Short timeout between button tap and execution to watch animation
+//TODO progressbar on requests
 
 export default class WelcomePage extends React.Component {
     constructor(props) {

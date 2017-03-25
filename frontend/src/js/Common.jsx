@@ -2,11 +2,18 @@ import React from "react";
 import _ from "underscore";
 import XRegExp from "xregexp";
 import TextField from "material-ui/TextField";
+import getMuiTheme from "material-ui/styles/getMuiTheme";
 
 export const emailPattern = /^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 export const usernamePattern = XRegExp('^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]{6,32}$');
 export const passwordPattern = /.{6,32}/;
 export const namePattern = XRegExp('^[\\p{L} .\'\-]{0,35}$');
+
+export const emcMuiTheme = getMuiTheme({
+    palette: {
+        primary1Color: '#2c95dd',
+    },
+});
 
 export const iconStyle = {
     position: 'relative',
