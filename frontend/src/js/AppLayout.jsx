@@ -17,6 +17,7 @@ import {emcMuiTheme} from "./Common.jsx";
 
 //TODO modal warn before logout
 //TODO state clear on logout
+//TODO refresh button
 
 const Page = {
     APPOINTMENTS: 'appointments',
@@ -60,7 +61,7 @@ export default class AppLayout extends React.Component {
                         pageIndicator: Page.SETTINGS,
                         label: 'Settings',
                         viewElement: () => {
-                            return <div>Will look the same as the Appointments page</div>
+                            return <div>Registration info change & timezone</div>
                         }
                     }
                 }

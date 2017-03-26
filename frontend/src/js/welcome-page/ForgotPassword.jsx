@@ -1,6 +1,6 @@
 import React from "react";
 import _ from "underscore";
-import {emailPattern, usernamePattern, validateForm, iconStyle, WelcomePageForm, ValidTextField} from "../Common.jsx";
+import {emailPattern, iconStyle, usernamePattern, validateForm, ValidTextField, WelcomePageForm} from "../Common.jsx";
 import FlatButton from "material-ui/FlatButton";
 import RaisedButton from "material-ui/RaisedButton";
 import AccountCircle from "material-ui/svg-icons/action/account-circle";

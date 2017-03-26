@@ -1,7 +1,7 @@
 @import "AppLayout.less";
 
-@add-button-size: 56px;
-@add-button-margin: 25px;
+@add-button-size: 50px;
+@add-button-margin: 20px;
 
 .add-button {
   position: absolute;
@@ -11,7 +11,7 @@
 
 .remove-button {
   position: absolute;
-  left: @add-button-margin;
+  right: 2 * @add-button-margin + @add-button-size;
   bottom: @add-button-margin;
   button {
     background-color: @rsa-red !important;
@@ -25,9 +25,10 @@
 }
 
 .content-table {
-  min-width: 800px;
+  min-width: 1350px;
   font-family: Roboto, serif;
   td {
     overflow: hidden;
+    padding-right: 0 !important;
   }
 }

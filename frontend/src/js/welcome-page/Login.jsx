@@ -6,12 +6,12 @@ import AccountCircle from "material-ui/svg-icons/action/account-circle";
 import Lock from "material-ui/svg-icons/action/lock";
 import {
     emailPattern,
-    usernamePattern,
-    passwordPattern,
-    validateForm,
     iconStyle,
-    WelcomePageForm,
-    ValidTextField
+    passwordPattern,
+    usernamePattern,
+    validateForm,
+    ValidTextField,
+    WelcomePageForm
 } from "../Common.jsx";
 
 export class Login extends React.Component {
