@@ -1,19 +1,31 @@
 import React from "react";
+import _ from "underscore";
 import DataTables from "material-ui-datatables";
 import ContentAdd from "material-ui/svg-icons/content/add";
 import Dialog from "material-ui/Dialog";
 import FlatButton from "material-ui/FlatButton";
 import ActionDeleteForever from "material-ui/svg-icons/action/delete-forever";
+import ActionDone from "material-ui/svg-icons/action/done";
+import AutoComplete from "material-ui/AutoComplete";
+import DatePicker from "material-ui/DatePicker";
+import TimePicker from "material-ui/TimePicker";
+import DropDownMenu from 'material-ui/DropDownMenu';
+import MenuItem from 'material-ui/MenuItem';
 import FloatingActionButton from "material-ui/FloatingActionButton";
 import {MuiThemeProvider} from "material-ui/styles";
 
 //TODO converting WS calls to convenient state
-//TODO Modals for create / delete
-//TODO Modals on row click
 //TODO modals for API errors
 //TODO sort / pagination / filter function calls
 //TODO progressbar on requests
-//TODO set state to [] and [all] despite of 'all' and 'none'
+
+//TODO dynamic buttons according to status and role
+//TODO propose new time form
+//TODO cancel modal
+//TODO update form
+//TODO Modal for delete
+//TODO modal for group approve
+//TODO create modal validation
 
 const ReservationTypes = {
     REGULAR: 'Regular',
@@ -41,11 +53,28 @@ export class Appointments extends React.Component {
             searchFilter: null,
             sortField: null,
             sortOrder: null,
-            selectedRows: null,
+            selectedRows: [],
             page: 1,
             rowsPerPage: 10,
             rowsNumber: 5,
             timeZone: 'Z',
+
+            actionsModal: {
+                opened: false,
+                actionsTableData: null,
+                actionsPage: null,
+                actionsRowsNumber: null,
+                actionsRowsPerPage: null
+            },
+
+            createModal: {
+                opened: false,
+                resource: '',
+                startsAt: '',
+                endsAt: '',
+                type: ReservationTypes.REGULAR
+            },
+
             users: {
                 1: {
                     id: 1,
@@ -91,11 +120,7 @@ export class Appointments extends React.Component {
                     name: 'Kicker table',
                     location: 'SPb Development Center LLC'
                 }
-            },
-            reservationDialog: {
-                opened: false,
-                reservation: null
-            },
+            }
         };
         this.state = {
             ...this.state,
@@ -239,7 +264,7 @@ export class Appointments extends React.Component {
                     createdOn: this.state.data[4].actions[0].time,
                     updatedOn: [...this.state.data[4].actions].pop().time
                 }
-            ]
+            ],
         };
 
         this.constants = {
@@ -300,7 +325,55 @@ export class Appointments extends React.Component {
                     label: 'Updated on',
                     className: 'datetime-column'
                 }
-            ]
+            ],
+            actionsModal: {
+                title: 'Actions',
+                columns: [
+                    {
+                        key: 'id',
+                        label: 'Action ID',
+                        className: 'id-column'
+                    },
+                    {
+                        key: 'resource',
+                        label: 'Resource',
+                        className: 'resource-column'
+                    },
+                    {
+                        key: 'type',
+                        label: 'Type',
+                        className: 'type-column'
+                    },
+                    {
+                        key: 'status',
+                        label: 'Status',
+                        className: 'status-column'
+                    },
+                    {
+                        key: 'updatedBy',
+                        label: 'User',
+                        className: 'owner-column'
+                    },
+                    {
+                        key: 'startsAt',
+                        label: 'Start',
+                        className: 'datetime-column'
+                    },
+                    {
+                        key: 'endsAt',
+                        label: 'End',
+                        className: 'datetime-column'
+                    },
+                    {
+                        key: 'time',
+                        label: 'Time',
+                        className: 'datetime-column'
+                    }
+                ]
+            },
+            createModal: {
+                title: 'Create an appointment'
+            }
         };
     }
 
@@ -320,6 +393,18 @@ export class Appointments extends React.Component {
         console.log('Row size changed!');
     };
 
+    onModalNextPageClick = (event) => {
+        console.log('Modal next page clicked!');
+    };
+
+    onModalPreviousPageClick = (event) => {
+        console.log('Modal previous page clicked!');
+    };
+
+    onModalRowSizeChange = (value) => {
+        console.log('Modal row size changed!');
+    };
+
     onRowSelection = (selectedRows) => {
         if (selectedRows === 'all' || selectedRows === 'none') {
             this.setState({
@@ -327,14 +412,33 @@ export class Appointments extends React.Component {
                 selectedRows: selectedRows
             });
         } else {
-            this.setState({
-                ...this.state,
-                selectedRows: selectedRows,
-                reservationDialog: {
-                    ...this.state.reservationDialog,
-                    opened: true
-                }
-            });
+            const diff = [...new Set(selectedRows)].filter(x => !new Set(this.state.selectedRows).has(x))[0];
+
+            if (diff === undefined) {
+
+            } else {
+                const id = this.state.tableData[diff].reservation;
+                const actions = _.map(this.state.data[id].actions, (e) => {
+                    return {
+                        ...e,
+                        updatedBy: e.updatedBy.username,
+                        resource: e.resource.name
+                    }
+                });
+
+                this.setState({
+                    ...this.state,
+                    selectedRows: selectedRows,
+                    actionsModal: {
+                        ...this.state.actionsModal,
+                        opened: true,
+                        actionsTableData: actions,
+                        actionsPage: 1,
+                        actionsRowsNumber: this.state.data[id].actions.length,
+                        actionsRowsPerPage: 5
+                    }
+                });
+            }
         }
     };
 
@@ -343,45 +447,86 @@ export class Appointments extends React.Component {
     };
 
     onAddButtonTouchTap = (event) => {
-        console.log('Add reservation pressed!');
+        this.setState({
+            ...this.state, createModal: {
+                ...this.state.createModal,
+                opened: true
+            }
+        });
+    };
+
+    onDoneButtonTouchTap = (event) => {
+        console.log('Accept reservation(s) pressed!');
     };
 
     onRemoveButtonTouchTap = (event) => {
         console.log('Remove reservation(s) pressed!');
     };
 
-    onModalButtonTouchTap = () => {
+    onActionsCloseButtonTouchTap = () => {
         this.setState({
-            ...this.state, reservationDialog: {
-                ...this.state.reservationDialog,
+            ...this.state, actionsModal: {
                 opened: false
             }
         });
     };
 
+    onCreateCloseButtonTouchTap = () => {
+        this.setState({
+            ...this.state, createModal: {
+                ...this.state.createModal,
+                opened: false
+            }
+        });
+    };
+
+    onCreateTypeChange = (e, key, value) => {
+        this.setState({
+            ...this.state, createModal: {
+                ...this.state.createModal,
+                type: value
+            }
+        });
+    };
+
+    datetimePickerInputStyle = {
+        width: '100%'
+    };
+
     //noinspection JSMethodCanBeStatic
     render() {
-        const reservationDialogActions = [
+        const actionsDialogActions = [
             <FlatButton
-                label="Accept"
+                label='Accept'
                 primary={true}
                 disabled={true}/>,
             <FlatButton
-                label="Propose new time"
+                label='Propose new time'
                 primary={true}
                 disabled={true}/>,
             <FlatButton
-                label="Update"
+                label='Cancel'
                 primary={true}
                 disabled={true}/>,
             <FlatButton
-                label="Cancel"
+                label='Update'
                 primary={true}
                 disabled={true}/>,
             <FlatButton
-                label="Close"
+                label='Close'
                 primary={true}
-                onTouchTap={this.onModalButtonTouchTap}/>,
+                onTouchTap={this.onActionsCloseButtonTouchTap}/>,
+        ];
+
+        const createDialogActions = [
+            <FlatButton
+                label='Create'
+                primary={true}
+                disabled={true}/>,
+            <FlatButton
+                label='Close'
+                primary={true}
+                onTouchTap={this.onCreateCloseButtonTouchTap}/>,
         ];
 
         return (
@@ -415,6 +560,11 @@ export class Appointments extends React.Component {
                     </div>
                 </div>
                 <FloatingActionButton
+                    className='done-button'
+                    onTouchTap={this.onDoneButtonTouchTap}>
+                    <ActionDone />
+                </FloatingActionButton>
+                <FloatingActionButton
                     className='remove-button'
                     onTouchTap={this.onRemoveButtonTouchTap}>
                     <ActionDeleteForever />
@@ -425,11 +575,67 @@ export class Appointments extends React.Component {
                     <ContentAdd />
                 </FloatingActionButton>
                 <Dialog
-                    title="Appointment information"
-                    actions={reservationDialogActions}
+                    title={this.constants.actionsModal.title}
+                    actions={actionsDialogActions}
                     modal={true}
-                    open={this.state.reservationDialog.opened}>
-                    There will be a list with all actions made on this reservation
+                    open={this.state.actionsModal.opened}>
+                    <DataTables
+                        height={'auto'}
+                        showRowHover={true}
+                        columns={this.constants.actionsModal.columns}
+                        data={this.state.actionsModal.actionsTableData}
+                        onNextPageClick={this.onModalNextPageClick}
+                        onPreviousPageClick={this.onModalPreviousPageClick}
+                        onRowSizeChange={this.onModalRowSizeChange}
+                        page={this.state.actionsModal.actionsPage}
+                        count={this.state.actionsModal.actionsRowsNumber}
+                        rowSize={this.state.actionsModal.actionsRowsPerPage}
+                        rowSizeList={[5, 10]}
+                    />
+                </Dialog>
+                <Dialog
+                    contentClassName='create-dialog'
+                    title={this.constants.createModal.title}
+                    actions={createDialogActions}
+                    modal={true}
+                    open={this.state.createModal.opened}>
+                    <AutoComplete
+                        hintText='Resource'
+                        fullWidth={true}
+                        filter={AutoComplete.fuzzyFilter}
+                        dataSource={_.map(_.values(this.state.resources), (e) => {
+                            return e.name;
+                        })}
+                        maxSearchResults={5}
+                    />
+                    <DatePicker
+                        hintText='Start date'
+                        fullWidth={true}
+                        textFieldStyle={this.datetimePickerInputStyle}/>
+                    <TimePicker
+                        format='24hr'
+                        fullWidth={true}
+                        hintText='Start time'
+                        textFieldStyle={this.datetimePickerInputStyle}/>
+                    <DatePicker
+                        hintText='End date'
+                        fullWidth={true}
+                        textFieldStyle={this.datetimePickerInputStyle}/>
+                    <TimePicker
+                        format='24hr'
+                        fullWidth={true}
+                        hintText='End time'
+                        textFieldStyle={this.datetimePickerInputStyle}/>
+                    <DropDownMenu
+                        value={this.state.createModal.type}
+                        onChange={this.onCreateTypeChange}>
+                        <MenuItem
+                            value={ReservationTypes.REGULAR}
+                            primaryText={ReservationTypes.REGULAR}/>
+                        <MenuItem
+                            value={ReservationTypes.UNAVAILABLE}
+                            primaryText={ReservationTypes.UNAVAILABLE}/>
+                    </DropDownMenu>
                 </Dialog>
             </div>
         )

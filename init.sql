@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `reserv-io`.`users` (
   `first_name` NVARCHAR(35) NULL,
   `last_name` NVARCHAR(35) NULL,
   `middle_name` NVARCHAR(35) NULL,
-  `login` NVARCHAR(35) NOT NULL,
+  `login` NVARCHAR(25) NOT NULL,
   `password` VARCHAR(128) NOT NULL,
   `role_id` INT NOT NULL,
   PRIMARY KEY (`id`),
@@ -82,7 +82,7 @@ DROP TABLE IF EXISTS `reserv-io`.`resources` ;
 
 CREATE TABLE IF NOT EXISTS `reserv-io`.`resources` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `name` NVARCHAR(45) NOT NULL,
+  `name` NVARCHAR(25) NOT NULL,
   `location` NVARCHAR(45) NULL,
   PRIMARY KEY (`id`),
   INDEX `name` (`name` ASC, `location` ASC))

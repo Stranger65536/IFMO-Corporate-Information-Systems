@@ -122,7 +122,7 @@ export class SignUp extends React.Component {
     };
 
     signUpPasswordAgainValidation = (value) => {
-        return this.refs[this.constants.validation.password.ref].state.value == value;
+        return this.refs[this.constants.validation.password.ref].state.value === value;
     };
 
     //noinspection JSMethodCanBeStatic

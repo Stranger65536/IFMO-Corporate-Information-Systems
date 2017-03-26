@@ -3,6 +3,12 @@
 @add-button-size: 50px;
 @add-button-margin: 20px;
 
+.done-button {
+  position: absolute;
+  right: 3 * @add-button-margin + 2 * @add-button-size;;
+  bottom: @add-button-margin;
+}
+
 .add-button {
   position: absolute;
   right: @add-button-margin;
@@ -31,4 +37,8 @@
     overflow: hidden;
     padding-right: 0 !important;
   }
+}
+
+.create-dialog {
+  max-width: 400px !important;
 }

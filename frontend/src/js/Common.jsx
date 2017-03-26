@@ -11,7 +11,15 @@ export const namePattern = XRegExp('^[\\p{L} .\'\-]{0,35}$');
 
 export const emcMuiTheme = getMuiTheme({
     palette: {
-        primary1Color: '#2c95dd',
+        primary1Color: '#2c95dd'
+    },
+    datePicker: {
+        selectColor: '#2c95dd'
+    },
+    timePicker: {
+        color: '#2c95dd',
+        accentColor: '#2c95dd',
+        headerColor: '#2c95dd',
     },
 });
 
