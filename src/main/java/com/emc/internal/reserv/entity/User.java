@@ -31,7 +31,7 @@ public class User {
     @Column(name = "middle_name", length = 35)
     private final String middleName;
     @Basic
-    @Column(name = "login", nullable = false, unique = true, length = 35)
+    @Column(name = "login", nullable = false, unique = true, length = 25)
     private final String login;
     @Basic
     @Column(name = "password", nullable = false, length = 128)

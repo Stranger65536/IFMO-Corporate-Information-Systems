@@ -14,61 +14,53 @@ import javax.persistence.*;
 @Getter
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
-@Table(name = "resources")
-public class Resource {
+@Table(name = "reservation_types")
+public class ReservationType {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final int id;
     @Basic
-    @Column(name = "name", nullable = false, length = 25)
+    @Column(name = "name", nullable = false, length = 25, unique = true)
     private final String name;
-    @Basic
-    @Column(name = "location", length = 45)
-    private final String location;
 
-    public Resource() {
+    public ReservationType() {
         id = 0;
         name = null;
-        location = null;
     }
 
-    public Resource(final ResourceBuilder builder) {
+    public ReservationType(final ReservationTypeBuilder builder) {
         this.id = builder.id;
         this.name = builder.name;
-        this.location = builder.location;
+    }
+
+    public ReservationTypeBuilder builder() {
+        return new ReservationTypeBuilder(this);
     }
 
     @NoArgsConstructor
     @SuppressWarnings("PublicInnerClass")
-    public static class ResourceBuilder {
+    public static class ReservationTypeBuilder {
         private int id;
         private String name;
-        private String location;
 
-        public ResourceBuilder(final Resource model) {
+        public ReservationTypeBuilder(final ReservationType model) {
             this.id = model.id;
             this.name = model.name;
-            this.location = model.location;
         }
 
-        public ResourceBuilder id(final int id) {
+        public ReservationTypeBuilder id(final int id) {
             this.id = id;
             return this;
         }
 
-        public ResourceBuilder name(final String name) {
+        public ReservationTypeBuilder name(final String name) {
             this.name = name;
             return this;
         }
 
-        public ResourceBuilder location(final String location) {
-            this.location = location;
-            return this;
-        }
-
-        public Resource build() {
-            return new Resource(this);
+        public ReservationType build() {
+            return new ReservationType(this);
         }
     }
 }

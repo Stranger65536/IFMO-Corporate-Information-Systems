@@ -1,6 +1,6 @@
 package com.emc.internal.reserv.repository;
 
-import com.emc.internal.reserv.entity.Role;
+import com.emc.internal.reserv.entity.ActionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +13,7 @@ import java.util.Optional;
  * @date 05.03.2017
  */
 @Repository
-public interface RoleRepository extends JpaRepository<Role, Integer> {
-    @Query("SELECT r FROM Role r where r.name = :name")
-    Optional<Role> findOneByName(@Param("name") final String role);
+public interface ActionStatusRepository extends JpaRepository<ActionStatus, Integer> {
+    @Query("SELECT r FROM ActionStatus r where r.name = :name")
+    Optional<ActionStatus> findOneByName(@Param("name") final String role);
 }

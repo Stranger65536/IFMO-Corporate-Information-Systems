@@ -14,61 +14,53 @@ import javax.persistence.*;
 @Getter
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
-@Table(name = "resources")
-public class Resource {
+@Table(name = "action_statuses")
+public class ActionStatus {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final int id;
     @Basic
-    @Column(name = "name", nullable = false, length = 25)
+    @Column(name = "name", nullable = false, length = 25, unique = true)
     private final String name;
-    @Basic
-    @Column(name = "location", length = 45)
-    private final String location;
 
-    public Resource() {
+    public ActionStatus() {
         id = 0;
         name = null;
-        location = null;
     }
 
-    public Resource(final ResourceBuilder builder) {
+    public ActionStatus(final ActionStatusBuilder builder) {
         this.id = builder.id;
         this.name = builder.name;
-        this.location = builder.location;
+    }
+
+    public ActionStatusBuilder builder() {
+        return new ActionStatusBuilder(this);
     }
 
     @NoArgsConstructor
     @SuppressWarnings("PublicInnerClass")
-    public static class ResourceBuilder {
+    public static class ActionStatusBuilder {
         private int id;
         private String name;
-        private String location;
 
-        public ResourceBuilder(final Resource model) {
+        public ActionStatusBuilder(final ActionStatus model) {
             this.id = model.id;
             this.name = model.name;
-            this.location = model.location;
         }
 
-        public ResourceBuilder id(final int id) {
+        public ActionStatusBuilder id(final int id) {
             this.id = id;
             return this;
         }
 
-        public ResourceBuilder name(final String name) {
+        public ActionStatusBuilder name(final String name) {
             this.name = name;
             return this;
         }
 
-        public ResourceBuilder location(final String location) {
-            this.location = location;
-            return this;
-        }
-
-        public Resource build() {
-            return new Resource(this);
+        public ActionStatus build() {
+            return new ActionStatus(this);
         }
     }
 }
