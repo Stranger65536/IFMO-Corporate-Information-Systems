@@ -43,12 +43,7 @@ public enum Roles {
         public void postConstruct() {
             for (Roles role : EnumSet.allOf(Roles.class)) {
                 final Optional<Role> optionalRow = roleRepository.findOneByName(role.name);
-                if (optionalRow.isPresent()) {
-                    role.role = optionalRow.get();
-                } else {
-                    log.error("Role with name '{}' has not been found!", role.name);
-                    throw new ObjectNotFoundException(role.name, Role.class.getSimpleName());
-                }
+                role.role = optionalRow.orElseThrow(() -> new ObjectNotFoundException(role.name, Role.class.getSimpleName()));
             }
         }
     }

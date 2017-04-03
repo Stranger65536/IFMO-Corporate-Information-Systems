@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * @author trofiv
  * @date 21.02.2017
  */
-@SuppressWarnings("unused")
+//@EnableResourceServer
 @SpringBootApplication
 @EnableTransactionManagement
 @ComponentScan(basePackages = "com.emc.internal.reserv")

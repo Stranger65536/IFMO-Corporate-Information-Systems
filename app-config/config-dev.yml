@@ -1,5 +1,6 @@
 server:
   port: 443
+  context-path: /reserv-io
   redirect-from-port: 80
   ssl:
     key-store: file:${spring.config.location}/keystore.p12

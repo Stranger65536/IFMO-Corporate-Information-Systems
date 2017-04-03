@@ -3,6 +3,7 @@ package com.emc.internal.reserv.entity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 
@@ -15,7 +16,7 @@ import javax.persistence.*;
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @Table(name = "roles")
-public class Role {
+public class Role implements GrantedAuthority {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -36,6 +37,12 @@ public class Role {
 
     public RoleBuilder builder() {
         return new RoleBuilder(this);
+    }
+
+    @Override
+    @SuppressWarnings("SuspiciousGetterSetter")
+    public String getAuthority() {
+        return name;
     }
 
     @NoArgsConstructor

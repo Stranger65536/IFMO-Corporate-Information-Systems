@@ -12,8 +12,8 @@ INTO @admin_role_id
 FROM `roles`
 WHERE `name` = 'admin';
 
-INSERT INTO `reserv-io`.`users` (`login`, `password`, `role_id`)
-VALUES ('admin', SHA2('admin', 512), @admin_role_id);
+INSERT INTO `reserv-io`.`users` (`login`, `email`, `password`, `role_id`)
+VALUES ('admin', '', SHA2('admin', 512), @admin_role_id);
 
 INSERT INTO `reserv-io`.`reservation_types` (`name`)
 VALUES ('Regular');

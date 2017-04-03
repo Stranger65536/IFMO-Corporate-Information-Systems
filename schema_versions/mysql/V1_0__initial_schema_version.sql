@@ -13,11 +13,13 @@ CREATE TABLE `reserv-io`.`users` (
   `last_name`   NVARCHAR(35) NULL,
   `middle_name` NVARCHAR(35) NULL,
   `login`       NVARCHAR(25) NOT NULL,
+  `email`       VARCHAR(254) NOT NULL,
   `password`    VARCHAR(128) NOT NULL,
   `role_id`     INT          NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `ident_idx` (`first_name` ASC, `last_name` ASC, `middle_name` ASC, `login` ASC),
+  INDEX `ident_idx` (`first_name` ASC, `last_name` ASC, `middle_name` ASC, `login` ASC, `email` ASC),
   UNIQUE INDEX `login_UNIQUE` (`login` ASC),
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC),
   INDEX `fk_user_role_idx` (`role_id` ASC),
   CONSTRAINT `fk_user_role`
   FOREIGN KEY (`role_id`)

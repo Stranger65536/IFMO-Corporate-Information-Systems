@@ -1,7 +1,6 @@
 package com.emc.internal.reserv.entity;
 
 import com.emc.internal.reserv.repository.ReservationTypeRepository;
-import com.emc.internal.reserv.repository.RoleRepository;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.ObjectNotFoundException;
@@ -43,12 +42,7 @@ public enum ReservationTypes {
         public void postConstruct() {
             for (ReservationTypes type : EnumSet.allOf(ReservationTypes.class)) {
                 final Optional<ReservationType> optionalRow = reservationTypeRepository.findOneByName(type.name);
-                if (optionalRow.isPresent()) {
-                    type.reservationType = optionalRow.get();
-                } else {
-                    log.error("Reservation type with name '{}' has not been found!", type.name);
-                    throw new ObjectNotFoundException(type.name, ReservationType.class.getSimpleName());
-                }
+                type.reservationType = optionalRow.orElseThrow(() -> new ObjectNotFoundException(type.name, ReservationType.class.getSimpleName()));
             }
         }
     }

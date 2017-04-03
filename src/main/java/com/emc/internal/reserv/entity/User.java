@@ -34,11 +34,13 @@ public class User {
     @Column(name = "login", nullable = false, unique = true, length = 25)
     private final String login;
     @Basic
+    @Column(name = "email", nullable = false, unique = true, length = 25)
+    private final String email;
+    @Basic
     @Column(name = "password", nullable = false, length = 128)
     private final String password;
-    @Basic
-    @Column(name = "role_id", nullable = false)
-    private final int roleId;
+    @ManyToOne
+    private final Role role;
 
     public User() {
         id = 0;
@@ -46,8 +48,9 @@ public class User {
         lastName = null;
         middleName = null;
         login = null;
+        email = null;
         password = null;
-        roleId = 0;
+        role = null;
     }
 
     public User(final UserBuilder builder) {
@@ -56,8 +59,9 @@ public class User {
         this.lastName = builder.lastName;
         this.middleName = builder.middleName;
         this.login = builder.login;
+        this.email = builder.email;
         this.password = builder.password;
-        this.roleId = builder.roleId;
+        role = null;
     }
 
     public UserBuilder builder() {
@@ -72,8 +76,8 @@ public class User {
         private String lastName;
         private String middleName;
         private String login;
+        private String email;
         private String password;
-        private int roleId;
 
         public UserBuilder(final User model) {
             this.id = model.id;
@@ -81,8 +85,8 @@ public class User {
             this.lastName = model.lastName;
             this.middleName = model.middleName;
             this.login = model.login;
+            this.email = model.email;
             this.password = model.password;
-            this.roleId = model.roleId;
         }
 
         public UserBuilder id(final int id) {
@@ -110,13 +114,13 @@ public class User {
             return this;
         }
 
-        public UserBuilder password(final String password) {
-            this.password = password;
+        public UserBuilder email(final String email) {
+            this.email = email;
             return this;
         }
 
-        public UserBuilder roleId(final int roleId) {
-            this.roleId = roleId;
+        public UserBuilder password(final String password) {
+            this.password = password;
             return this;
         }
 
