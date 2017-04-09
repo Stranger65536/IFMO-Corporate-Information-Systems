@@ -11,15 +11,13 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.ws.config.annotation.EnableWs;
 import org.springframework.ws.config.annotation.WsConfigurerAdapter;
 import org.springframework.ws.transport.http.MessageDispatcherServlet;
 import org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition;
 import org.springframework.xml.xsd.SimpleXsdSchema;
 import org.springframework.xml.xsd.XsdSchema;
-
-import java.nio.file.Paths;
 
 /**
  * @author trofiv
@@ -32,8 +30,6 @@ public class WebServiceConfig extends WsConfigurerAdapter {
     private int httpPort;
     @Value("${server.port}")
     private int httpsPort;
-    @Value("${spring.config.location}")
-    private String configDir;
 
     @Bean
     public ServletRegistrationBean messageDispatcherServlet(final ApplicationContext applicationContext) {
@@ -55,12 +51,12 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 
     @Bean
     public XsdSchema countriesSchema() {
-        return new SimpleXsdSchema(new FileSystemResource(Paths.get(configDir,"reserv-io.xsd").toFile()));
+        return new SimpleXsdSchema(new ClassPathResource("reserv-io.xsd"));
     }
 
     @Bean
     public EmbeddedServletContainerFactory servletContainer() {
-        final TomcatEmbeddedServletContainerFactory tomcat = new MyTomcatEmbeddedServletContainerFactory();
+        final TomcatEmbeddedServletContainerFactory tomcat = new CustomTomcatEmbeddedServletContainerFactory();
         tomcat.addAdditionalTomcatConnectors(initiateHttpConnector());
         return tomcat;
     }
@@ -74,7 +70,7 @@ public class WebServiceConfig extends WsConfigurerAdapter {
         return connector;
     }
 
-    private static class MyTomcatEmbeddedServletContainerFactory extends TomcatEmbeddedServletContainerFactory {
+    private static class CustomTomcatEmbeddedServletContainerFactory extends TomcatEmbeddedServletContainerFactory {
         @Override
         protected void postProcessContext(final Context context) {
             final SecurityConstraint securityConstraint = new SecurityConstraint();

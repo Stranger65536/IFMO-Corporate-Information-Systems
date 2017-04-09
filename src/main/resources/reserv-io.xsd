@@ -1,0 +1,16 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://internal.emc.com/reserv-io/ws"
+           elementFormDefault="qualified">
+    <xs:element name="RegistrationRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="login" type="xs:string" nillable="false"/>
+                <xs:element name="email" type="xs:string" nillable="false"/>
+                <xs:element name="password" type="xs:string" nillable="false"/>
+                <xs:element name="first_name" type="xs:string" nillable="true"/>
+                <xs:element name="last_name" type="xs:string" nillable="true"/>
+                <xs:element name="middle_name" type="xs:string" nillable="true"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

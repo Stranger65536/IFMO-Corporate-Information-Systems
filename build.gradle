@@ -27,29 +27,27 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    maven { url "https://repo.spring.io/snapshot" }
-    maven { url "https://repo.spring.io/milestone" }
+    maven { url 'https://repo.spring.io/snapshot' }
+    maven { url 'https://repo.spring.io/milestone' }
 }
-
-final configDir = System.getProperty('spring.config.location')
 
 task genJaxb {
     ext.sourcesDir = "${buildDir}/generated-sources/jaxb"
     ext.classesDir = "${buildDir}/classes/jaxb"
-    ext.schema = configDir + '/reserv-io.xsd'
+    ext.schema = "${project.projectDir}/src/main/resources/reserv-io.xsd"
 
     outputs.dir classesDir
 
     doLast() {
         project.ant {
-            taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask",
+            taskdef name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask',
                     classpath: configurations.jaxb.asPath
             mkdir(dir: sourcesDir)
             mkdir(dir: classesDir)
 
             xjc(destdir: sourcesDir, schema: schema) {
-                arg(value: "-wsdl")
-                produces(dir: sourcesDir, includes: "**/*.java")
+                arg(value: '-wsdl')
+                produces(dir: sourcesDir, includes: '**/*.java')
             }
 
             javac(destdir: classesDir,
@@ -58,14 +56,14 @@ task genJaxb {
                     debug: true,
                     classpath: configurations.jaxb.asPath) {
                 src(path: sourcesDir)
-                include(name: "**/*.java")
-                include(name: "*.java")
+                include(name: '**/*.java')
+                include(name: '*.java')
             }
 
             //noinspection GroovyAssignabilityCheck
             copy(todir: classesDir) {
                 fileset(dir: sourcesDir, erroronmissingdir: false) {
-                    exclude(name: "**/*.java")
+                    exclude(name: '**/*.java')
                 }
             }
         }
@@ -80,7 +78,7 @@ war {
 }
 
 configurations {
-    compile.exclude module: 'spring-boot-starter-logging'
+    all*.exclude module: 'spring-boot-starter-logging'
     providedRuntime
     jaxb
 }
@@ -103,25 +101,24 @@ final hibernateVersion = '5.2.8.Final'
 final hibernateValidatorVersion = '5.4.0.Final'
 final jacksonVersion = '2.8.6'
 final wsdl4jVersion = '1.6.3'
+final activityVersion = '5.22.0'
+final slf4jVersion = '1.7.25'
 final jaxbVersion = '2.2.11'
 final apacheCommonsLangVersion = '3.5'
 final jade4jVersion = '1.1.4'
-final frontendDir = 'frontend'
-final nodejsDir = "${project.projectDir}/" + frontendDir + '/nodejs'
-final nodejsModulesDir = "${project.projectDir}/" + frontendDir
-final gulpWorkDir = "${project.projectDir}/" + frontendDir
+final frontendDir = "${project.projectDir}/frontend"
 
 node {
     version = '7.7.2'
     npmVersion = '4.4.1'
     distBaseUrl = 'https://nodejs.org/dist'
     download = true
-    workDir = file(nodejsDir)
-    nodeModulesDir = file(nodejsModulesDir)
+    workDir = file(frontendDir + '/nodejs')
+    nodeModulesDir = file(frontendDir)
 }
 
 gulp {
-    workDir = file(gulpWorkDir)
+    workDir = file(frontendDir)
     colors = true
     bufferOutput = true
 }
@@ -144,6 +141,9 @@ dependencies {
 
             [group: 'org.springframework.session', name: 'spring-session', version: springSessionVersion],
             [group: 'org.springframework.session', name: 'spring-session-jdbc', version: springSessionVersion],
+
+            [group: 'org.activiti', name: 'activiti-spring-boot-starter-jpa', version: activityVersion],
+            [group: 'org.activiti', name: 'activiti-spring-boot-starter-basic', version: activityVersion],
 
             [group: 'wsdl4j', name: 'wsdl4j', version: wsdl4jVersion],
             [group: 'de.neuland-bfi', name: 'spring-jade4j', version: jade4jVersion],
@@ -180,8 +180,8 @@ task prepareEnvironment {
 
 task cleanFrontend {
     doLast {
-        delete "${rootDir}/frontend/build/bundle"
-        delete "${rootDir}/static"
+        delete frontendDir + '/build/bundle'
+        delete frontendDir + '/static'
     }
 }
 
@@ -190,7 +190,7 @@ task gulpBuild(type: GulpTask) {
 }
 
 task copyBundles(type: Copy) {
-    from 'frontend/build/'
+    from frontendDir + 'build'
     into 'static'
 }
 
@@ -215,5 +215,5 @@ flyway {
     baselineDescription = 'Flyway init'
     schemas = ['reserv-io']
     baselineOnMigrate = true
-    locations = ["filesystem:${rootDir}/schema_versions/mysql"]
+    locations = ["filesystem:${project.projectDir}/schema_versions/mysql"]
 }

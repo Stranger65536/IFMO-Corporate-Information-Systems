@@ -27,6 +27,10 @@ Configutation:
         max: 30
 
   Loggers:
+      Logger:
+        name: org.apache.ibatis
+        level: off
+        additivity: false
       Root:
         level: debug
         AppenderRef:

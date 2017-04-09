@@ -1,5 +1,6 @@
 package com.emc.internal.reserv.config;
 
+import org.apache.ibatis.logging.LogFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaRepositories(basePackages = "com.emc.internal.reserv.repository")
 public class Application extends SpringBootServletInitializer {
     public static void main(final String[] args) {
+        LogFactory.useLog4J2Logging();
         SpringApplication.run(Application.class, args);
     }
 

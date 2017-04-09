@@ -51,9 +51,8 @@ CREATE TABLE `reserv-io`.`login_attempts` (
 CREATE TABLE `reserv-io`.`reservations` (
   `id`      BIGINT     NOT NULL AUTO_INCREMENT,
   `user_id` INT        NOT NULL,
-  `deleted` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
-  INDEX `main_search_idx` (`id` ASC, `user_id` ASC, `deleted` ASC),
+  INDEX `main_search_idx` (`id` ASC, `user_id` ASC),
   INDEX `fk_reservation_user_idx` (`user_id` ASC),
   CONSTRAINT `fk_reservation_user`
   FOREIGN KEY (`user_id`)

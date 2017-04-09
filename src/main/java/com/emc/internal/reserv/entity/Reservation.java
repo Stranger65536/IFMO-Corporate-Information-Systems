@@ -24,20 +24,15 @@ public class Reservation {
     @Column(name = "user_id", nullable = false)
     @SuppressWarnings("DuplicateStringLiteralInspection")
     private final int userId;
-    @Basic
-    @Column(name = "deleted", nullable = false, columnDefinition = "BIT", length = 1)
-    private final boolean deleted;
 
     public Reservation() {
         id = 0;
         userId = 0;
-        deleted = false;
     }
 
     public Reservation(final ReservationBuilder builder) {
         this.id = builder.id;
         this.userId = builder.usersId;
-        this.deleted = builder.deleted;
     }
 
     public ReservationBuilder builder() {
@@ -54,7 +49,6 @@ public class Reservation {
         public ReservationBuilder(final Reservation model) {
             this.id = model.id;
             this.usersId = model.userId;
-            this.deleted = model.deleted;
         }
 
         public ReservationBuilder id(final int id) {
@@ -64,11 +58,6 @@ public class Reservation {
 
         public ReservationBuilder usersId(final int usersId) {
             this.usersId = usersId;
-            return this;
-        }
-
-        public ReservationBuilder deleted(final boolean deleted) {
-            this.deleted = deleted;
             return this;
         }
 
