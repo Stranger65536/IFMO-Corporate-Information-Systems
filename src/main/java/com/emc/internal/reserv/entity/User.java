@@ -1,10 +1,13 @@
 package com.emc.internal.reserv.entity;
 
+import https.internal_emc_com.reserv_io.ws.GetUserResponse;
+import https.internal_emc_com.reserv_io.ws.UserInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 
 /**
  * @author trofiv
@@ -66,6 +69,20 @@ public class User {
 
     public UserBuilder builder() {
         return new UserBuilder(this);
+    }
+
+    public UserInfo toUserInfo() {
+        final UserInfo info = new UserInfo();
+        info.setId(this.id);
+        info.setUsername(this.login);
+        info.setEmail(this.email);
+        info.setFirstName(this.firstName);
+        info.setLastName(this.lastName);
+        info.setMiddleName(this.middleName);
+        info.setRole(this.role == null
+                ? null
+                : https.internal_emc_com.reserv_io.ws.Role.fromValue(this.role.getName()));
+        return info;
     }
 
     @NoArgsConstructor

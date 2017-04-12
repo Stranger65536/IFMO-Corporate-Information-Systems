@@ -3,6 +3,8 @@ package com.emc.internal.reserv.entity;
 import com.emc.internal.reserv.repository.RoleRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.activiti.engine.IdentityService;
+import org.activiti.engine.identity.Group;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,10 +35,12 @@ public enum Roles {
     @SuppressWarnings("PublicInnerClass")
     public static class RoleRepositoryInjector {
         private final RoleRepository roleRepository;
+        private final IdentityService identityService;
 
         @Autowired
-        public RoleRepositoryInjector(final RoleRepository roleRepository) {
+        public RoleRepositoryInjector(final RoleRepository roleRepository, final IdentityService identityService) {
             this.roleRepository = roleRepository;
+            this.identityService = identityService;
         }
 
         @PostConstruct

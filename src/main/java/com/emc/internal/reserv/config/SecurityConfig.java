@@ -15,6 +15,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     @SuppressWarnings("ProhibitedExceptionDeclared")
     public void configure(final WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/*.html", "/js/**", "/css/**", "/error");
+        web.ignoring().anyRequest();//antMatchers("/*.html", "/js/**", "/css/**", "/error");
     }
 }

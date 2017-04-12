@@ -40,13 +40,16 @@ task genJaxb {
 
     doLast() {
         project.ant {
-            taskdef name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask',
+            taskdef name: 'xjc', classname: 'org.jvnet.jaxb2_commons.xjc.XJC2Task',
                     classpath: configurations.jaxb.asPath
             mkdir(dir: sourcesDir)
             mkdir(dir: classesDir)
 
             xjc(destdir: sourcesDir, schema: schema) {
                 arg(value: '-wsdl')
+                arg(value: '-XtoString')
+                arg(value: '-Xequals')
+                arg(value: '-XhashCode')
                 produces(dir: sourcesDir, includes: '**/*.java')
             }
 
@@ -102,8 +105,9 @@ final hibernateValidatorVersion = '5.4.0.Final'
 final jacksonVersion = '2.8.6'
 final wsdl4jVersion = '1.6.3'
 final activityVersion = '5.22.0'
-final slf4jVersion = '1.7.25'
 final jaxbVersion = '2.2.11'
+final jaxb2CommonsLangVersion = '2.3'
+final jaxb2BasicsVersion = '0.11.1'
 final apacheCommonsLangVersion = '3.5'
 final jade4jVersion = '1.1.4'
 final frontendDir = "${project.projectDir}/frontend"
@@ -147,6 +151,7 @@ dependencies {
 
             [group: 'wsdl4j', name: 'wsdl4j', version: wsdl4jVersion],
             [group: 'de.neuland-bfi', name: 'spring-jade4j', version: jade4jVersion],
+            [group: 'org.jvnet.jaxb2_commons', name: 'jaxb2-basics', version: jaxb2BasicsVersion],
             [group: 'org.apache.commons', name: 'commons-lang3', version: apacheCommonsLangVersion],
             [group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonVersion],
             files(genJaxb.classesDir).builtBy(genJaxb)
@@ -165,7 +170,10 @@ dependencies {
             [group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion],
     )
     jaxb(
-            [group: 'org.glassfish.jaxb', name: 'jaxb-xjc', version: jaxbVersion]
+            [group: 'org.glassfish.jaxb', name: 'jaxb-xjc', version: jaxbVersion],
+            [group: 'org.jvnet.jaxb2_commons', name: 'jaxb2-basics', version: jaxb2BasicsVersion],
+            [group: 'org.jvnet.jaxb2_commons', name: 'jaxb2-basics-ant', version: jaxb2BasicsVersion],
+            [group: 'org.jvnet.jaxb2_commons', name: 'jaxb2-commons-lang', version: jaxb2CommonsLangVersion],
     )
 }
 

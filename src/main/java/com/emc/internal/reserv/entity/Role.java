@@ -25,19 +25,15 @@ public class Role implements GrantedAuthority {
     @Basic
     @Column(name = "name", nullable = false, length = 45)
     private final String name;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "id")
-    private final Collection<User> users;
 
     public Role() {
         id = 0;
         name = null;
-        users = null;
     }
 
     public Role(final RoleBuilder builder) {
         this.id = builder.id;
         this.name = builder.name;
-        users = null;
     }
 
     public RoleBuilder builder() {

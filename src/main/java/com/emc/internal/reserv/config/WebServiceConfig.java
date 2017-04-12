@@ -39,13 +39,13 @@ public class WebServiceConfig extends WsConfigurerAdapter {
         return new ServletRegistrationBean(servlet, "/ws/*");
     }
 
-    @Bean
-    public DefaultWsdl11Definition defaultWsdl11Definition(final XsdSchema countriesSchema) {
+    @Bean(name = "reserv-io")
+    public DefaultWsdl11Definition defaultWsdl11Definition(final XsdSchema schema) {
         final DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
         wsdl11Definition.setPortTypeName("ReservIOPort");
         wsdl11Definition.setLocationUri("/ws");
-        wsdl11Definition.setTargetNamespace("http://internal.emc.com/reserv-io");
-        wsdl11Definition.setSchema(countriesSchema);
+        wsdl11Definition.setTargetNamespace("https://internal.emc.com/reserv-io");
+        wsdl11Definition.setSchema(schema);
         return wsdl11Definition;
     }
 
