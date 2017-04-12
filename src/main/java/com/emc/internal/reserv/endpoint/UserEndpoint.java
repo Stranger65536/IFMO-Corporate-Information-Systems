@@ -36,17 +36,14 @@ public class UserEndpoint {
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "RegistrationRequest")
     @ResponsePayload
     public void registerUser(@RequestPayload final RegistrationRequest request) {
-        try {
-            userService.registerUser(
-                    request.getUsername(),
-                    request.getEmail(),
-                    request.getPassword(),
-                    request.getFirstName(),
-                    request.getLastName(),
-                    request.getMiddleName());
-        } catch (Exception e) {
-            log.error("Can't register user with request {}!", request, e);
-        }
+        //TODO validate input
+        userService.registerUser(
+                request.getUsername(),
+                request.getEmail(),
+                request.getPassword(),
+                request.getFirstName(),
+                request.getLastName(),
+                request.getMiddleName());
     }
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "GetUserRequest")
@@ -73,6 +70,7 @@ public class UserEndpoint {
                 request.getSortingOrder(),
                 request.getSortingField());
         final GetUsersResponse response = new GetUsersResponse();
+        //TODO validate input
         response.getUserInfo().addAll(matchedUsers.stream().map(User::toUserInfo).collect(toList()));
         return response;
     }

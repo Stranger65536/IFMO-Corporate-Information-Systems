@@ -1,13 +1,11 @@
 package com.emc.internal.reserv.entity;
 
-import https.internal_emc_com.reserv_io.ws.GetUserResponse;
 import https.internal_emc_com.reserv_io.ws.UserInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.math.BigInteger;
 
 /**
  * @author trofiv
@@ -18,7 +16,7 @@ import java.math.BigInteger;
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @SuppressWarnings("DuplicateStringLiteralInspection")
-@Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = "login"))
+@Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = "username"))
 public class User {
     @Id
     @Column(name = "id", nullable = false)
@@ -34,15 +32,16 @@ public class User {
     @Column(name = "middle_name", length = 35)
     private final String middleName;
     @Basic
-    @Column(name = "login", nullable = false, unique = true, length = 25)
-    private final String login;
+    @Column(name = "username", nullable = false, unique = true, length = 25)
+    private final String username;
     @Basic
-    @Column(name = "email", nullable = false, unique = true, length = 25)
+    @Column(name = "email", nullable = false, unique = true, length = 254)
     private final String email;
     @Basic
     @Column(name = "password", nullable = false, length = 128)
     private final String password;
     @ManyToOne
+    @JoinColumn(name = "role_id")
     private final Role role;
 
     public User() {
@@ -50,7 +49,7 @@ public class User {
         firstName = null;
         lastName = null;
         middleName = null;
-        login = null;
+        username = null;
         email = null;
         password = null;
         role = null;
@@ -61,10 +60,10 @@ public class User {
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
         this.middleName = builder.middleName;
-        this.login = builder.login;
+        this.username = builder.username;
         this.email = builder.email;
         this.password = builder.password;
-        role = null;
+        this.role = builder.role;
     }
 
     public UserBuilder builder() {
@@ -74,7 +73,7 @@ public class User {
     public UserInfo toUserInfo() {
         final UserInfo info = new UserInfo();
         info.setId(this.id);
-        info.setUsername(this.login);
+        info.setUsername(this.username);
         info.setEmail(this.email);
         info.setFirstName(this.firstName);
         info.setLastName(this.lastName);
@@ -92,18 +91,20 @@ public class User {
         private String firstName;
         private String lastName;
         private String middleName;
-        private String login;
+        private String username;
         private String email;
         private String password;
+        private Role role;
 
         public UserBuilder(final User model) {
             this.id = model.id;
             this.firstName = model.firstName;
             this.lastName = model.lastName;
             this.middleName = model.middleName;
-            this.login = model.login;
+            this.username = model.username;
             this.email = model.email;
             this.password = model.password;
+            this.role = role;
         }
 
         public UserBuilder id(final int id) {
@@ -126,8 +127,8 @@ public class User {
             return this;
         }
 
-        public UserBuilder login(final String login) {
-            this.login = login;
+        public UserBuilder username(final String login) {
+            this.username = login;
             return this;
         }
 
@@ -138,6 +139,11 @@ public class User {
 
         public UserBuilder password(final String password) {
             this.password = password;
+            return this;
+        }
+
+        public UserBuilder role(final Role role) {
+            this.role = role;
             return this;
         }
 

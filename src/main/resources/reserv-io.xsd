@@ -27,6 +27,14 @@
             <xs:pattern value="[\\p{L} .'\-]{0,35}"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="FaultCode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="UNKNOWN_ERROR"/>
+            <xs:enumeration value="INVALID_FIELD_VALUE"/>
+            <xs:enumeration value="USER_ALREADY_REGISTERED"/>
+            <xs:enumeration value="USER_DOES_NOT_EXIST"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:simpleType name="Role">
         <xs:restriction base="xs:string">
             <xs:enumeration value="user"/>
@@ -51,9 +59,9 @@
             <xs:enumeration value="id"/>
             <xs:enumeration value="username"/>
             <xs:enumeration value="email"/>
-            <xs:enumeration value="first_name"/>
-            <xs:enumeration value="last_name"/>
-            <xs:enumeration value="middle_name"/>
+            <xs:enumeration value="firstName"/>
+            <xs:enumeration value="lastName"/>
+            <xs:enumeration value="middleName"/>
             <xs:enumeration value="role"/>
         </xs:restriction>
     </xs:simpleType>
@@ -63,15 +71,23 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:element name="ServiceFault">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="code" type="tns:FaultCode"/>
+                <xs:element name="description" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
     <xs:element name="RegistrationRequest">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="username" type="tns:Username"/>
                 <xs:element name="email" type="tns:Email"/>
                 <xs:element name="password" type="tns:Password"/>
-                <xs:element name="first_name" type="tns:Name" minOccurs="0"/>
-                <xs:element name="last_name" type="tns:Name" minOccurs="0"/>
-                <xs:element name="middle_name" type="tns:Name" minOccurs="0"/>
+                <xs:element name="firstName" type="tns:Name" minOccurs="0"/>
+                <xs:element name="lastName" type="tns:Name" minOccurs="0"/>
+                <xs:element name="middleName" type="tns:Name" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -81,9 +97,9 @@
                 <xs:element name="id" type="xs:int"/>
                 <xs:element name="username" type="tns:Username"/>
                 <xs:element name="email" type="tns:Email"/>
-                <xs:element name="first_name" type="tns:Name" minOccurs="0"/>
-                <xs:element name="last_name" type="tns:Name" minOccurs="0"/>
-                <xs:element name="middle_name" type="tns:Name" minOccurs="0"/>
+                <xs:element name="firstName" type="tns:Name" minOccurs="0"/>
+                <xs:element name="lastName" type="tns:Name" minOccurs="0"/>
+                <xs:element name="middleName" type="tns:Name" minOccurs="0"/>
                 <xs:element name="role" type="tns:Role"/>
             </xs:sequence>
         </xs:complexType>

@@ -31,6 +31,14 @@ Configutation:
         name: org.apache.ibatis
         level: off
         additivity: false
+      Logger:
+        name: org.springframework.orm
+        level: off
+        additivity: false
+      Logger:
+        name: org.hibernate
+        level: off
+        additivity: false
       Root:
         level: debug
         AppenderRef:

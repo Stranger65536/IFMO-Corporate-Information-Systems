@@ -57,6 +57,7 @@ task genJaxb {
                     source: sourceCompatibility,
                     target: sourceCompatibility,
                     debug: true,
+                    includeantruntime: false,
                     classpath: configurations.jaxb.asPath) {
                 src(path: sourcesDir)
                 include(name: '**/*.java')

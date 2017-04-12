@@ -12,13 +12,13 @@ CREATE TABLE `reserv-io`.`users` (
   `first_name`  NVARCHAR(35) NULL,
   `last_name`   NVARCHAR(35) NULL,
   `middle_name` NVARCHAR(35) NULL,
-  `login`       NVARCHAR(25) NOT NULL,
+  `username`    NVARCHAR(25) NOT NULL,
   `email`       VARCHAR(254) NOT NULL,
   `password`    VARCHAR(128) NOT NULL,
   `role_id`     INT          NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `ident_idx` (`first_name` ASC, `last_name` ASC, `middle_name` ASC, `login` ASC, `email` ASC),
-  UNIQUE INDEX `login_UNIQUE` (`login` ASC),
+  INDEX `ident_idx` (`first_name` ASC, `last_name` ASC, `middle_name` ASC, `username` ASC, `email` ASC),
+  UNIQUE INDEX username_UNIQUE (`username` ASC),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC),
   INDEX `fk_user_role_idx` (`role_id` ASC),
   CONSTRAINT `fk_user_role`
@@ -49,8 +49,8 @@ CREATE TABLE `reserv-io`.`login_attempts` (
 
 
 CREATE TABLE `reserv-io`.`reservations` (
-  `id`      BIGINT     NOT NULL AUTO_INCREMENT,
-  `user_id` INT        NOT NULL,
+  `id`      BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` INT    NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `main_search_idx` (`id` ASC, `user_id` ASC),
   INDEX `fk_reservation_user_idx` (`user_id` ASC),
