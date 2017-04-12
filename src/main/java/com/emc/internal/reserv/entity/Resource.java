@@ -1,5 +1,6 @@
 package com.emc.internal.reserv.entity;
 
+import https.internal_emc_com.reserv_io.ws.ResourceInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +38,22 @@ public class Resource {
         this.id = builder.id;
         this.name = builder.name;
         this.location = builder.location;
+    }
+
+    public static Resource fromResourceInfo(final ResourceInfo info) {
+        return new ResourceBuilder()
+                .id(info.getId())
+                .name(info.getName())
+                .location(info.getLocation())
+                .build();
+    }
+
+    public ResourceInfo toResourceInfo() {
+        final ResourceInfo info = new ResourceInfo();
+        info.setId(this.id);
+        info.setName(this.name);
+        info.setLocation(this.location);
+        return info;
     }
 
     @NoArgsConstructor

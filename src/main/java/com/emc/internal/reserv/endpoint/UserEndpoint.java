@@ -1,11 +1,12 @@
 package com.emc.internal.reserv.endpoint;
 
+import com.emc.internal.reserv.entity.Resource;
 import com.emc.internal.reserv.entity.User;
+import com.emc.internal.reserv.service.ResourceService;
 import com.emc.internal.reserv.service.UserService;
 import https.internal_emc_com.reserv_io.ws.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ws.client.WebServiceFaultException;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
@@ -14,6 +15,11 @@ import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.emc.internal.reserv.endpoint.EndpointConstants.NAMESPACE_URI;
+import static com.emc.internal.reserv.entity.Resource.fromResourceInfo;
+import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
+import static https.internal_emc_com.reserv_io.ws.FaultCode.RESOURCE_DOES_NOT_EXIST;
+import static https.internal_emc_com.reserv_io.ws.FaultCode.USER_DOES_NOT_EXIST;
 import static java.text.MessageFormat.format;
 import static java.util.stream.Collectors.toList;
 
@@ -24,8 +30,6 @@ import static java.util.stream.Collectors.toList;
 @Log4j2
 @Endpoint
 public class UserEndpoint {
-    private static final String NAMESPACE_URI = "https://internal.emc.com/reserv-io/ws";
-
     private final UserService userService;
 
     @Autowired
@@ -55,7 +59,8 @@ public class UserEndpoint {
             response.setUserInfo(optionalUser.get().toUserInfo());
             return response;
         } else {
-            throw new WebServiceFaultException(format("No user with id {0} was found!", request.getId()));
+            throw raiseServiceFaultException(USER_DOES_NOT_EXIST,
+                    format("No user with id {0} was found!", request.getId()));
         }
     }
 

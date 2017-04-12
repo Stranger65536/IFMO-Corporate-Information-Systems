@@ -87,11 +87,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                         "middleName: {}",
                 enterMethodMessage(),
                 username, email, password, firstName, lastName, middleName);
-        if (userRepository.findOneByEmail(email) != null) {
-            throw raiseServiceFaultException(USER_ALREADY_REGISTERED, format("User with email {0} already registered", email));
+        if (userRepository.findOneByEmail(email).isPresent()) {
+            throw raiseServiceFaultException(USER_ALREADY_REGISTERED,
+                    format("User with email {0} is already registered", email));
         }
-        if (userRepository.findOneByUsername(username) != null) {
-            throw raiseServiceFaultException(USER_ALREADY_REGISTERED, format("User with username {0} already registered", username));
+        if (userRepository.findOneByUsername(username).isPresent()) {
+            throw raiseServiceFaultException(USER_ALREADY_REGISTERED,
+                    format("User with username {0} is already registered", username));
         }
 
         final User user = new UserBuilder()
