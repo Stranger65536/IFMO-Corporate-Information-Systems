@@ -3,7 +3,8 @@ package com.emc.internal.reserv.service;
 import com.emc.internal.reserv.entity.User;
 import com.emc.internal.reserv.entity.User.UserBuilder;
 import com.emc.internal.reserv.repository.UserRepository;
-import com.emc.internal.reserv.util.HibernateUtil;
+import com.emc.internal.reserv.util.QueryBuilder;
+import https.internal_emc_com.reserv_io.ws.SearchType;
 import https.internal_emc_com.reserv_io.ws.SortingOrder;
 import https.internal_emc_com.reserv_io.ws.UserField;
 import lombok.extern.log4j.Log4j2;
@@ -14,11 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -42,14 +39,14 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
-    private final EntityManager entityManager;
+    private final QueryBuilder<User, UserField> queryBuilder;
 
     @Autowired
     public UserServiceImpl(
             final UserRepository userRepository,
-            final EntityManager entityManager) {
+            final QueryBuilder<User, UserField> queryBuilder) {
         this.userRepository = userRepository;
-        this.entityManager = entityManager;
+        this.queryBuilder = queryBuilder;
     }
 
     /**
@@ -125,44 +122,35 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Collection<User> getUsers(
             final int page,
             final int pageSize,
-            final UserField filteringField,
-            final String filteringValue,
+            final UserField searchField,
+            final SearchType searchType,
+            final String searchValue,
+            final String searchValueLowerBound,
+            final String searchValueUpperBound,
             final SortingOrder sortingOrder,
             final UserField sortingField) {
         log.info("{} " +
                         "page: {}, " +
                         "pageSize: {}, " +
-                        "filteringField: {}, " +
-                        "filteringValue: {}, " +
+                        "searchField: {}, " +
+                        "searchType: {}, " +
+                        "searchValue: {}, " +
+                        "searchValueLowerBound: {}, " +
+                        "searchValueUpperBound: {}, " +
                         "sortingOrder: {}, " +
                         "sortingField: {}",
                 enterMethodMessage(),
-                page, pageSize, filteringField, filteringValue, sortingOrder, sortingField);
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<User> query = builder.createQuery(User.class);
-        final Root<User> root = query.from(User.class);
-        CriteriaQuery<User> select = query.select(root);
+                page, pageSize, searchField, searchType, searchValue,
+                searchValueLowerBound, searchValueUpperBound, sortingOrder, sortingField);
 
-        if (sortingField != null) {
-            select = select.orderBy(HibernateUtil.getOrderExpression(builder, sortingOrder,
-                    sortingField == UserField.ROLE
-                            ? root.join(UserField.ROLE.value()).get("name")
-                            : root.get(sortingField.value())));
-        }
+        final TypedQuery<User> query = queryBuilder.buildQuery(
+                searchField, searchType, searchValue, searchValueLowerBound,
+                searchValueUpperBound, sortingOrder, sortingField);
 
-        if (filteringField != null) {
-            select = select.where(builder.like(
-                    filteringField == UserField.ROLE
-                            ? root.join(UserField.ROLE.value()).get("name").as(String.class)
-                            : root.get(filteringField.value()).as(String.class),
-                    format("%{0}%", filteringValue), '%'));
-        }
+        query.setFirstResult((page - 1) * pageSize);
+        query.setMaxResults(pageSize);
 
-        final TypedQuery<User> typedQuery = entityManager.createQuery(select);
-        typedQuery.setFirstResult((page - 1) * pageSize);
-        typedQuery.setMaxResults(pageSize);
-
-        final List<User> result = typedQuery.getResultList();
+        final List<User> result = query.getResultList();
 
         log.info(exitMethodMessage());
         return result;

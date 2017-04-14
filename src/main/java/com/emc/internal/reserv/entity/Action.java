@@ -3,6 +3,8 @@ package com.emc.internal.reserv.entity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -30,33 +32,37 @@ public class Action {
     @Basic
     @Column(name = "reservation_end", nullable = false)
     private final Timestamp reservationEnd;
-    @Basic
-    @Column(name = "user_id", nullable = false)
-    @SuppressWarnings("DuplicateStringLiteralInspection")
-    private final int userId;
-    @Basic
-    @Column(name = "resource_id", nullable = false)
-    private final int resourceId;
-    @Basic
-    @Column(name = "type_id", nullable = false)
-    private final int typeId;
-    @Basic
-    @Column(name = "status_id", nullable = false)
-    private final int statusId;
-    @Basic
-    @Column(name = "reservation_id", nullable = false)
-    private final long reservationId;
+    @ManyToOne
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "user_id")
+    private final User user;
+    @ManyToOne
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "resource_id")
+    private final Resource resource;
+    @ManyToOne
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "type_id")
+    private final ReservationType type;
+    @ManyToOne
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "status_id")
+    private final ActionStatus status;
+    @ManyToOne
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "reservation_id")
+    private final Reservation reservation;
 
     public Action() {
         id = 0;
         time = null;
         reservationStart = null;
         reservationEnd = null;
-        userId = 0;
-        resourceId = 0;
-        typeId = 0;
-        statusId = 0;
-        reservationId = 0;
+        user = null;
+        resource = null;
+        type = null;
+        status = null;
+        reservation = null;
     }
 
     public Action(final ReservationBuilder builder) {
@@ -64,11 +70,11 @@ public class Action {
         this.time = builder.reservedAt;
         this.reservationStart = builder.reservationStart;
         this.reservationEnd = builder.reservationEnd;
-        this.userId = builder.usersId;
-        this.resourceId = builder.resourceId;
-        this.typeId = builder.typeId;
-        this.statusId = builder.statusId;
-        this.reservationId = builder.reservationId;
+        this.user = builder.user;
+        this.resource = builder.resource;
+        this.type = builder.type;
+        this.status = builder.status;
+        this.reservation = builder.reservation;
     }
 
     public ReservationBuilder builder() {
@@ -82,22 +88,22 @@ public class Action {
         private Timestamp reservedAt;
         private Timestamp reservationStart;
         private Timestamp reservationEnd;
-        private int usersId;
-        private int resourceId;
-        private int typeId;
-        private int statusId;
-        private long reservationId;
+        private User user;
+        private Resource resource;
+        private ReservationType type;
+        private ActionStatus status;
+        private Reservation reservation;
 
         public ReservationBuilder(final Action model) {
             this.id = model.id;
             this.reservedAt = model.time;
             this.reservationStart = model.reservationStart;
             this.reservationEnd = model.reservationEnd;
-            this.usersId = model.userId;
-            this.resourceId = model.resourceId;
-            this.typeId = model.typeId;
-            this.statusId = model.statusId;
-            this.reservationId = model.reservationId;
+            this.user = model.user;
+            this.resource = model.resource;
+            this.type = model.type;
+            this.status = model.status;
+            this.reservation = model.reservation;
         }
 
         public ReservationBuilder id(final int id) {
@@ -120,28 +126,28 @@ public class Action {
             return this;
         }
 
-        public ReservationBuilder usersId(final int usersId) {
-            this.usersId = usersId;
+        public ReservationBuilder user(final User user) {
+            this.user = user;
             return this;
         }
 
-        public ReservationBuilder resourceId(final int resourceId) {
-            this.resourceId = resourceId;
+        public ReservationBuilder resource(final Resource resource) {
+            this.resource = resource;
             return this;
         }
 
-        public ReservationBuilder typeId(final int typeId) {
-            this.typeId = typeId;
+        public ReservationBuilder type(final ReservationType type) {
+            this.type = type;
             return this;
         }
 
-        public ReservationBuilder statusId(final int statusId) {
-            this.statusId = statusId;
+        public ReservationBuilder status(final ActionStatus status) {
+            this.status = status;
             return this;
         }
 
-        public ReservationBuilder reservationId(final int reservationId) {
-            this.reservationId = reservationId;
+        public ReservationBuilder reservation(final Reservation reservation) {
+            this.reservation = reservation;
             return this;
         }
 

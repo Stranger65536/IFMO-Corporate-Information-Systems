@@ -67,15 +67,18 @@ public class UserEndpoint {
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "GetUsersRequest")
     @ResponsePayload
     public GetUsersResponse getUsers(@RequestPayload final GetUsersRequest request) {
+        //TODO validate input
         final Collection<User> matchedUsers = userService.getUsers(
                 request.getPage(),
                 request.getPageSize(),
-                request.getFilteringField(),
-                request.getFilteringValue(),
+                request.getSearchField(),
+                request.getSearchType(),
+                request.getSearchValue(),
+                request.getSearchValueLowerBound(),
+                request.getSearchValueUpperBound(),
                 request.getSortingOrder(),
                 request.getSortingField());
         final GetUsersResponse response = new GetUsersResponse();
-        //TODO validate input
         response.getUserInfo().addAll(matchedUsers.stream().map(User::toUserInfo).collect(toList()));
         return response;
     }

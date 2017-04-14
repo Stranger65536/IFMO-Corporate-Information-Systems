@@ -4,6 +4,8 @@ import https.internal_emc_com.reserv_io.ws.UserInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 
@@ -41,6 +43,7 @@ public class User {
     @Column(name = "password", nullable = false, length = 128)
     private final String password;
     @ManyToOne
+    @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "role_id")
     private final Role role;
 

@@ -1,6 +1,7 @@
 package com.emc.internal.reserv.service;
 
 import com.emc.internal.reserv.entity.User;
+import https.internal_emc_com.reserv_io.ws.SearchType;
 import https.internal_emc_com.reserv_io.ws.SortingOrder;
 import https.internal_emc_com.reserv_io.ws.UserField;
 
@@ -23,8 +24,11 @@ public interface UserService {
 
     Collection<User> getUsers(final int page,
                               final int pageSize,
-                              final UserField filteringField,
-                              final String filteringValue,
+                              final UserField searchField,
+                              final SearchType searchType,
+                              final String searchValue,
+                              final String searchValueLowerBound,
+                              final String searchValueUpperBound,
                               final SortingOrder sortingOrder,
                               final UserField sortingField);
 }

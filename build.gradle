@@ -104,6 +104,7 @@ final lombokVersion = '1.16.14'
 final hibernateVersion = '5.2.8.Final'
 final hibernateValidatorVersion = '5.4.0.Final'
 final jacksonVersion = '2.8.6'
+final guavaVersion = '21.0'
 final wsdl4jVersion = '1.6.3'
 final activityVersion = '5.22.0'
 final jaxbVersion = '2.2.11'
@@ -151,6 +152,7 @@ dependencies {
             [group: 'org.activiti', name: 'activiti-spring-boot-starter-basic', version: activityVersion],
 
             [group: 'wsdl4j', name: 'wsdl4j', version: wsdl4jVersion],
+            [group: 'com.google.guava', name: 'guava', version: guavaVersion],
             [group: 'de.neuland-bfi', name: 'spring-jade4j', version: jade4jVersion],
             [group: 'org.jvnet.jaxb2_commons', name: 'jaxb2-basics', version: jaxb2BasicsVersion],
             [group: 'org.apache.commons', name: 'commons-lang3', version: apacheCommonsLangVersion],
