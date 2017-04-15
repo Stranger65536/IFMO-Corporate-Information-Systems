@@ -48,10 +48,12 @@ public class ReservationEndpoint {
         return response;
     }
 
+    @SuppressWarnings("MethodMayBeStatic")
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "PlaceReservationRequest")
     @ResponsePayload
     public PlaceReservationResponse placeReservation(@RequestPayload final PlaceReservationRequest request) {
         //TODO validate input
+        //noinspection ReturnOfNull
         return null;
     }
 

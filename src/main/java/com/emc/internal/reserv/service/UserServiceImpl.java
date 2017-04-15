@@ -3,10 +3,10 @@ package com.emc.internal.reserv.service;
 import com.emc.internal.reserv.entity.User;
 import com.emc.internal.reserv.entity.User.UserBuilder;
 import com.emc.internal.reserv.repository.UserRepository;
-import com.emc.internal.reserv.util.QueryBuilder;
+import com.emc.internal.reserv.util.query.QueryBuilder;
 import https.internal_emc_com.reserv_io.ws.SearchType;
 import https.internal_emc_com.reserv_io.ws.SortingOrder;
-import https.internal_emc_com.reserv_io.ws.UserField;
+import https.internal_emc_com.reserv_io.ws.UserSearchableField;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,12 +39,12 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
-    private final QueryBuilder<User, UserField> queryBuilder;
+    private final QueryBuilder<User, UserSearchableField> queryBuilder;
 
     @Autowired
     public UserServiceImpl(
             final UserRepository userRepository,
-            final QueryBuilder<User, UserField> queryBuilder) {
+            final QueryBuilder<User, UserSearchableField> queryBuilder) {
         this.userRepository = userRepository;
         this.queryBuilder = queryBuilder;
     }
@@ -122,13 +122,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Collection<User> getUsers(
             final int page,
             final int pageSize,
-            final UserField searchField,
+            final UserSearchableField searchField,
             final SearchType searchType,
-            final String searchValue,
-            final String searchValueLowerBound,
-            final String searchValueUpperBound,
+            final Object searchValue,
+            final Object searchValueLowerBound,
+            final Object searchValueUpperBound,
             final SortingOrder sortingOrder,
-            final UserField sortingField) {
+            final UserSearchableField sortingField) {
         log.info("{} " +
                         "page: {}, " +
                         "pageSize: {}, " +

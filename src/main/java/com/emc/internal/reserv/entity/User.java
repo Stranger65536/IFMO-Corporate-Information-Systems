@@ -107,7 +107,7 @@ public class User {
             this.username = model.username;
             this.email = model.email;
             this.password = model.password;
-            this.role = role;
+            this.role = model.role;
         }
 
         public UserBuilder id(final int id) {

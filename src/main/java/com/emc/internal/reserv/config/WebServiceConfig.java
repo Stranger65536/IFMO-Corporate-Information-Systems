@@ -45,7 +45,7 @@ public class WebServiceConfig extends WsConfigurerAdapter {
     }
 
     @Bean
-    public SoapFaultMappingExceptionResolver exceptionResolver(){
+    public SoapFaultMappingExceptionResolver exceptionResolver() {
         final SoapFaultMappingExceptionResolver exceptionResolver = new DetailSoapFaultDefinitionExceptionResolver();
 
         final SoapFaultDefinition faultDefinition = new SoapFaultDefinition();

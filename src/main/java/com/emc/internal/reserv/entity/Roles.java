@@ -4,7 +4,6 @@ import com.emc.internal.reserv.repository.RoleRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.IdentityService;
-import org.activiti.engine.identity.Group;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

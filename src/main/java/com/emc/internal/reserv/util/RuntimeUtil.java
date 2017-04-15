@@ -29,4 +29,8 @@ public class RuntimeUtil {
                 + '.' + e.getMethodName()
                 + ".exit";
     }
+
+    public static UnsupportedOperationException raiseForgotEnumBranchException() {
+        return new UnsupportedOperationException("Some enum branches have not been covered!");
+    }
 }

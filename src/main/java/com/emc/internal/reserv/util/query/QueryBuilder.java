@@ -1,4 +1,4 @@
-package com.emc.internal.reserv.util;
+package com.emc.internal.reserv.util.query;
 
 import com.emc.internal.reserv.entity.User;
 import https.internal_emc_com.reserv_io.ws.SearchType;
@@ -7,7 +7,7 @@ import https.internal_emc_com.reserv_io.ws.SortingOrder;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 
-import static https.internal_emc_com.reserv_io.ws.SortingOrder.ASC;
+import static https.internal_emc_com.reserv_io.ws.SortingOrder.DESC;
 
 /**
  * @author trofiv
@@ -18,9 +18,9 @@ public interface QueryBuilder<T, R extends Enum<?>> {
             final CriteriaBuilder criteriaBuilder,
             final SortingOrder sortingOrder,
             final Expression<?> expression) {
-        return sortingOrder == ASC
-                ? criteriaBuilder.asc(expression)
-                : criteriaBuilder.desc(expression);
+        return sortingOrder == DESC
+                ? criteriaBuilder.desc(expression)
+                : criteriaBuilder.asc(expression);
     }
 
     Expression<?> getSortExpression(final R sortingField, final From root);

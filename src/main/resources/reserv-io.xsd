@@ -1,8 +1,8 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:tns="https://internal.emc.com/reserv-io/ws"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            targetNamespace="https://internal.emc.com/reserv-io/ws"
            elementFormDefault="qualified"
-           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            jaxb:extensionBindingPrefixes="basic equals hashCode toString">
     <xs:simpleType name="Username">
         <xs:restriction base="xs:string">
@@ -68,13 +68,66 @@
             <xs:enumeration value="id"/>
             <xs:enumeration value="username"/>
             <xs:enumeration value="email"/>
+            <xs:enumeration value="password"/>
             <xs:enumeration value="firstName"/>
             <xs:enumeration value="lastName"/>
             <xs:enumeration value="middleName"/>
             <xs:enumeration value="role"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="UserSearchableField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="id"/>
+            <xs:enumeration value="username"/>
+            <xs:enumeration value="email"/>
+            <xs:enumeration value="firstName"/>
+            <xs:enumeration value="lastName"/>
+            <xs:enumeration value="middleName"/>
+            <xs:enumeration value="role"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="UserRegistrationRequestField">
+        <xs:restriction base="xs:string">
+                <xs:enumeration value="username"/>
+                <xs:enumeration value="email"/>
+                <xs:enumeration value="password"/>
+                <xs:enumeration value="firstName"/>
+                <xs:enumeration value="lastName"/>
+                <xs:enumeration value="middleName"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="GetUserRequestField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="id"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="GetUsersRequestField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="page"/>
+            <xs:enumeration value="pageSize"/>
+            <xs:enumeration value="searchField"/>
+            <xs:enumeration value="searchType"/>
+            <xs:enumeration value="searchValue"/>
+            <xs:enumeration value="searchValueLowerBound"/>
+            <xs:enumeration value="searchValueUpperBound"/>
+            <xs:enumeration value="sortingOrder"/>
+            <xs:enumeration value="sortingField"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:simpleType name="ReservationField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="id"/>
+            <xs:enumeration value="resource"/>
+            <xs:enumeration value="type"/>
+            <xs:enumeration value="status"/>
+            <xs:enumeration value="owner"/>
+            <xs:enumeration value="startsAt"/>
+            <xs:enumeration value="endsAt"/>
+            <xs:enumeration value="createdOn"/>
+            <xs:enumeration value="updatedOn"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="ReservationSearchableField">
         <xs:restriction base="xs:string">
             <xs:enumeration value="id"/>
             <xs:enumeration value="resource"/>
@@ -199,13 +252,13 @@
             <xs:sequence>
                 <xs:element name="page" type="xs:int"/>
                 <xs:element name="pageSize" type="tns:PageSize"/>
-                <xs:element name="searchField" type="tns:UserField" minOccurs="0"/>
+                <xs:element name="searchField" type="tns:UserSearchableField" minOccurs="0"/>
                 <xs:element name="searchType" type="tns:SearchType" minOccurs="0"/>
                 <xs:element name="searchValue" type="tns:SearchValue" minOccurs="0"/>
                 <xs:element name="searchValueLowerBound" type="tns:SearchValue" minOccurs="0"/>
                 <xs:element name="searchValueUpperBound" type="tns:SearchValue" minOccurs="0"/>
                 <xs:element name="sortingOrder" type="tns:SortingOrder" minOccurs="0"/>
-                <xs:element name="sortingField" type="tns:UserField" minOccurs="0"/>
+                <xs:element name="sortingField" type="tns:UserSearchableField" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -277,13 +330,13 @@
             <xs:sequence>
                 <xs:element name="page" type="xs:int"/>
                 <xs:element name="pageSize" type="tns:PageSize"/>
-                <xs:element name="searchField" type="tns:ReservationField" minOccurs="0"/>
+                <xs:element name="searchField" type="tns:ReservationSearchableField" minOccurs="0"/>
                 <xs:element name="searchType" type="tns:SearchType" minOccurs="0"/>
                 <xs:element name="searchValue" type="tns:SearchValue" minOccurs="0"/>
                 <xs:element name="searchValueLowerBound" type="tns:SearchValue" minOccurs="0"/>
                 <xs:element name="searchValueUpperBound" type="tns:SearchValue" minOccurs="0"/>
                 <xs:element name="sortingOrder" type="tns:SortingOrder" minOccurs="0"/>
-                <xs:element name="sortingField" type="tns:ReservationField" minOccurs="0"/>
+                <xs:element name="sortingField" type="tns:ReservationSearchableField" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

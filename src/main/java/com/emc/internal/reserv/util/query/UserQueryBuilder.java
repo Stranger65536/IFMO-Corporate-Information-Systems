@@ -1,9 +1,10 @@
-package com.emc.internal.reserv.util;
+package com.emc.internal.reserv.util.query;
 
 import com.emc.internal.reserv.entity.User;
 import https.internal_emc_com.reserv_io.ws.SearchType;
 import https.internal_emc_com.reserv_io.ws.SortingOrder;
 import https.internal_emc_com.reserv_io.ws.UserField;
+import https.internal_emc_com.reserv_io.ws.UserSearchableField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 
+import static com.emc.internal.reserv.util.RuntimeUtil.raiseForgotEnumBranchException;
 import static java.text.MessageFormat.format;
 
 /**
@@ -18,7 +20,7 @@ import static java.text.MessageFormat.format;
  * @date 14.04.2017
  */
 @Service
-public class UserQueryBuilder implements QueryBuilder<User, UserField> {
+public class UserQueryBuilder implements QueryBuilder<User, UserSearchableField> {
     private final EntityManager entityManager;
 
     @Autowired
@@ -28,13 +30,13 @@ public class UserQueryBuilder implements QueryBuilder<User, UserField> {
 
     @Override
     public TypedQuery<User> buildQuery(
-            final UserField searchField,
+            final UserSearchableField searchField,
             final SearchType searchType,
             final Object searchValue,
             final Object searchValueLowerBound,
             final Object searchValueUpperBound,
             final SortingOrder sortingOrder,
-            final UserField sortingField) {
+            final UserSearchableField sortingField) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<User> query = builder.createQuery(User.class);
         final Root<User> root = query.from(User.class);
@@ -44,7 +46,7 @@ public class UserQueryBuilder implements QueryBuilder<User, UserField> {
             select = select.orderBy(getOrderExpression(builder, sortingOrder, getSortExpression(sortingField, root)));
         }
 
-        if (searchField != null) {
+        if (searchField != null && searchType != null) {
             switch (searchType) {
                 case EQUALS:
                     select = select.where(getEqualsExpression(root, builder, searchField, searchValue));
@@ -63,8 +65,8 @@ public class UserQueryBuilder implements QueryBuilder<User, UserField> {
     }
 
     @Override
-    public Expression<?> getSortExpression(final UserField sortingField, final From root) {
-        return sortingField == UserField.ROLE
+    public Expression<?> getSortExpression(final UserSearchableField sortingField, final From root) {
+        return sortingField == UserSearchableField.ROLE
                 ? root.join(UserField.ROLE.value()).get("name")
                 : root.get(sortingField.value());
     }
@@ -73,25 +75,26 @@ public class UserQueryBuilder implements QueryBuilder<User, UserField> {
     public Expression<Boolean> getEqualsExpression(
             final From root,
             final CriteriaBuilder builder,
-            final UserField searchField,
+            final UserSearchableField searchField,
             final Object searchValue) {
         return builder.equal(
-                searchField == UserField.ROLE
+                searchField == UserSearchableField.ROLE
                         ? root.join(UserField.ROLE.value()).get("name")
                         : root.get(searchField.value()),
                 searchValue);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Expression<Boolean> getLikeExpression(
             final From root,
             final CriteriaBuilder builder,
-            final UserField searchField,
+            final UserSearchableField searchField,
             final Object searchValue) {
         return builder.like(
-                searchField == UserField.ROLE
-                        ? root.join(UserField.ROLE.value()).get("name")
-                        : root.get(searchField.value()).as(String.class),
+                searchField == UserSearchableField.ROLE
+                        ? root.join(UserField.ROLE.value()).get("name").as(String.class)
+                        : root.<String>get(searchField.value()).as(String.class),
                 format("%{0}%", searchValue), '%');
     }
 
@@ -99,7 +102,7 @@ public class UserQueryBuilder implements QueryBuilder<User, UserField> {
     public Expression<Boolean> getBetweenExpression(
             final Root<User> root,
             final CriteriaBuilder builder,
-            final UserField searchField,
+            final UserSearchableField searchField,
             final Object searchValueLowerBound,
             final Object searchValueUpperBound) {
         switch (searchField) {
@@ -114,7 +117,7 @@ public class UserQueryBuilder implements QueryBuilder<User, UserField> {
             case ROLE:
                 return builder.between(root.join(UserField.ROLE.value()).get("name"), (String) searchValueLowerBound, (String) searchValueUpperBound);
             default:
-                throw new UnsupportedOperationException("Some fields have hot been covered!");
+                throw raiseForgotEnumBranchException();
         }
     }
 }

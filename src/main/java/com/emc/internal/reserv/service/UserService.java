@@ -3,7 +3,7 @@ package com.emc.internal.reserv.service;
 import com.emc.internal.reserv.entity.User;
 import https.internal_emc_com.reserv_io.ws.SearchType;
 import https.internal_emc_com.reserv_io.ws.SortingOrder;
-import https.internal_emc_com.reserv_io.ws.UserField;
+import https.internal_emc_com.reserv_io.ws.UserSearchableField;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -24,11 +24,11 @@ public interface UserService {
 
     Collection<User> getUsers(final int page,
                               final int pageSize,
-                              final UserField searchField,
+                              final UserSearchableField searchField,
                               final SearchType searchType,
-                              final String searchValue,
-                              final String searchValueLowerBound,
-                              final String searchValueUpperBound,
+                              final Object searchValue,
+                              final Object searchValueLowerBound,
+                              final Object searchValueUpperBound,
                               final SortingOrder sortingOrder,
-                              final UserField sortingField);
+                              final UserSearchableField sortingField);
 }
