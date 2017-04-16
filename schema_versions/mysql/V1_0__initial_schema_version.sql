@@ -82,7 +82,7 @@ CREATE TABLE `reserv-io`.`reservation_types` (
   ENGINE = InnoDB;
 
 
-CREATE TABLE `reserv-io`.`action_statuses` (
+CREATE TABLE `reserv-io`.`reservation_statuses` (
   `id`   INT         NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(25) NOT NULL,
   PRIMARY KEY (`id`),
@@ -120,7 +120,7 @@ CREATE TABLE `reserv-io`.`actions` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_action_status`
   FOREIGN KEY (`status_id`)
-  REFERENCES `reserv-io`.`action_statuses` (`id`)
+  REFERENCES `reserv-io`.`reservation_statuses` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_action_resource`

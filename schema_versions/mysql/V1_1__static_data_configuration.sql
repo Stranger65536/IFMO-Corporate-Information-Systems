@@ -20,13 +20,13 @@ VALUES ('Regular');
 INSERT INTO `reserv-io`.`reservation_types` (`name`)
 VALUES ('Unavailable');
 
-INSERT INTO `reserv-io`.`action_statuses` (`name`)
+INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
 VALUES ('Approved');
-INSERT INTO `reserv-io`.`action_statuses` (`name`)
+INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
 VALUES ('Canceled');
-INSERT INTO `reserv-io`.`action_statuses` (`name`)
+INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
 VALUES ('Waiting for approval');
-INSERT INTO `reserv-io`.`action_statuses` (`name`)
+INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
 VALUES ('New time proposed');
 
 COMMIT;

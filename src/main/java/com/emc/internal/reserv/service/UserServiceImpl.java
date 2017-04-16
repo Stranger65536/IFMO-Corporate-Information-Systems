@@ -7,6 +7,7 @@ import com.emc.internal.reserv.util.query.QueryBuilder;
 import https.internal_emc_com.reserv_io.ws.SearchType;
 import https.internal_emc_com.reserv_io.ws.SortingOrder;
 import https.internal_emc_com.reserv_io.ws.UserSearchableField;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +41,10 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 @Log4j2
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
+    static {
+        checkSha512Supported();
+    }
+
     private final UserRepository userRepository;
     private final QueryBuilder<User, UserSearchableField> queryBuilder;
 
@@ -47,6 +54,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             final QueryBuilder<User, UserSearchableField> queryBuilder) {
         this.userRepository = userRepository;
         this.queryBuilder = queryBuilder;
+    }
+
+    @SneakyThrows
+    private static void checkSha512Supported() {
+        MessageDigest.getInstance("SHA-512");
     }
 
     /**
@@ -83,7 +95,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                         "lastName: {}, " +
                         "middleName: {}",
                 enterMethodMessage(),
-                username, email, password, firstName, lastName, middleName);
+                username, email, hashPassword(password), firstName, lastName, middleName);
         if (userRepository.findOneByEmail(email).isPresent()) {
             throw raiseServiceFaultException(USER_ALREADY_REGISTERED,
                     format("User with email {0} is already registered", email));
@@ -96,7 +108,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         final User user = new UserBuilder()
                 .username(username)
                 .email(email)
-                .password(password)
+                .password(hashPassword(password))
                 .firstName(firstName)
                 .lastName(lastName)
                 .middleName(middleName)
@@ -106,6 +118,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userRepository.saveAndFlush(user);
 
         log.info(exitMethodMessage());
+    }
+
+    @SneakyThrows
+    private static String hashPassword(final String password) {
+        final MessageDigest md = MessageDigest.getInstance("SHA-512");
+        final byte[] bytes = md.digest(password.getBytes("UTF-8"));
+        return String.format("%0128x", new BigInteger(1, bytes));
     }
 
     @Override

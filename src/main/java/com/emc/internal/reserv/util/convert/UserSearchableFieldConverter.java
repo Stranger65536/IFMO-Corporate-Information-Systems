@@ -18,7 +18,8 @@ public class UserSearchableFieldConverter implements FieldConverter<UserSearchab
 
         switch (field) {
             case ID:
-                return Ints.tryParse(value);
+                //noinspection ReturnOfNull
+                return value == null ? null : Ints.tryParse(value);
             case EMAIL:
             case USERNAME:
             case FIRST_NAME:

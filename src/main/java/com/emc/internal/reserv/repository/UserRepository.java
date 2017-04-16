@@ -14,6 +14,7 @@ import java.util.Optional;
  * @date 05.03.2017
  */
 @Repository
+@SuppressWarnings("DuplicateStringLiteralInspection")
 public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT r FROM User r where r.email = :identity or r.username = :identity")
     Optional<User> findOneByEmailOrLogin(@Param("identity") final String identity);
@@ -21,6 +22,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT r FROM User r where r.email = :email")
     Optional<User> findOneByEmail(@Param("email") final String email);
 
-    @Query("SELECT r FROM User r where r.email = :identity or r.username = :username")
+    @Query("SELECT r FROM User r where r.email = :username or r.username = :username")
     Optional<User> findOneByUsername(@Param("username") final String username);
 }

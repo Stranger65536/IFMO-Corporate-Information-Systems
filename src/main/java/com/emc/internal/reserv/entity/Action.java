@@ -47,7 +47,7 @@ public class Action {
     @ManyToOne
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "status_id")
-    private final ActionStatus status;
+    private final ReservationStatus status;
     @ManyToOne
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "reservation_id")
@@ -91,7 +91,7 @@ public class Action {
         private User user;
         private Resource resource;
         private ReservationType type;
-        private ActionStatus status;
+        private ReservationStatus status;
         private Reservation reservation;
 
         public ReservationBuilder(final Action model) {
@@ -141,7 +141,7 @@ public class Action {
             return this;
         }
 
-        public ReservationBuilder status(final ActionStatus status) {
+        public ReservationBuilder status(final ReservationStatus status) {
             this.status = status;
             return this;
         }

@@ -40,14 +40,6 @@ public class Resource {
         this.location = builder.location;
     }
 
-    public static Resource fromResourceInfo(final ResourceInfo info) {
-        return new ResourceBuilder()
-                .id(info.getId())
-                .name(info.getName())
-                .location(info.getLocation())
-                .build();
-    }
-
     public ResourceInfo toResourceInfo() {
         final ResourceInfo info = new ResourceInfo();
         info.setId(this.id);

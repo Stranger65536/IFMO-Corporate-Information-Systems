@@ -58,6 +58,8 @@ public class UserQueryBuilder implements QueryBuilder<User, UserSearchableField>
                     select = select.where(getBetweenExpression(root, builder, searchField,
                             searchValueLowerBound, searchValueUpperBound));
                     break;
+                default:
+                    throw raiseForgotEnumBranchException();
             }
         }
 

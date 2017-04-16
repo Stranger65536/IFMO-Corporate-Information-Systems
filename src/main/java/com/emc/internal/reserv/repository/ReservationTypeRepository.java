@@ -15,5 +15,5 @@ import java.util.Optional;
 @Repository
 public interface ReservationTypeRepository extends JpaRepository<ReservationType, Integer> {
     @Query("SELECT r FROM ReservationType r where r.name = :name")
-    Optional<ReservationType> findOneByName(@Param("name") final String role);
+    Optional<ReservationType> findOneByName(@Param("name") final String name);
 }

@@ -35,13 +35,25 @@
             <xs:enumeration value="USER_DOES_NOT_EXIST"/>
             <xs:enumeration value="RESOURCE_DOES_NOT_EXIST"/>
             <xs:enumeration value="RESOURCE_IS_NOT_UNIQUE"/>
-            <xs:enumeration value="ACTION_DOES_NOT_EXIST"/>
             <xs:enumeration value="RESERVATION_TYPE_DOES_NOT_EXIST"/>
-            <xs:enumeration value="RESERVATION_TYPE_DOES_NOT_EXIST"/>
+            <xs:enumeration value="RESERVATION_STATUS_DOES_NOT_EXIST"/>
             <xs:enumeration value="EVENT_OVERLAPS_WITH_UNAVAILABLE_EVENT"/>
             <xs:enumeration value="EVENT_OVERLAPS_WITH_EVENT"/>
             <xs:enumeration value="PENDING_RESERVATIONS_LIMIT_EXCEEDED"/>
             <xs:enumeration value="ACCESS_DENIED"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="GenericSearchRequestField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="page"/>
+            <xs:enumeration value="pageSize"/>
+            <xs:enumeration value="searchField"/>
+            <xs:enumeration value="searchType"/>
+            <xs:enumeration value="searchValue"/>
+            <xs:enumeration value="searchValueLowerBound"/>
+            <xs:enumeration value="searchValueUpperBound"/>
+            <xs:enumeration value="sortingOrder"/>
+            <xs:enumeration value="sortingField"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="Role">
@@ -49,6 +61,11 @@
             <xs:enumeration value="user"/>
             <xs:enumeration value="moderator"/>
             <xs:enumeration value="admin"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Page">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="1"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="PageSize">
@@ -101,17 +118,10 @@
             <xs:enumeration value="id"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="GetUsersRequestField">
+    <xs:simpleType name="CreateResourceRequestField">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="page"/>
-            <xs:enumeration value="pageSize"/>
-            <xs:enumeration value="searchField"/>
-            <xs:enumeration value="searchType"/>
-            <xs:enumeration value="searchValue"/>
-            <xs:enumeration value="searchValueLowerBound"/>
-            <xs:enumeration value="searchValueUpperBound"/>
-            <xs:enumeration value="sortingOrder"/>
-            <xs:enumeration value="sortingField"/>
+            <xs:enumeration value="name"/>
+            <xs:enumeration value="location"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="ReservationField">
@@ -250,7 +260,7 @@
     <xs:element name="GetUsersRequest">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="page" type="xs:int"/>
+                <xs:element name="page" type="tns:Page"/>
                 <xs:element name="pageSize" type="tns:PageSize"/>
                 <xs:element name="searchField" type="tns:UserSearchableField" minOccurs="0"/>
                 <xs:element name="searchType" type="tns:SearchType" minOccurs="0"/>
@@ -287,7 +297,9 @@
     <xs:element name="UpdateResourceRequest">
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="tns:ResourceInfo"/>
+                <xs:element name="id" type="xs:int"/>
+                <xs:element name="name" type="tns:ResourceName"/>
+                <xs:element name="location" type="tns:ResourceLocation" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -328,7 +340,7 @@
     <xs:element name="GetReservationsRequest">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="page" type="xs:int"/>
+                <xs:element name="page" type="tns:Page"/>
                 <xs:element name="pageSize" type="tns:PageSize"/>
                 <xs:element name="searchField" type="tns:ReservationSearchableField" minOccurs="0"/>
                 <xs:element name="searchType" type="tns:SearchType" minOccurs="0"/>
@@ -375,6 +387,13 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+    <xs:element name="UpdateReservationResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="tns:ReservationInfo"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
     <xs:element name="CancelReservationRequest">
         <xs:complexType>
             <xs:sequence>
@@ -382,10 +401,24 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+    <xs:element name="CancelReservationResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="tns:ReservationInfo"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
     <xs:element name="AcceptReservationRequest">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="reservationId" type="xs:long"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="AcceptReservationResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="tns:ReservationInfo"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -397,6 +430,13 @@
                 <xs:element name="startsAt" type="xs:dateTime"/>
                 <xs:element name="endsAt" type="xs:dateTime"/>
                 <xs:element name="type" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="ProposeNewTimeResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="tns:ReservationInfo"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

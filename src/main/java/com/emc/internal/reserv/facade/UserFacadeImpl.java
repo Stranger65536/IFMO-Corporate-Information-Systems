@@ -60,7 +60,7 @@ public class UserFacadeImpl implements UserFacade {
             return response;
         } else {
             throw raiseServiceFaultException(USER_DOES_NOT_EXIST,
-                    format("No user with id {0} was found!", request.getId()));
+                    format("No user with id {0} has been found!", request.getId()));
         }
     }
 
