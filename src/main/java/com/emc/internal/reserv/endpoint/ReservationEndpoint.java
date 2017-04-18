@@ -31,7 +31,6 @@ public class ReservationEndpoint {
         return reservationFacade.getReservations(request);
     }
 
-    @SuppressWarnings("MethodMayBeStatic")
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "PlaceReservationRequest")
     @ResponsePayload
     public PlaceReservationResponse placeReservation(@RequestPayload final PlaceReservationRequest request) {
@@ -48,6 +47,18 @@ public class ReservationEndpoint {
     @ResponsePayload
     public AcceptReservationResponse acceptReservation(@RequestPayload final AcceptReservationRequest request) {
         return reservationFacade.acceptReservation(request);
+    }
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "ApproveReservationRequest")
+    @ResponsePayload
+    public ApproveReservationResponse acceptReservation(@RequestPayload final ApproveReservationRequest request) {
+        return reservationFacade.approveReservation(request);
+    }
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "CancelReservationRequest")
+    @ResponsePayload
+    public CancelReservationResponse cancelReservation(@RequestPayload final CancelReservationRequest request) {
+        return reservationFacade.cancelReservation(request);
     }
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "ProposeNewTimeRequest")

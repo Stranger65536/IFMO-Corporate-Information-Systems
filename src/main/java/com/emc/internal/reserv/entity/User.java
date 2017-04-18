@@ -17,7 +17,7 @@ import javax.persistence.*;
 @Getter
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
-@SuppressWarnings("DuplicateStringLiteralInspection")
+@SuppressWarnings({"DuplicateStringLiteralInspection", "WeakerAccess"})
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = "username"))
 public class User {
     @Id

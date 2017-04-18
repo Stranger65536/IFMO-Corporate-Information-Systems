@@ -1,5 +1,7 @@
 package com.emc.internal.reserv.entity;
 
+import com.emc.internal.reserv.util.RuntimeUtil;
+import https.internal_emc_com.reserv_io.ws.ActionInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +10,9 @@ import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+
+import static com.emc.internal.reserv.util.RuntimeUtil.toCalendar;
+import static java.util.Optional.ofNullable;
 
 /**
  * @author trofiv
@@ -18,6 +23,7 @@ import java.sql.Timestamp;
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @Table(name = "actions")
+@SuppressWarnings({"DuplicateStringLiteralInspection", "WeakerAccess"})
 public class Action {
     @Id
     @Column(name = "id", nullable = false)
@@ -79,6 +85,20 @@ public class Action {
 
     public ReservationBuilder builder() {
         return new ReservationBuilder(this);
+    }
+
+    public ActionInfo toActionInfo() {
+        final ActionInfo info = new ActionInfo();
+        info.setId(this.id);
+        info.setTime(toCalendar(ofNullable(this.time).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
+        info.setStartsAt(toCalendar(ofNullable(this.reservationStart).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
+        info.setEndsAt(toCalendar(ofNullable(this.reservationEnd).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
+        info.setUserId(ofNullable(this.user).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
+        info.setResourceId(ofNullable(this.resource).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
+        info.setType(ofNullable(this.type).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
+        info.setStatus(ofNullable(this.status).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
+        info.setReservationId(ofNullable(this.reservation).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
+        return info;
     }
 
     @NoArgsConstructor

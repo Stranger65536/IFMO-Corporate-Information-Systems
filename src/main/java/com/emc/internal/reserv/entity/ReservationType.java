@@ -15,6 +15,7 @@ import javax.persistence.*;
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @Table(name = "reservation_types")
+@SuppressWarnings("WeakerAccess")
 public class ReservationType {
     @Id
     @Column(name = "id", nullable = false)

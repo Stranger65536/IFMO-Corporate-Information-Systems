@@ -51,17 +51,35 @@ public class ReservationFacadeImpl implements ReservationFacade {
     @Override
     public UpdateReservationResponse updateReservation(final UpdateReservationRequest request) {
         //TODO validate input
+        //noinspection ReturnOfNull
         return null;
     }
 
     @Override
     public AcceptReservationResponse acceptReservation(final AcceptReservationRequest request) {
+        //TODO validate input
+        //noinspection ReturnOfNull
+        return null;
+    }
+
+    @Override
+    public ApproveReservationResponse approveReservation(final ApproveReservationRequest request) {
+        //TODO validate input
+        //noinspection ReturnOfNull
+        return null;
+    }
+
+    @Override
+    public CancelReservationResponse cancelReservation(final CancelReservationRequest request) {
+        //TODO validate input
+        //noinspection ReturnOfNull
         return null;
     }
 
     @Override
     public ProposeNewTimeResponse proposeNewTime(final ProposeNewTimeRequest request) {
         //TODO validate input
+        //noinspection ReturnOfNull
         return null;
     }
 }

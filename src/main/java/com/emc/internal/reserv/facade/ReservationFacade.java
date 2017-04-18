@@ -15,5 +15,9 @@ public interface ReservationFacade {
 
     AcceptReservationResponse acceptReservation(final AcceptReservationRequest request);
 
+    ApproveReservationResponse approveReservation(final ApproveReservationRequest request);
+
+    CancelReservationResponse cancelReservation(final CancelReservationRequest request);
+
     ProposeNewTimeResponse proposeNewTime(final ProposeNewTimeRequest request);
 }

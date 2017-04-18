@@ -1,7 +1,7 @@
 package com.emc.internal.reserv.repository;
 
 import com.emc.internal.reserv.entity.Reservation;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
  * @date 05.03.2017
  */
 @Repository
-public interface ReservationRepository extends JpaRepository<Reservation, Long> {
+public interface ReservationRepository extends CrudRepository<Reservation, Long> {
 }

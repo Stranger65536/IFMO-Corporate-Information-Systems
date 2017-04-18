@@ -1,10 +1,13 @@
 package com.emc.internal.reserv.service;
 
 import com.emc.internal.reserv.entity.Reservation;
+import com.emc.internal.reserv.entity.ReservationType;
+import https.internal_emc_com.reserv_io.ws.FaultCode;
 import https.internal_emc_com.reserv_io.ws.ReservationSearchableField;
 import https.internal_emc_com.reserv_io.ws.SearchType;
 import https.internal_emc_com.reserv_io.ws.SortingOrder;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 /**
@@ -21,4 +24,58 @@ public interface ReservationService {
                                             final String searchValueUpperBound,
                                             final SortingOrder sortingOrder,
                                             final ReservationSearchableField sortingField);
+
+    Reservation placeReservation(final int userId,
+                                 final int resourceId,
+                                 final LocalDateTime startsAt,
+                                 final LocalDateTime endsAt,
+                                 final ReservationType type);
+
+    Reservation updateReservation(final int userId,
+                                  final long reservationId,
+                                  final int resourceId,
+                                  final LocalDateTime startsAt,
+                                  final LocalDateTime endsAt,
+                                  final ReservationType type);
+
+    Reservation acceptReservation(final int userId,
+                                  final long reservationId,
+                                  final int resourceId,
+                                  final LocalDateTime startsAt,
+                                  final LocalDateTime endsAt,
+                                  final ReservationType type);
+
+    Reservation cancelReservation(final int userId,
+                                  final long reservationId,
+                                  final int resourceId,
+                                  final LocalDateTime startsAt,
+                                  final LocalDateTime endsAt,
+                                  final ReservationType type);
+
+    Reservation proposeNewTime(final int userId,
+                               final long reservationId,
+                               final int resourceId,
+                               final LocalDateTime startsAt,
+                               final LocalDateTime endsAt,
+                               final ReservationType type,
+                               final int newResourceId,
+                               final LocalDateTime newStartsAt,
+                               final LocalDateTime newEndsAt,
+                               final ReservationType newType);
+
+    boolean isPendingReservationsNumberLimitExceeded(final int userId);
+
+    boolean hasOverlappingsWithUnavailableEvent(final int resourceId,
+                                                final LocalDateTime startsAt,
+                                                final LocalDateTime endsAt);
+
+    boolean hasOverlappingsWithEvent(final int resourceId,
+                                     final LocalDateTime startsAt,
+                                     final LocalDateTime endsAt);
+
+    void declineRequest(final String placementUuid, final FaultCode code, final String message);
+
+    void passRequest(final String placementUuid);
+
+    void storeReservation(final Reservation reservation);
 }

@@ -1,5 +1,6 @@
 package com.emc.internal.reserv.entity;
 
+import com.emc.internal.reserv.util.RuntimeUtil;
 import https.internal_emc_com.reserv_io.ws.ReservationInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -11,6 +12,9 @@ import org.hibernate.annotations.FetchMode;
 import javax.persistence.*;
 import java.util.Collection;
 
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+
 /**
  * @author trofiv
  * @date 27.02.2017
@@ -20,6 +24,7 @@ import java.util.Collection;
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @Table(name = "reservations")
+@SuppressWarnings({"DuplicateStringLiteralInspection", "WeakerAccess"})
 public class Reservation {
     @Id
     @Column(name = "id", nullable = false)
@@ -27,7 +32,7 @@ public class Reservation {
     private final long id;
     @ManyToOne
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private final User user;
     @OneToMany
     @BatchSize(size = 10)
@@ -53,7 +58,9 @@ public class Reservation {
     public ReservationInfo toReservationInfo() {
         final ReservationInfo info = new ReservationInfo();
         info.setId(this.id);
-        //TODO fill
+        info.setUserId(ofNullable(this.user).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
+        info.getActionInfo().addAll(ofNullable(this.actions).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)
+                .stream().map(Action::toActionInfo).collect(toList()));
         return info;
     }
 

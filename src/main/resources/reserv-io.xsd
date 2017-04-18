@@ -40,6 +40,7 @@
             <xs:enumeration value="EVENT_OVERLAPS_WITH_UNAVAILABLE_EVENT"/>
             <xs:enumeration value="EVENT_OVERLAPS_WITH_EVENT"/>
             <xs:enumeration value="PENDING_RESERVATIONS_LIMIT_EXCEEDED"/>
+            <xs:enumeration value="RESERVATION_HAS_BEEN_UPDATED_EXTERNALLY"/>
             <xs:enumeration value="ACCESS_DENIED"/>
         </xs:restriction>
     </xs:simpleType>
@@ -105,12 +106,12 @@
     </xs:simpleType>
     <xs:simpleType name="UserRegistrationRequestField">
         <xs:restriction base="xs:string">
-                <xs:enumeration value="username"/>
-                <xs:enumeration value="email"/>
-                <xs:enumeration value="password"/>
-                <xs:enumeration value="firstName"/>
-                <xs:enumeration value="lastName"/>
-                <xs:enumeration value="middleName"/>
+            <xs:enumeration value="username"/>
+            <xs:enumeration value="email"/>
+            <xs:enumeration value="password"/>
+            <xs:enumeration value="firstName"/>
+            <xs:enumeration value="lastName"/>
+            <xs:enumeration value="middleName"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="GetUserRequestField">
@@ -127,10 +128,11 @@
     <xs:simpleType name="ReservationField">
         <xs:restriction base="xs:string">
             <xs:enumeration value="id"/>
+            <xs:enumeration value="owner"/>
+            <xs:enumeration value="lastActionUser"/>
             <xs:enumeration value="resource"/>
             <xs:enumeration value="type"/>
             <xs:enumeration value="status"/>
-            <xs:enumeration value="owner"/>
             <xs:enumeration value="startsAt"/>
             <xs:enumeration value="endsAt"/>
             <xs:enumeration value="createdOn"/>
@@ -140,10 +142,11 @@
     <xs:simpleType name="ReservationSearchableField">
         <xs:restriction base="xs:string">
             <xs:enumeration value="id"/>
+            <xs:enumeration value="owner"/>
+            <xs:enumeration value="lastActionUser"/>
             <xs:enumeration value="resource"/>
             <xs:enumeration value="type"/>
             <xs:enumeration value="status"/>
-            <xs:enumeration value="owner"/>
             <xs:enumeration value="startsAt"/>
             <xs:enumeration value="endsAt"/>
             <xs:enumeration value="createdOn"/>
@@ -398,6 +401,10 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="reservationId" type="xs:long"/>
+                <xs:element name="resourceId" type="xs:int"/>
+                <xs:element name="startsAt" type="xs:dateTime"/>
+                <xs:element name="endsAt" type="xs:dateTime"/>
+                <xs:element name="type" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -412,10 +419,32 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="reservationId" type="xs:long"/>
+                <xs:element name="resourceId" type="xs:int"/>
+                <xs:element name="startsAt" type="xs:dateTime"/>
+                <xs:element name="endsAt" type="xs:dateTime"/>
+                <xs:element name="type" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
     <xs:element name="AcceptReservationResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="tns:ReservationInfo"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="ApproveReservationRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="reservationId" type="xs:long"/>
+                <xs:element name="resourceId" type="xs:int"/>
+                <xs:element name="startsAt" type="xs:dateTime"/>
+                <xs:element name="endsAt" type="xs:dateTime"/>
+                <xs:element name="type" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="ApproveReservationResponse">
         <xs:complexType>
             <xs:sequence>
                 <xs:element ref="tns:ReservationInfo"/>

@@ -2,7 +2,7 @@ package com.emc.internal.reserv.entity;
 
 import com.emc.internal.reserv.repository.RoleRepository;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.activiti.engine.IdentityService;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import java.util.Optional;
  * @author trofiv
  * @date 03.04.2017
  */
-@Slf4j
+@Log4j2
 public enum Roles {
     USER("user"),
     MODERATOR("moderator"),

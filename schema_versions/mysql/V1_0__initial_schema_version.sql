@@ -135,3 +135,27 @@ CREATE TABLE `reserv-io`.`actions` (
     ON UPDATE NO ACTION
 )
   ENGINE = InnoDB;
+
+CREATE VIEW `reserv-io`.`actual_reservations` AS
+  SELECT
+    `r`.`id`,
+    `r`.`user_id` `owner_id`,
+    `a`.`user_id` `last_action_user_id`,
+    `a`.`resource_id`,
+    `a`.`type_id`,
+    `a`.`status_id`,
+    `a`.`reservation_start`,
+    `a`.`reservation_end`,
+    `b`.`created_at`,
+    `b`.`updated_at`
+  FROM `reserv-io`.`actions` `a`
+    JOIN (SELECT
+            `r`.`id`        `id`,
+            MAX(`a`.`id`)   `action_id`,
+            MIN(`a`.`time`) `created_at`,
+            MAX(`a`.`time`) `updated_at`
+          FROM `reserv-io`.`reservations` `r`
+            JOIN `reserv-io`.`actions` `a` ON `r`.`id` = `a`.`reservation_id`
+          GROUP BY `r`.`id`) `b`
+      ON `a`.`id` = `b`.`action_id`
+    JOIN `reserv-io`.`reservations` `r` ON `r`.`id` = `a`.`reservation_id`;

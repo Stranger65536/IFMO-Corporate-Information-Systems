@@ -16,6 +16,7 @@ import java.sql.Timestamp;
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @Table(name = "login_attempts")
+@SuppressWarnings({"DuplicateStringLiteralInspection", "WeakerAccess"})
 public class LoginAttempt {
     @Id
     @Column(name = "id", nullable = false)
@@ -32,7 +33,6 @@ public class LoginAttempt {
     private final boolean successful;
     @Basic
     @Column(name = "user_id", nullable = false)
-    @SuppressWarnings("DuplicateStringLiteralInspection")
     private final int userId;
 
     public LoginAttempt() {
@@ -43,7 +43,7 @@ public class LoginAttempt {
         userId = 0;
     }
 
-    private LoginAttempt(final LoginAttemptBuilder builder) {
+    public LoginAttempt(final LoginAttemptBuilder builder) {
         this.id = builder.id;
         this.ipAddress = builder.ipAddress;
         this.loginTime = builder.loginTime;

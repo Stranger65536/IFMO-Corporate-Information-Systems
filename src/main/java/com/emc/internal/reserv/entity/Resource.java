@@ -16,6 +16,7 @@ import javax.persistence.*;
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @Table(name = "resources")
+@SuppressWarnings({"DuplicateStringLiteralInspection", "WeakerAccess"})
 public class Resource {
     @Id
     @Column(name = "id", nullable = false)

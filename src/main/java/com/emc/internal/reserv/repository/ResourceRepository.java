@@ -13,6 +13,7 @@ import java.util.Optional;
  * @date 05.03.2017
  */
 @Repository
+@SuppressWarnings("DuplicateStringLiteralInspection")
 public interface ResourceRepository extends JpaRepository<Resource, Integer> {
     @Query("SELECT r FROM Resource r where r.name = :name and r.location = :location")
     Optional<Resource> findOneByNameAndLocation(@Param("name") final String name, @Param("location") final String location);

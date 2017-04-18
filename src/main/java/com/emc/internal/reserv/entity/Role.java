@@ -16,6 +16,7 @@ import javax.persistence.*;
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @Table(name = "roles")
+@SuppressWarnings("WeakerAccess")
 public class Role implements GrantedAuthority {
     @Id
     @Column(name = "id", nullable = false)

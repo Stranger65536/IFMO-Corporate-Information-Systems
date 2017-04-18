@@ -30,6 +30,7 @@ public interface RequestValidator<T> {
         return value != null && Ints.tryParse(value) != null;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     static boolean isMatchPattern(final String value, final Pattern pattern) {
         return pattern.matcher(value).matches();
     }
