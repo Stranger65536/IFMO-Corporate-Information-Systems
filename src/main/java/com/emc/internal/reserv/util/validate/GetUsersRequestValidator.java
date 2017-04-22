@@ -1,10 +1,13 @@
 package com.emc.internal.reserv.util.validate;
 
-import https.internal_emc_com.reserv_io.ws.GetUsersRequest;
+import com.emc.internal.reserv.dto.GetUsersRequest;
 import org.springframework.stereotype.Service;
 
 import static com.emc.internal.reserv.util.RuntimeUtil.raiseForgotEnumBranchException;
-import static com.emc.internal.reserv.util.validate.RequestValidator.*;
+import static com.emc.internal.reserv.util.validate.RequestValidator.validateIntegerSearchValue;
+import static com.emc.internal.reserv.util.validate.RequestValidator.validatePageNumber;
+import static com.emc.internal.reserv.util.validate.RequestValidator.validatePageSize;
+import static com.emc.internal.reserv.util.validate.RequestValidator.validateStringSearchValue;
 
 /**
  * @author trofiv

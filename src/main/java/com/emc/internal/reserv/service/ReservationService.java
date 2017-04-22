@@ -1,11 +1,11 @@
 package com.emc.internal.reserv.service;
 
+import com.emc.internal.reserv.dto.FaultCode;
+import com.emc.internal.reserv.dto.ReservationSearchableField;
+import com.emc.internal.reserv.dto.SearchType;
+import com.emc.internal.reserv.dto.SortingOrder;
 import com.emc.internal.reserv.entity.Reservation;
 import com.emc.internal.reserv.entity.ReservationType;
-import https.internal_emc_com.reserv_io.ws.FaultCode;
-import https.internal_emc_com.reserv_io.ws.ReservationSearchableField;
-import https.internal_emc_com.reserv_io.ws.SearchType;
-import https.internal_emc_com.reserv_io.ws.SortingOrder;
 
 import java.time.LocalDateTime;
 import java.util.Collection;

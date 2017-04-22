@@ -1,5 +1,6 @@
 package com.emc.internal.reserv.config;
 
+import org.activiti.spring.boot.SecurityAutoConfiguration;
 import org.apache.ibatis.logging.LogFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,9 +15,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * @author trofiv
  * @date 21.02.2017
  */
-//@EnableResourceServer
-@SpringBootApplication
 @EnableTransactionManagement
+@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 @ComponentScan(basePackages = "com.emc.internal.reserv")
 @EntityScan(basePackages = "com.emc.internal.reserv.entity")
 @EnableJpaRepositories(basePackages = "com.emc.internal.reserv.repository")

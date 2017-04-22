@@ -11,11 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.emc.internal.reserv.dto.FaultCode.RESOURCE_DOES_NOT_EXIST;
+import static com.emc.internal.reserv.dto.FaultCode.RESOURCE_IS_NOT_UNIQUE;
 import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
 import static com.emc.internal.reserv.util.RuntimeUtil.enterMethodMessage;
 import static com.emc.internal.reserv.util.RuntimeUtil.exitMethodMessage;
-import static https.internal_emc_com.reserv_io.ws.FaultCode.RESOURCE_DOES_NOT_EXIST;
-import static https.internal_emc_com.reserv_io.ws.FaultCode.RESOURCE_IS_NOT_UNIQUE;
 import static java.text.MessageFormat.format;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Isolation.SERIALIZABLE;

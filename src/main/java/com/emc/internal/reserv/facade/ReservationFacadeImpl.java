@@ -1,8 +1,21 @@
 package com.emc.internal.reserv.facade;
 
+import com.emc.internal.reserv.dto.AcceptReservationRequest;
+import com.emc.internal.reserv.dto.AcceptReservationResponse;
+import com.emc.internal.reserv.dto.ApproveReservationRequest;
+import com.emc.internal.reserv.dto.ApproveReservationResponse;
+import com.emc.internal.reserv.dto.CancelReservationRequest;
+import com.emc.internal.reserv.dto.CancelReservationResponse;
+import com.emc.internal.reserv.dto.GetReservationsRequest;
+import com.emc.internal.reserv.dto.GetReservationsResponse;
+import com.emc.internal.reserv.dto.PlaceReservationRequest;
+import com.emc.internal.reserv.dto.PlaceReservationResponse;
+import com.emc.internal.reserv.dto.ProposeNewTimeRequest;
+import com.emc.internal.reserv.dto.ProposeNewTimeResponse;
+import com.emc.internal.reserv.dto.UpdateReservationRequest;
+import com.emc.internal.reserv.dto.UpdateReservationResponse;
 import com.emc.internal.reserv.entity.Reservation;
 import com.emc.internal.reserv.service.ReservationService;
-import https.internal_emc_com.reserv_io.ws.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

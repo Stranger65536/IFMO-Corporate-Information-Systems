@@ -2,7 +2,7 @@ CREATE TABLE `reserv-io`.`roles` (
   `id`   INT         NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `name_UNIQUE` (`name` ASC)
+  UNIQUE INDEX `name_idx` (`name` ASC)
 )
   ENGINE = InnoDB;
 
@@ -12,15 +12,17 @@ CREATE TABLE `reserv-io`.`users` (
   `first_name`  NVARCHAR(35) NULL,
   `last_name`   NVARCHAR(35) NULL,
   `middle_name` NVARCHAR(35) NULL,
-  `username`    NVARCHAR(25) NOT NULL,
-  `email`       VARCHAR(254) NOT NULL,
+  `login`       NVARCHAR(25) NOT NULL,
+  `email`       VARCHAR(45)  NOT NULL,
   `password`    VARCHAR(128) NOT NULL,
   `role_id`     INT          NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `ident_idx` (`first_name` ASC, `last_name` ASC, `middle_name` ASC, `username` ASC, `email` ASC),
-  UNIQUE INDEX username_UNIQUE (`username` ASC),
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC),
   INDEX `fk_user_role_idx` (`role_id` ASC),
+  INDEX `first_name_idx` (`first_name` ASC),
+  INDEX `last_name_idx` (`last_name` ASC),
+  INDEX `middle_name_idx` (`middle_name` ASC),
+  UNIQUE INDEX `login_idx` (`login` ASC),
+  UNIQUE INDEX `email_idx` (`email` ASC),
   CONSTRAINT `fk_user_role`
   FOREIGN KEY (`role_id`)
   REFERENCES `reserv-io`.`roles` (`id`)
@@ -52,7 +54,6 @@ CREATE TABLE `reserv-io`.`reservations` (
   `id`      BIGINT NOT NULL AUTO_INCREMENT,
   `user_id` INT    NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `main_search_idx` (`id` ASC, `user_id` ASC),
   INDEX `fk_reservation_user_idx` (`user_id` ASC),
   CONSTRAINT `fk_reservation_user`
   FOREIGN KEY (`user_id`)
@@ -68,7 +69,9 @@ CREATE TABLE `reserv-io`.`resources` (
   `name`     NVARCHAR(25) NOT NULL,
   `location` NVARCHAR(45) NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `name_idx` (`name` ASC, `location` ASC)
+  INDEX `name_idx` (`name` ASC),
+  INDEX `location_idx` (`location` ASC),
+  UNIQUE INDEX `unique_idx` (`name` ASC, `location` ASC)
 )
   ENGINE = InnoDB;
 
@@ -86,7 +89,7 @@ CREATE TABLE `reserv-io`.`reservation_statuses` (
   `id`   INT         NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(25) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `name_UNIQUE` (`name` ASC)
+  UNIQUE INDEX `name_idx` (`name` ASC)
 )
   ENGINE = InnoDB;
 
@@ -102,12 +105,14 @@ CREATE TABLE `reserv-io`.`actions` (
   `status_id`         INT      NOT NULL,
   `reservation_id`    BIGINT   NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `main_search_idx` (`reservation_start` ASC, `reservation_end` ASC, `resource_id` ASC, `type_id` ASC, `status_id` ASC, `user_id` ASC, `reservation_id` ASC),
-  INDEX `fk_action_user_idx` (`user_id` ASC),
-  INDEX `fk_action_resource_idx` (`resource_id` ASC),
-  INDEX `fk_action_status_idx` (`status_id` ASC),
-  INDEX `fk_action_type_idx` (`type_id` ASC),
-  INDEX `fk_action_reservation_idx` (`reservation_id` ASC),
+  INDEX `fk_actions_reservation_type_idx` (`type_id` ASC),
+  INDEX `fk_actions_status_idx` (`status_id` ASC),
+  INDEX `time_idx` (`time` ASC),
+  INDEX `fk_actions_reservation_idx` (`reservation_id` ASC),
+  INDEX `fk_user_idx` (`user_id` ASC),
+  INDEX `fk_resource_idx` (`resource_id` ASC),
+  INDEX `start_idx` (`reservation_start` ASC),
+  INDEX `end_idx` (`reservation_end` ASC),
   CONSTRAINT `fk_action_reservation`
   FOREIGN KEY (`reservation_id`)
   REFERENCES `reserv-io`.`reservations` (`id`)

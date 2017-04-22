@@ -1,15 +1,15 @@
 package com.emc.internal.reserv.util.validate;
 
-import https.internal_emc_com.reserv_io.ws.RegistrationRequest;
-import https.internal_emc_com.reserv_io.ws.UserRegistrationRequestField;
+import com.emc.internal.reserv.dto.RegistrationRequest;
+import com.emc.internal.reserv.dto.UserRegistrationRequestField;
 import org.springframework.stereotype.Service;
 
 import java.util.regex.Pattern;
 
+import static com.emc.internal.reserv.dto.FaultCode.INVALID_FIELD_VALUE;
 import static com.emc.internal.reserv.util.EndpointUtil.getInvalidFieldMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
 import static com.emc.internal.reserv.util.validate.RequestValidator.isMatchPattern;
-import static https.internal_emc_com.reserv_io.ws.FaultCode.INVALID_FIELD_VALUE;
 
 /**
  * @author trofiv

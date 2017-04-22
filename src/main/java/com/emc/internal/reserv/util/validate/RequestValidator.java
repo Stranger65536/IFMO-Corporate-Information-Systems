@@ -1,17 +1,17 @@
 package com.emc.internal.reserv.util.validate;
 
+import com.emc.internal.reserv.dto.GenericSearchRequestField;
+import com.emc.internal.reserv.dto.SearchType;
 import com.google.common.primitives.Ints;
-import https.internal_emc_com.reserv_io.ws.GenericSearchRequestField;
-import https.internal_emc_com.reserv_io.ws.SearchType;
 import org.apache.commons.lang3.Range;
 
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import static com.emc.internal.reserv.dto.FaultCode.INVALID_FIELD_VALUE;
 import static com.emc.internal.reserv.util.EndpointUtil.getInvalidFieldMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
 import static com.emc.internal.reserv.util.RuntimeUtil.raiseForgotEnumBranchException;
-import static https.internal_emc_com.reserv_io.ws.FaultCode.INVALID_FIELD_VALUE;
 
 /**
  * @author trofiv

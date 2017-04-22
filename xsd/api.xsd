@@ -1,49 +1,12 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:tns="https://internal.emc.com/reserv-io/ws"
+           xmlns:tns="https://internal.emc.com/reserv-io/schema/api"
+           xmlns:cns="https://internal.emc.com/reserv-io/schema/common"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-           targetNamespace="https://internal.emc.com/reserv-io/ws"
+           targetNamespace="https://internal.emc.com/reserv-io/schema/api"
            elementFormDefault="qualified"
            jaxb:extensionBindingPrefixes="basic equals hashCode toString">
-    <xs:simpleType name="Username">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="[\p{L}\p{M}\p{S}\p{N}\p{P}]{6,32}"/>
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="Email">
-        <xs:restriction base="xs:string">
-            <xs:pattern
-                    value="(([^&lt;&gt;()\[\]\\.,;:\s@']+(\.[^&lt;&gt;()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))"/>
-            <xs:maxLength value="254"/>
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="Password">
-        <xs:restriction base="xs:string">
-            <xs:minLength value="6"/>
-            <xs:maxLength value="32"/>
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="Name">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="[\\p{L} .'\-]{0,35}"/>
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="FaultCode">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="UNKNOWN_ERROR"/>
-            <xs:enumeration value="INVALID_FIELD_VALUE"/>
-            <xs:enumeration value="USER_ALREADY_REGISTERED"/>
-            <xs:enumeration value="USER_DOES_NOT_EXIST"/>
-            <xs:enumeration value="RESOURCE_DOES_NOT_EXIST"/>
-            <xs:enumeration value="RESOURCE_IS_NOT_UNIQUE"/>
-            <xs:enumeration value="RESERVATION_TYPE_DOES_NOT_EXIST"/>
-            <xs:enumeration value="RESERVATION_STATUS_DOES_NOT_EXIST"/>
-            <xs:enumeration value="EVENT_OVERLAPS_WITH_UNAVAILABLE_EVENT"/>
-            <xs:enumeration value="EVENT_OVERLAPS_WITH_EVENT"/>
-            <xs:enumeration value="PENDING_RESERVATIONS_LIMIT_EXCEEDED"/>
-            <xs:enumeration value="RESERVATION_HAS_BEEN_UPDATED_EXTERNALLY"/>
-            <xs:enumeration value="ACCESS_DENIED"/>
-        </xs:restriction>
-    </xs:simpleType>
+    <xs:import namespace="https://internal.emc.com/reserv-io/schema/register" schemaLocation="register.xsd"/>
+    <xs:import namespace="https://internal.emc.com/reserv-io/schema/common" schemaLocation="common.xsd"/>
     <xs:simpleType name="GenericSearchRequestField">
         <xs:restriction base="xs:string">
             <xs:enumeration value="page"/>
@@ -104,16 +67,6 @@
             <xs:enumeration value="role"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="UserRegistrationRequestField">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="username"/>
-            <xs:enumeration value="email"/>
-            <xs:enumeration value="password"/>
-            <xs:enumeration value="firstName"/>
-            <xs:enumeration value="lastName"/>
-            <xs:enumeration value="middleName"/>
-        </xs:restriction>
-    </xs:simpleType>
     <xs:simpleType name="GetUserRequestField">
         <xs:restriction base="xs:string">
             <xs:enumeration value="id"/>
@@ -128,11 +81,10 @@
     <xs:simpleType name="ReservationField">
         <xs:restriction base="xs:string">
             <xs:enumeration value="id"/>
-            <xs:enumeration value="owner"/>
-            <xs:enumeration value="lastActionUser"/>
             <xs:enumeration value="resource"/>
             <xs:enumeration value="type"/>
             <xs:enumeration value="status"/>
+            <xs:enumeration value="owner"/>
             <xs:enumeration value="startsAt"/>
             <xs:enumeration value="endsAt"/>
             <xs:enumeration value="createdOn"/>
@@ -142,11 +94,10 @@
     <xs:simpleType name="ReservationSearchableField">
         <xs:restriction base="xs:string">
             <xs:enumeration value="id"/>
-            <xs:enumeration value="owner"/>
-            <xs:enumeration value="lastActionUser"/>
             <xs:enumeration value="resource"/>
             <xs:enumeration value="type"/>
             <xs:enumeration value="status"/>
+            <xs:enumeration value="owner"/>
             <xs:enumeration value="startsAt"/>
             <xs:enumeration value="endsAt"/>
             <xs:enumeration value="createdOn"/>
@@ -182,11 +133,11 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="id" type="xs:int"/>
-                <xs:element name="username" type="tns:Username"/>
-                <xs:element name="email" type="tns:Email"/>
-                <xs:element name="firstName" type="tns:Name" minOccurs="0"/>
-                <xs:element name="lastName" type="tns:Name" minOccurs="0"/>
-                <xs:element name="middleName" type="tns:Name" minOccurs="0"/>
+                <xs:element name="username" type="cns:Username"/>
+                <xs:element name="email" type="cns:Email"/>
+                <xs:element name="firstName" type="cns:Name" minOccurs="0"/>
+                <xs:element name="lastName" type="cns:Name" minOccurs="0"/>
+                <xs:element name="middleName" type="cns:Name" minOccurs="0"/>
                 <xs:element name="role" type="tns:Role"/>
             </xs:sequence>
         </xs:complexType>
@@ -225,27 +176,6 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="ServiceFault">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="code" type="tns:FaultCode"/>
-                <xs:element name="description" type="xs:string"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="RegistrationRequest">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="username" type="tns:Username"/>
-                <xs:element name="email" type="tns:Email"/>
-                <xs:element name="password" type="tns:Password"/>
-                <xs:element name="firstName" type="tns:Name" minOccurs="0"/>
-                <xs:element name="lastName" type="tns:Name" minOccurs="0"/>
-                <xs:element name="middleName" type="tns:Name" minOccurs="0"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
     <xs:element name="GetUserRequest">
         <xs:complexType>
             <xs:sequence>

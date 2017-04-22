@@ -1,7 +1,13 @@
 package com.emc.internal.reserv.exception;
 
-import https.internal_emc_com.reserv_io.ws.ServiceFault;
+import com.emc.internal.reserv.dto.ServiceFault;
 import lombok.Getter;
+import org.springframework.ws.soap.SoapFault;
+import org.springframework.ws.soap.SoapFaultDetail;
+
+import static com.emc.internal.reserv.config.DetailSoapFaultDefinitionExceptionResolver.CODE;
+import static com.emc.internal.reserv.config.DetailSoapFaultDefinitionExceptionResolver.DESCRIPTION;
+import static com.emc.internal.reserv.dto.FaultCode.UNKNOWN_ERROR;
 
 /**
  * @author trofiv
@@ -16,8 +22,13 @@ public class ServiceFaultException extends RuntimeException {
         this.serviceFault = serviceFault;
     }
 
-    public ServiceFaultException(final String message, final Throwable e, final ServiceFault serviceFault) {
-        super(message, e);
-        this.serviceFault = serviceFault;
+    public void customizeFault(final SoapFault fault) {
+        final SoapFaultDetail detail = fault.addFaultDetail();
+        detail.addFaultDetailElement(CODE).addText(serviceFault == null
+                ? UNKNOWN_ERROR.value()
+                : serviceFault.getCode().value());
+        detail.addFaultDetailElement(DESCRIPTION).addText(serviceFault == null
+                ? ""
+                : serviceFault.getDescription());
     }
 }

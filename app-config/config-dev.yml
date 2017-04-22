@@ -22,7 +22,7 @@ spring:
     store-type: HASH_MAP
   jpa:
     database: MYSQL
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: validate
       default-schema: reserv-io

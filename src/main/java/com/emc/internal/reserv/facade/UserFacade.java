@@ -1,6 +1,10 @@
 package com.emc.internal.reserv.facade;
 
-import https.internal_emc_com.reserv_io.ws.*;
+import com.emc.internal.reserv.dto.GetUserRequest;
+import com.emc.internal.reserv.dto.GetUserResponse;
+import com.emc.internal.reserv.dto.GetUsersRequest;
+import com.emc.internal.reserv.dto.GetUsersResponse;
+import com.emc.internal.reserv.dto.RegistrationRequest;
 
 /**
  * @author trofiv

@@ -43,6 +43,6 @@ Configutation:
         level: debug
         AppenderRef:
           - ref: RollingFile_Appender
-            level: debug
+            level: info
           - ref: Console_Appender
             level: info

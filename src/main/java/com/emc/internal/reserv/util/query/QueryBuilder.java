@@ -1,13 +1,17 @@
 package com.emc.internal.reserv.util.query;
 
+import com.emc.internal.reserv.dto.SearchType;
+import com.emc.internal.reserv.dto.SortingOrder;
 import com.emc.internal.reserv.entity.User;
-import https.internal_emc_com.reserv_io.ws.SearchType;
-import https.internal_emc_com.reserv_io.ws.SortingOrder;
 
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Root;
 
-import static https.internal_emc_com.reserv_io.ws.SortingOrder.DESC;
+import static com.emc.internal.reserv.dto.SortingOrder.DESC;
 
 /**
  * @author trofiv

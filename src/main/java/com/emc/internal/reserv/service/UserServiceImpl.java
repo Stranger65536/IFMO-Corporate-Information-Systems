@@ -1,12 +1,12 @@
 package com.emc.internal.reserv.service;
 
+import com.emc.internal.reserv.dto.SearchType;
+import com.emc.internal.reserv.dto.SortingOrder;
+import com.emc.internal.reserv.dto.UserSearchableField;
 import com.emc.internal.reserv.entity.User;
 import com.emc.internal.reserv.entity.User.UserBuilder;
 import com.emc.internal.reserv.repository.UserRepository;
 import com.emc.internal.reserv.util.query.QueryBuilder;
-import https.internal_emc_com.reserv_io.ws.SearchType;
-import https.internal_emc_com.reserv_io.ws.SortingOrder;
-import https.internal_emc_com.reserv_io.ws.UserSearchableField;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +17,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.emc.internal.reserv.dto.FaultCode.USER_ALREADY_REGISTERED;
 import static com.emc.internal.reserv.entity.Roles.USER;
 import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
 import static com.emc.internal.reserv.util.RuntimeUtil.enterMethodMessage;
 import static com.emc.internal.reserv.util.RuntimeUtil.exitMethodMessage;
-import static https.internal_emc_com.reserv_io.ws.FaultCode.USER_ALREADY_REGISTERED;
+import static com.emc.internal.reserv.util.RuntimeUtil.hashPassword;
 import static java.text.MessageFormat.format;
+import static java.util.Collections.singletonList;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Isolation.SERIALIZABLE;
 import static org.springframework.transaction.annotation.Propagation.REQUIRED;
@@ -39,7 +40,8 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRED;
  * @date 04.04.2017
  */
 @Log4j2
-@Service
+@Service("userService")
+@SuppressWarnings("DuplicateStringLiteralInspection")
 public class UserServiceImpl implements UserService, UserDetailsService {
     static {
         checkSha512Supported();
@@ -75,7 +77,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         return new org.springframework.security.core.userdetails.User(
                 username, user.getPassword(), true, true, true, true,
-                Collections.singletonList(user.getRole()));
+                singletonList(user.getRole()));
     }
 
     @Override
@@ -118,13 +120,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userRepository.saveAndFlush(user);
 
         log.info(exitMethodMessage());
-    }
-
-    @SneakyThrows
-    private static String hashPassword(final String password) {
-        final MessageDigest md = MessageDigest.getInstance("SHA-512");
-        final byte[] bytes = md.digest(password.getBytes("UTF-8"));
-        return String.format("%0128x", new BigInteger(1, bytes));
     }
 
     @Override

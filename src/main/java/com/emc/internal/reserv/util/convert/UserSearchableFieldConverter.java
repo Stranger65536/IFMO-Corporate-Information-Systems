@@ -1,7 +1,7 @@
 package com.emc.internal.reserv.util.convert;
 
+import com.emc.internal.reserv.dto.UserSearchableField;
 import com.google.common.primitives.Ints;
-import https.internal_emc_com.reserv_io.ws.UserSearchableField;
 import org.springframework.stereotype.Service;
 
 /**

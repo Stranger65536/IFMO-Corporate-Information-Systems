@@ -5,6 +5,7 @@ import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
@@ -13,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.ws.config.annotation.EnableWs;
 import org.springframework.ws.config.annotation.WsConfigurerAdapter;
 import org.springframework.ws.soap.server.endpoint.SoapFaultDefinition;
@@ -30,18 +32,29 @@ import java.util.Properties;
  */
 @EnableWs
 @Configuration
+@SuppressWarnings("WeakerAccess")
 public class WebServiceConfig extends WsConfigurerAdapter {
+    public static final String API_NAMESPACE_URI = "https://internal.emc.com/reserv-io/schema/api";
+    public static final String REGISTER_NAMESPACE_URI = "https://internal.emc.com/reserv-io/schema/register";
+    public static final String SERVLET_ENDPOINT = "/ws/*";
+    public static final String REGISTER_WS_ENDPOINT = "/ws/register";
+    public static final String API_WS_ENDPOINT = "/ws/api";
+    public static final String REGISTER_SCHEMA = "register.xsd";
+    public static final String API_SCHEMA = "api.xsd";
+
     @Value("${server.redirect-from-port}")
     private int httpPort;
     @Value("${server.port}")
     private int httpsPort;
+    @Value("${spring.config.location}../static/schema/")
+    private String schemaDirectory;
 
     @Bean
     public ServletRegistrationBean messageDispatcherServlet(final ApplicationContext applicationContext) {
         final MessageDispatcherServlet servlet = new MessageDispatcherServlet();
         servlet.setApplicationContext(applicationContext);
         servlet.setTransformWsdlLocations(true);
-        return new ServletRegistrationBean(servlet, "/ws/*");
+        return new ServletRegistrationBean(servlet, SERVLET_ENDPOINT);
     }
 
     @Bean
@@ -61,19 +74,34 @@ public class WebServiceConfig extends WsConfigurerAdapter {
         return exceptionResolver;
     }
 
-    @Bean(name = "reserv-io")
-    public DefaultWsdl11Definition defaultWsdl11Definition(final XsdSchema schema) {
-        final DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
-        wsdl11Definition.setPortTypeName("ReservIOPort");
-        wsdl11Definition.setLocationUri("/ws");
-        wsdl11Definition.setTargetNamespace("https://internal.emc.com/reserv-io");
-        wsdl11Definition.setSchema(schema);
-        return wsdl11Definition;
+    @Bean(name = "api")
+    public DefaultWsdl11Definition apiWsdlDefinition(@Qualifier("apiSchema") final XsdSchema schema) {
+        final DefaultWsdl11Definition wsdlDefinition = new DefaultWsdl11Definition();
+        wsdlDefinition.setPortTypeName("ReservIOApiPort");
+        wsdlDefinition.setLocationUri(API_WS_ENDPOINT);
+        wsdlDefinition.setTargetNamespace(API_NAMESPACE_URI);
+        wsdlDefinition.setSchema(schema);
+        return wsdlDefinition;
+    }
+
+    @Bean(name = "register")
+    public DefaultWsdl11Definition registerWsdlDefinition(@Qualifier("registerSchema") final XsdSchema schema) {
+        final DefaultWsdl11Definition wsdlDefinition = new DefaultWsdl11Definition();
+        wsdlDefinition.setPortTypeName("ReservIORegisterPort");
+        wsdlDefinition.setLocationUri(REGISTER_WS_ENDPOINT);
+        wsdlDefinition.setTargetNamespace(REGISTER_NAMESPACE_URI);
+        wsdlDefinition.setSchema(schema);
+        return wsdlDefinition;
     }
 
     @Bean
-    public XsdSchema countriesSchema() {
-        return new SimpleXsdSchema(new ClassPathResource("reserv-io.xsd"));
+    public XsdSchema apiSchema() {
+        return new SimpleXsdSchema(new FileSystemResource(schemaDirectory + API_SCHEMA));
+    }
+
+    @Bean
+    public XsdSchema registerSchema() {
+        return new SimpleXsdSchema(new FileSystemResource(schemaDirectory + REGISTER_SCHEMA));
     }
 
     @Bean

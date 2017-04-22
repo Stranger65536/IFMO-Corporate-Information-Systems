@@ -1,18 +1,26 @@
 package com.emc.internal.reserv.facade;
 
+import com.emc.internal.reserv.dto.CreateResourceRequest;
+import com.emc.internal.reserv.dto.CreateResourceResponse;
+import com.emc.internal.reserv.dto.GetResourceRequest;
+import com.emc.internal.reserv.dto.GetResourceResponse;
+import com.emc.internal.reserv.dto.GetResourcesRequest;
+import com.emc.internal.reserv.dto.GetResourcesResponse;
+import com.emc.internal.reserv.dto.ResourceInfo;
+import com.emc.internal.reserv.dto.UpdateResourceRequest;
+import com.emc.internal.reserv.dto.UpdateResourceResponse;
 import com.emc.internal.reserv.entity.Resource;
 import com.emc.internal.reserv.entity.Resource.ResourceBuilder;
 import com.emc.internal.reserv.service.ResourceService;
 import com.emc.internal.reserv.util.validate.RequestValidator;
-import https.internal_emc_com.reserv_io.ws.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.emc.internal.reserv.dto.FaultCode.RESOURCE_DOES_NOT_EXIST;
 import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
-import static https.internal_emc_com.reserv_io.ws.FaultCode.RESOURCE_DOES_NOT_EXIST;
 import static java.text.MessageFormat.format;
 import static java.util.stream.Collectors.toList;
 

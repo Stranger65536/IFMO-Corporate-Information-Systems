@@ -1,13 +1,24 @@
 package com.emc.internal.reserv.entity;
 
-import https.internal_emc_com.reserv_io.ws.UserInfo;
+import com.emc.internal.reserv.dto.UserInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import javax.persistence.*;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  * @author trofiv
@@ -83,7 +94,7 @@ public class User {
         info.setMiddleName(this.middleName);
         info.setRole(this.role == null
                 ? null
-                : https.internal_emc_com.reserv_io.ws.Role.fromValue(this.role.getName()));
+                : com.emc.internal.reserv.dto.Role.fromValue(this.role.getName()));
         return info;
     }
 

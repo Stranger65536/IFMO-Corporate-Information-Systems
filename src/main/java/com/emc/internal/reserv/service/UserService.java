@@ -1,9 +1,9 @@
 package com.emc.internal.reserv.service;
 
+import com.emc.internal.reserv.dto.SearchType;
+import com.emc.internal.reserv.dto.SortingOrder;
+import com.emc.internal.reserv.dto.UserSearchableField;
 import com.emc.internal.reserv.entity.User;
-import https.internal_emc_com.reserv_io.ws.SearchType;
-import https.internal_emc_com.reserv_io.ws.SortingOrder;
-import https.internal_emc_com.reserv_io.ws.UserSearchableField;
 
 import java.util.Collection;
 import java.util.Optional;

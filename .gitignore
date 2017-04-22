@@ -6,5 +6,6 @@ logs/
 logs-test/
 /frontend/node_modules/
 /frontend/nodejs/
+!static/schema/
 /static/
 /out/

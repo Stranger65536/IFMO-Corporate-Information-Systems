@@ -1,0 +1,53 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="https://internal.emc.com/reserv-io/schema/common"
+           targetNamespace="https://internal.emc.com/reserv-io/schema/common"
+           elementFormDefault="qualified">
+    <xs:simpleType name="Username">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[\p{L}\p{M}\p{S}\p{N}\p{P}]{6,32}"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Email">
+        <xs:restriction base="xs:string">
+            <xs:pattern
+                    value="(([^&lt;&gt;()\[\]\\.,;:\s@']+(\.[^&lt;&gt;()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))"/>
+            <xs:maxLength value="254"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Password">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="6"/>
+            <xs:maxLength value="32"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Name">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[\\p{L} .'\-]{0,35}"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="FaultCode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="UNKNOWN_ERROR"/>
+            <xs:enumeration value="INVALID_FIELD_VALUE"/>
+            <xs:enumeration value="USER_ALREADY_REGISTERED"/>
+            <xs:enumeration value="USER_DOES_NOT_EXIST"/>
+            <xs:enumeration value="RESOURCE_DOES_NOT_EXIST"/>
+            <xs:enumeration value="RESOURCE_IS_NOT_UNIQUE"/>
+            <xs:enumeration value="RESERVATION_TYPE_DOES_NOT_EXIST"/>
+            <xs:enumeration value="RESERVATION_STATUS_DOES_NOT_EXIST"/>
+            <xs:enumeration value="EVENT_OVERLAPS_WITH_UNAVAILABLE_EVENT"/>
+            <xs:enumeration value="EVENT_OVERLAPS_WITH_EVENT"/>
+            <xs:enumeration value="PENDING_RESERVATIONS_LIMIT_EXCEEDED"/>
+            <xs:enumeration value="ACCESS_DENIED"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="ServiceFault">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="code" type="tns:FaultCode"/>
+                <xs:element name="description" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

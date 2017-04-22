@@ -1,11 +1,11 @@
 package com.emc.internal.reserv.service;
 
+import com.emc.internal.reserv.dto.FaultCode;
+import com.emc.internal.reserv.dto.ReservationSearchableField;
+import com.emc.internal.reserv.dto.SearchType;
+import com.emc.internal.reserv.dto.SortingOrder;
 import com.emc.internal.reserv.entity.Reservation;
 import com.emc.internal.reserv.entity.ReservationType;
-import https.internal_emc_com.reserv_io.ws.FaultCode;
-import https.internal_emc_com.reserv_io.ws.ReservationSearchableField;
-import https.internal_emc_com.reserv_io.ws.SearchType;
-import https.internal_emc_com.reserv_io.ws.SortingOrder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
+
+import static java.util.Collections.emptyList;
 
 /**
  * @author trofiv
@@ -32,7 +34,7 @@ public class ReservationServiceImpl implements ReservationService {
             final SortingOrder sortingOrder,
             final ReservationSearchableField sortingField) {
         //TODO
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Override

@@ -1,11 +1,19 @@
 package com.emc.internal.reserv.entity;
 
-import https.internal_emc_com.reserv_io.ws.ResourceInfo;
+import com.emc.internal.reserv.dto.ResourceInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * @author trofiv

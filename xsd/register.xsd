@@ -1,0 +1,29 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cns="https://internal.emc.com/reserv-io/schema/common"
+           targetNamespace="https://internal.emc.com/reserv-io/schema/register"
+           elementFormDefault="qualified">
+    <xs:import namespace="https://internal.emc.com/reserv-io/schema/common" schemaLocation="common.xsd"/>
+    <xs:simpleType name="UserRegistrationRequestField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="username"/>
+            <xs:enumeration value="email"/>
+            <xs:enumeration value="password"/>
+            <xs:enumeration value="firstName"/>
+            <xs:enumeration value="lastName"/>
+            <xs:enumeration value="middleName"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="RegistrationRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="username" type="cns:Username"/>
+                <xs:element name="email" type="cns:Email"/>
+                <xs:element name="password" type="cns:Password"/>
+                <xs:element name="firstName" type="cns:Name" minOccurs="0"/>
+                <xs:element name="lastName" type="cns:Name" minOccurs="0"/>
+                <xs:element name="middleName" type="cns:Name" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

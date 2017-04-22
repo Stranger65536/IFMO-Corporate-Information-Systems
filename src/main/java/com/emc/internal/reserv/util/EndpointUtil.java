@@ -1,8 +1,8 @@
 package com.emc.internal.reserv.util;
 
+import com.emc.internal.reserv.dto.FaultCode;
+import com.emc.internal.reserv.dto.ServiceFault;
 import com.emc.internal.reserv.exception.ServiceFaultException;
-import https.internal_emc_com.reserv_io.ws.FaultCode;
-import https.internal_emc_com.reserv_io.ws.ServiceFault;
 import lombok.extern.log4j.Log4j2;
 
 import static java.text.MessageFormat.format;
@@ -22,11 +22,11 @@ public class EndpointUtil {
     }
 
     public static ServiceFaultException raiseServiceFaultException(final FaultCode code, final String message) {
-        final ServiceFault fault = raiseServiceFault(code, message);
+        final ServiceFault fault = createServiceFault(code, message);
         return new ServiceFaultException(message, fault);
     }
 
-    public static ServiceFault raiseServiceFault(final FaultCode code, final String message) {
+    private static ServiceFault createServiceFault(final FaultCode code, final String message) {
         final ServiceFault fault = new ServiceFault();
         fault.setCode(code);
         fault.setDescription(message == null ? "" : message);

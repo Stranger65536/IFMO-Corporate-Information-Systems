@@ -1,18 +1,23 @@
 package com.emc.internal.reserv.facade;
 
+import com.emc.internal.reserv.dto.GetUserRequest;
+import com.emc.internal.reserv.dto.GetUserResponse;
+import com.emc.internal.reserv.dto.GetUsersRequest;
+import com.emc.internal.reserv.dto.GetUsersResponse;
+import com.emc.internal.reserv.dto.RegistrationRequest;
+import com.emc.internal.reserv.dto.UserSearchableField;
 import com.emc.internal.reserv.entity.User;
 import com.emc.internal.reserv.service.UserService;
 import com.emc.internal.reserv.util.convert.FieldConverter;
 import com.emc.internal.reserv.util.validate.RequestValidator;
-import https.internal_emc_com.reserv_io.ws.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.emc.internal.reserv.dto.FaultCode.USER_DOES_NOT_EXIST;
 import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
-import static https.internal_emc_com.reserv_io.ws.FaultCode.USER_DOES_NOT_EXIST;
 import static java.text.MessageFormat.format;
 import static java.util.stream.Collectors.toList;
 

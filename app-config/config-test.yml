@@ -11,9 +11,9 @@ spring:
   profiles:
     active: test
   datasource:
-    url: jdbc:mysql://localhost:3306/reserv-io-test?useSSL=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC
-    username: dbtest
-    password: testpassword
+    url: jdbc:mysql://localhost:3306/reserv-io?useSSL=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC
+    username: dbuser
+    password: awesomepassword
     driver-class-name: com.mysql.cj.jdbc.Driver
     dbcp2:
       test-while-idle: true
@@ -22,7 +22,7 @@ spring:
     store-type: HASH_MAP
   jpa:
     database: MYSQL
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: validate
       default-schema: reserv-io-test

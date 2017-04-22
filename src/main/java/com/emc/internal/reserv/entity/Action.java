@@ -1,14 +1,24 @@
 package com.emc.internal.reserv.entity;
 
+import com.emc.internal.reserv.dto.ActionInfo;
 import com.emc.internal.reserv.util.RuntimeUtil;
-import https.internal_emc_com.reserv_io.ws.ActionInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import javax.persistence.*;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.sql.Timestamp;
 
 import static com.emc.internal.reserv.util.RuntimeUtil.toCalendar;

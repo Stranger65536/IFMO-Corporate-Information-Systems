@@ -1,16 +1,20 @@
 package com.emc.internal.reserv.util.query;
 
+import com.emc.internal.reserv.dto.SearchType;
+import com.emc.internal.reserv.dto.SortingOrder;
+import com.emc.internal.reserv.dto.UserField;
+import com.emc.internal.reserv.dto.UserSearchableField;
 import com.emc.internal.reserv.entity.User;
-import https.internal_emc_com.reserv_io.ws.SearchType;
-import https.internal_emc_com.reserv_io.ws.SortingOrder;
-import https.internal_emc_com.reserv_io.ws.UserField;
-import https.internal_emc_com.reserv_io.ws.UserSearchableField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Root;
 
 import static com.emc.internal.reserv.util.RuntimeUtil.raiseForgotEnumBranchException;
 import static java.text.MessageFormat.format;

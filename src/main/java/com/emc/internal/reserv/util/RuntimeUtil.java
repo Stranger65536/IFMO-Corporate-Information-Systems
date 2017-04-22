@@ -1,8 +1,12 @@
 package com.emc.internal.reserv.util;
 
+import lombok.SneakyThrows;
+
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -71,5 +75,12 @@ public class RuntimeUtil {
 
     public static UnsupportedOperationException raiseUninitializedEntityField() {
         return new UnsupportedOperationException("Mandatory entity field uninitialized!");
+    }
+
+    @SneakyThrows
+    public static String hashPassword(final String password) {
+        final MessageDigest md = MessageDigest.getInstance("SHA-512");
+        final byte[] bytes = md.digest(password.getBytes("UTF-8"));
+        return String.format("%0128x", new BigInteger(1, bytes));
     }
 }

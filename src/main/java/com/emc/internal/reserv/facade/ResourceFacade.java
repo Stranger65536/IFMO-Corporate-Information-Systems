@@ -1,6 +1,13 @@
 package com.emc.internal.reserv.facade;
 
-import https.internal_emc_com.reserv_io.ws.*;
+import com.emc.internal.reserv.dto.CreateResourceRequest;
+import com.emc.internal.reserv.dto.CreateResourceResponse;
+import com.emc.internal.reserv.dto.GetResourceRequest;
+import com.emc.internal.reserv.dto.GetResourceResponse;
+import com.emc.internal.reserv.dto.GetResourcesRequest;
+import com.emc.internal.reserv.dto.GetResourcesResponse;
+import com.emc.internal.reserv.dto.UpdateResourceRequest;
+import com.emc.internal.reserv.dto.UpdateResourceResponse;
 
 /**
  * @author trofiv

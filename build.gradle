@@ -31,10 +31,22 @@ repositories {
     maven { url 'https://repo.spring.io/milestone' }
 }
 
+final frontendDir = "${project.projectDir}/frontend"
+final staticDir = "${project.projectDir}/static"
+final schemaDir = "${project.projectDir}/xsd"
+final staticSchemaDir = staticDir + '/schema'
+
+def updateSchemaLocation(final def filePath) {
+    final proj = file(filePath)
+    final text = proj.getText("UTF-8")
+            .replaceAll('common.xsd', 'https://internal.emc.com/reserv-io/schema/common.xsd')
+            .replaceAll('register.xsd', 'https://internal.emc.com/reserv-io/schema/register.xsd')
+    proj.write(text, "UTF-8")
+}
+
 task genJaxb {
     ext.sourcesDir = "${buildDir}/generated-sources/jaxb"
     ext.classesDir = "${buildDir}/classes/jaxb"
-    ext.schema = "${project.projectDir}/src/main/resources/reserv-io.xsd"
 
     outputs.dir classesDir
 
@@ -45,11 +57,14 @@ task genJaxb {
             mkdir(dir: sourcesDir)
             mkdir(dir: classesDir)
 
-            xjc(destdir: sourcesDir, schema: schema) {
+            xjc(destdir: sourcesDir) {
+                schema(dir: schemaDir, includes: "api.xsd")
                 arg(value: '-wsdl')
                 arg(value: '-XtoString')
                 arg(value: '-Xequals')
                 arg(value: '-XhashCode')
+                arg(value: '-p')
+                arg(value: 'com.emc.internal.reserv.dto')
                 produces(dir: sourcesDir, includes: '**/*.java')
             }
 
@@ -70,6 +85,15 @@ task genJaxb {
                     exclude(name: '**/*.java')
                 }
             }
+
+            //noinspection GroovyAssignabilityCheck
+            copy(todir: staticSchemaDir) {
+                fileset(dir: schemaDir, erroronmissingdir: false)
+            }
+        }
+
+        new FileNameFinder().getFileNames(staticSchemaDir, '*.xsd').each {
+            updateSchemaLocation(it)
         }
     }
 }
@@ -99,6 +123,7 @@ test {
 
 final springSessionVersion = '1.3.0.RELEASE'
 final springBootVersion = '1.5.1.RELEASE'
+final springSecurityOAuth2Version = '2.1.0.RELEASE'
 final mysqlVersion = '6.0.5'
 final lombokVersion = '1.16.14'
 final hibernateVersion = '5.2.8.Final'
@@ -112,7 +137,6 @@ final jaxb2CommonsLangVersion = '2.3'
 final jaxb2BasicsVersion = '0.11.1'
 final apacheCommonsLangVersion = '3.5'
 final jade4jVersion = '1.1.4'
-final frontendDir = "${project.projectDir}/frontend"
 
 node {
     version = '7.7.2'
@@ -133,7 +157,6 @@ dependencies {
     //noinspection GroovyAssignabilityCheck
     compile(
             [group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion],
-            [group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion],
             [group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: springBootVersion],
             [group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2', version: springBootVersion],
             [group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion],
@@ -147,6 +170,7 @@ dependencies {
 
             [group: 'org.springframework.session', name: 'spring-session', version: springSessionVersion],
             [group: 'org.springframework.session', name: 'spring-session-jdbc', version: springSessionVersion],
+            [group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: springSecurityOAuth2Version],
 
             [group: 'org.activiti', name: 'activiti-spring-boot-starter-jpa', version: activityVersion],
             [group: 'org.activiti', name: 'activiti-spring-boot-starter-basic', version: activityVersion],
@@ -189,12 +213,14 @@ task prepareEnvironment {
     }
 }
 
-task cleanFrontend {
+task cleanStatic {
     doLast {
         delete frontendDir + '/build/bundle'
-        delete frontendDir + '/static'
+        delete "${project.projectDir}/static"
     }
 }
+
+clean.dependsOn(cleanStatic)
 
 task gulpBuild(type: GulpTask) {
     args = ['build']
@@ -207,7 +233,7 @@ task copyBundles(type: Copy) {
 
 task rebuildFrontend {
     doLast {
-        cleanFrontend.execute()
+        cleanStatic.execute()
         gulpBuild.execute()
         copyBundles.execute()
     }
@@ -219,7 +245,7 @@ task wrapper(type: Wrapper) {
 
 flyway {
     driver = 'com.mysql.cj.jdbc.Driver'
-    url = 'jdbc:mysql://localhost:3306?useSSL=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC'
+    url = 'jdbc:mysql://localhost:3306/reserv-io?useSSL=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC'
     user = 'root'
     password = 'YEPYEPYEP'
     baselineVersion = '0'
