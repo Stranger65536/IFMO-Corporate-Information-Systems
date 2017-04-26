@@ -4,6 +4,8 @@ import com.emc.internal.reserv.dto.UserSearchableField;
 import com.google.common.primitives.Ints;
 import org.springframework.stereotype.Service;
 
+import static com.emc.internal.reserv.util.RuntimeUtil.raiseFieldCoverageException;
+
 /**
  * @author trofiv
  * @date 15.04.2017
@@ -28,7 +30,7 @@ public class UserSearchableFieldConverter implements FieldConverter<UserSearchab
             case ROLE:
                 return value;
             default:
-                throw new UnsupportedOperationException("Some fields have hot been covered!");
+                throw raiseFieldCoverageException();
         }
     }
 }

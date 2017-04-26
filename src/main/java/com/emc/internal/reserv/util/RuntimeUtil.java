@@ -73,6 +73,10 @@ public class RuntimeUtil {
         return new Timestamp(calendar.toGregorianCalendar().getTimeInMillis());
     }
 
+    public static LocalDateTime toLocalDateTime(final XMLGregorianCalendar calendar) {
+        return calendar.toGregorianCalendar().toZonedDateTime().toLocalDateTime();
+    }
+
     public static UnsupportedOperationException raiseUninitializedEntityField() {
         return new UnsupportedOperationException("Mandatory entity field uninitialized!");
     }
@@ -82,5 +86,9 @@ public class RuntimeUtil {
         final MessageDigest md = MessageDigest.getInstance("SHA-512");
         final byte[] bytes = md.digest(password.getBytes("UTF-8"));
         return String.format("%0128x", new BigInteger(1, bytes));
+    }
+
+    public static UnsupportedOperationException raiseFieldCoverageException() {
+        return new UnsupportedOperationException("Some fields have hot been covered!");
     }
 }
