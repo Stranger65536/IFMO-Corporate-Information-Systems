@@ -35,6 +35,30 @@ public interface QueryBuilder<T, R extends Enum<?>> {
             final R searchField,
             final Object searchValue);
 
+    Expression<Boolean> getGreaterEqualsExpression(
+            final From root,
+            final CriteriaBuilder builder,
+            final R searchField,
+            final Object searchValue);
+
+    Expression<Boolean> getLessEqualsExpression(
+            final From root,
+            final CriteriaBuilder builder,
+            final R searchField,
+            final Object searchValue);
+
+    Expression<Boolean> getGreaterExpression(
+            final From root,
+            final CriteriaBuilder builder,
+            final R searchField,
+            final Object searchValue);
+
+    Expression<Boolean> getLessExpression(
+            final From root,
+            final CriteriaBuilder builder,
+            final R searchField,
+            final Object searchValue);
+
     Expression<Boolean> getLikeExpression(
             final From root,
             final CriteriaBuilder builder,

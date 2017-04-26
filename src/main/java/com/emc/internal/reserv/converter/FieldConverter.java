@@ -1,4 +1,4 @@
-package com.emc.internal.reserv.util.convert;
+package com.emc.internal.reserv.converter;
 
 /**
  * @author trofiv

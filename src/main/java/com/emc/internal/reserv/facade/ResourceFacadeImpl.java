@@ -12,7 +12,7 @@ import com.emc.internal.reserv.dto.UpdateResourceResponse;
 import com.emc.internal.reserv.entity.Resource;
 import com.emc.internal.reserv.entity.Resource.ResourceBuilder;
 import com.emc.internal.reserv.service.ResourceService;
-import com.emc.internal.reserv.util.validate.RequestValidator;
+import com.emc.internal.reserv.validator.RequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

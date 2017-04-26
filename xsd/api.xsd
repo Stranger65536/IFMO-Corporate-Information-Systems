@@ -94,10 +94,10 @@
     <xs:simpleType name="ReservationSearchableField">
         <xs:restriction base="xs:string">
             <xs:enumeration value="id"/>
-            <xs:enumeration value="resource"/>
+            <xs:enumeration value="resourceId"/>
             <xs:enumeration value="type"/>
             <xs:enumeration value="status"/>
-            <xs:enumeration value="owner"/>
+            <xs:enumeration value="ownerId"/>
             <xs:enumeration value="startsAt"/>
             <xs:enumeration value="endsAt"/>
             <xs:enumeration value="createdOn"/>
@@ -114,6 +114,10 @@
             <xs:enumeration value="equals"/>
             <xs:enumeration value="contains"/>
             <xs:enumeration value="between"/>
+            <xs:enumeration value="less"/>
+            <xs:enumeration value="lessEqual"/>
+            <xs:enumeration value="greater"/>
+            <xs:enumeration value="greaterEqual"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="ResourceName">
@@ -126,6 +130,67 @@
         <xs:restriction base="xs:string">
             <xs:minLength value="0"/>
             <xs:maxLength value="45"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="PlaceReservationRequestField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="resourceId"/>
+            <xs:enumeration value="startsAt"/>
+            <xs:enumeration value="endsAt"/>
+            <xs:enumeration value="type"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="UpdateReservationRequestField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="reservationId"/>
+            <xs:enumeration value="resourceId"/>
+            <xs:enumeration value="startsAt"/>
+            <xs:enumeration value="endsAt"/>
+            <xs:enumeration value="type"/>
+            <xs:enumeration value="newResourceId"/>
+            <xs:enumeration value="newStartsAt"/>
+            <xs:enumeration value="newEndsAt"/>
+            <xs:enumeration value="newType"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="CancelReservationRequestField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="reservationId"/>
+            <xs:enumeration value="resourceId"/>
+            <xs:enumeration value="startsAt"/>
+            <xs:enumeration value="endsAt"/>
+            <xs:enumeration value="type"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="AcceptReservationRequestField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="reservationId"/>
+            <xs:enumeration value="resourceId"/>
+            <xs:enumeration value="startsAt"/>
+            <xs:enumeration value="endsAt"/>
+            <xs:enumeration value="type"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="ApproveReservationRequestField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="reservationId"/>
+            <xs:enumeration value="resourceId"/>
+            <xs:enumeration value="startsAt"/>
+            <xs:enumeration value="endsAt"/>
+            <xs:enumeration value="type"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="ProposeNewTimeRequestField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="reservationId"/>
+            <xs:enumeration value="resourceId"/>
+            <xs:enumeration value="startsAt"/>
+            <xs:enumeration value="endsAt"/>
+            <xs:enumeration value="type"/>
+            <xs:enumeration value="newResourceId"/>
+            <xs:enumeration value="newStartsAt"/>
+            <xs:enumeration value="newEndsAt"/>
+            <xs:enumeration value="newType"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -317,6 +382,10 @@
                 <xs:element name="startsAt" type="xs:dateTime"/>
                 <xs:element name="endsAt" type="xs:dateTime"/>
                 <xs:element name="type" type="xs:int"/>
+                <xs:element name="newResourceId" type="xs:int"/>
+                <xs:element name="newStartsAt" type="xs:dateTime"/>
+                <xs:element name="newEndsAt" type="xs:dateTime"/>
+                <xs:element name="newType" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -389,6 +458,10 @@
                 <xs:element name="startsAt" type="xs:dateTime"/>
                 <xs:element name="endsAt" type="xs:dateTime"/>
                 <xs:element name="type" type="xs:int"/>
+                <xs:element name="newResourceId" type="xs:int"/>
+                <xs:element name="newStartsAt" type="xs:dateTime"/>
+                <xs:element name="newEndsAt" type="xs:dateTime"/>
+                <xs:element name="newType" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

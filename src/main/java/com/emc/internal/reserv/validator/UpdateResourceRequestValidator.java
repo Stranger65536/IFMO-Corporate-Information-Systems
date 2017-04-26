@@ -1,4 +1,4 @@
-package com.emc.internal.reserv.util.validate;
+package com.emc.internal.reserv.validator;
 
 import com.emc.internal.reserv.dto.CreateResourceRequestField;
 import com.emc.internal.reserv.dto.UpdateResourceRequest;

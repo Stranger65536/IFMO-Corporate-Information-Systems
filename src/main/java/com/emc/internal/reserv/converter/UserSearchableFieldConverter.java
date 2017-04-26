@@ -1,4 +1,4 @@
-package com.emc.internal.reserv.util.convert;
+package com.emc.internal.reserv.converter;
 
 import com.emc.internal.reserv.dto.UserSearchableField;
 import com.google.common.primitives.Ints;

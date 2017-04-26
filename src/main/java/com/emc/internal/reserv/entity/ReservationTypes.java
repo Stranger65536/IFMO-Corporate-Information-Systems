@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -20,12 +22,26 @@ public enum ReservationTypes {
     REGULAR("Regular"),
     UNAVAILABLE("Unavailable");
 
+    private static final Map<Integer, ReservationType> INDEX = new HashMap<>(ReservationTypes.values().length);
     private final String name;
     @Getter
     private ReservationType reservationType;
 
     ReservationTypes(final String name) {
         this.name = name;
+    }
+
+    public static Optional<ReservationType> getById(final int id) {
+        return Optional.ofNullable(INDEX.get(id));
+    }
+
+    @SuppressWarnings("BooleanMethodNameMustStartWithQuestion")
+    public static boolean exists(final String id) {
+        try {
+            return INDEX.containsKey(Integer.parseInt(id));
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
     }
 
     @Component
@@ -43,6 +59,7 @@ public enum ReservationTypes {
             for (ReservationTypes type : EnumSet.allOf(ReservationTypes.class)) {
                 final Optional<ReservationType> optionalRow = reservationTypeRepository.findOneByName(type.name);
                 type.reservationType = optionalRow.orElseThrow(() -> new ObjectNotFoundException(type.name, ReservationType.class.getSimpleName()));
+                INDEX.put(type.reservationType.getId(), type.reservationType);
             }
         }
     }

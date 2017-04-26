@@ -1,4 +1,4 @@
-package com.emc.internal.reserv.util.validate;
+package com.emc.internal.reserv.validator;
 
 import com.emc.internal.reserv.dto.RegistrationRequest;
 import com.emc.internal.reserv.dto.UserRegistrationRequestField;
@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import static com.emc.internal.reserv.dto.FaultCode.INVALID_FIELD_VALUE;
 import static com.emc.internal.reserv.util.EndpointUtil.getInvalidFieldMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
-import static com.emc.internal.reserv.util.validate.RequestValidator.isMatchPattern;
+import static com.emc.internal.reserv.validator.RequestValidator.isMatchPattern;
 
 /**
  * @author trofiv

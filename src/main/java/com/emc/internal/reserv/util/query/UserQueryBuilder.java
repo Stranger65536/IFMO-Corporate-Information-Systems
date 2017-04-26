@@ -33,6 +33,7 @@ public class UserQueryBuilder implements QueryBuilder<User, UserSearchableField>
     }
 
     @Override
+    @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
     public TypedQuery<User> buildQuery(
             final UserSearchableField searchField,
             final SearchType searchType,
@@ -54,6 +55,18 @@ public class UserQueryBuilder implements QueryBuilder<User, UserSearchableField>
             switch (searchType) {
                 case EQUALS:
                     select = select.where(getEqualsExpression(root, builder, searchField, searchValue));
+                    break;
+                case GREATER_EQUAL:
+                    select = select.where(getGreaterEqualsExpression(root, builder, searchField, searchValue));
+                    break;
+                case LESS_EQUAL:
+                    select = select.where(getLessEqualsExpression(root, builder, searchField, searchValue));
+                    break;
+                case GREATER:
+                    select = select.where(getGreaterExpression(root, builder, searchField, searchValue));
+                    break;
+                case LESS:
+                    select = select.where(getLessExpression(root, builder, searchField, searchValue));
                     break;
                 case CONTAINS:
                     select = select.where(getLikeExpression(root, builder, searchField, searchValue));
@@ -88,6 +101,98 @@ public class UserQueryBuilder implements QueryBuilder<User, UserSearchableField>
                         ? root.join(UserField.ROLE.value()).get("name")
                         : root.get(searchField.value()),
                 searchValue);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Expression<Boolean> getGreaterEqualsExpression(
+            final From root,
+            final CriteriaBuilder builder,
+            final UserSearchableField searchField,
+            final Object searchValue) {
+        switch (searchField) {
+            case ID:
+                return builder.greaterThanOrEqualTo(root.<Integer>get(searchField.value()), (Integer) searchValue);
+            case EMAIL:
+            case USERNAME:
+            case FIRST_NAME:
+            case LAST_NAME:
+            case MIDDLE_NAME:
+                return builder.greaterThanOrEqualTo(root.<String>get(searchField.value()), (String) searchValue);
+            case ROLE:
+                return builder.greaterThanOrEqualTo(root.join(UserField.ROLE.value()).get("name"), (String) searchValue);
+            default:
+                throw raiseForgotEnumBranchException();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Expression<Boolean> getLessEqualsExpression(
+            final From root,
+            final CriteriaBuilder builder,
+            final UserSearchableField searchField,
+            final Object searchValue) {
+        switch (searchField) {
+            case ID:
+                return builder.lessThanOrEqualTo(root.<Integer>get(searchField.value()), (Integer) searchValue);
+            case EMAIL:
+            case USERNAME:
+            case FIRST_NAME:
+            case LAST_NAME:
+            case MIDDLE_NAME:
+                return builder.lessThanOrEqualTo(root.<String>get(searchField.value()), (String) searchValue);
+            case ROLE:
+                return builder.lessThanOrEqualTo(root.join(UserField.ROLE.value()).get("name"), (String) searchValue);
+            default:
+                throw raiseForgotEnumBranchException();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Expression<Boolean> getGreaterExpression(
+            final From root,
+            final CriteriaBuilder builder,
+            final UserSearchableField searchField,
+            final Object searchValue) {
+        switch (searchField) {
+            case ID:
+                return builder.greaterThan(root.<Integer>get(searchField.value()), (Integer) searchValue);
+            case EMAIL:
+            case USERNAME:
+            case FIRST_NAME:
+            case LAST_NAME:
+            case MIDDLE_NAME:
+                return builder.greaterThan(root.<String>get(searchField.value()), (String) searchValue);
+            case ROLE:
+                return builder.greaterThan(root.join(UserField.ROLE.value()).get("name"), (String) searchValue);
+            default:
+                throw raiseForgotEnumBranchException();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Expression<Boolean> getLessExpression(
+            final From root,
+            final CriteriaBuilder builder,
+            final UserSearchableField searchField,
+            final Object searchValue) {
+        switch (searchField) {
+            case ID:
+                return builder.lessThan(root.<Integer>get(searchField.value()), (Integer) searchValue);
+            case EMAIL:
+            case USERNAME:
+            case FIRST_NAME:
+            case LAST_NAME:
+            case MIDDLE_NAME:
+                return builder.lessThan(root.<String>get(searchField.value()), (String) searchValue);
+            case ROLE:
+                return builder.lessThan(root.join(UserField.ROLE.value()).get("name"), (String) searchValue);
+            default:
+                throw raiseForgotEnumBranchException();
+        }
     }
 
     @Override

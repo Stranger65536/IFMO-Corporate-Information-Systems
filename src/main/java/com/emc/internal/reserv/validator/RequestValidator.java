@@ -1,10 +1,15 @@
-package com.emc.internal.reserv.util.validate;
+package com.emc.internal.reserv.validator;
 
 import com.emc.internal.reserv.dto.GenericSearchRequestField;
 import com.emc.internal.reserv.dto.SearchType;
+import com.emc.internal.reserv.entity.ReservationStatus;
+import com.emc.internal.reserv.entity.ReservationStatuses;
+import com.emc.internal.reserv.entity.ReservationTypes;
 import com.google.common.primitives.Ints;
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.apache.commons.lang3.Range;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -28,6 +33,19 @@ public interface RequestValidator<T> {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     static boolean isInteger(final String value) {
         return value != null && Ints.tryParse(value) != null;
+    }
+
+    static boolean isDateTime(final String value) {
+        if (value != null) {
+            try {
+                XMLGregorianCalendarImpl.parse(value);
+                return true;
+            } catch (IllegalArgumentException ignored) {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -54,6 +72,10 @@ public interface RequestValidator<T> {
         if (searchType != null) {
             switch (searchType) {
                 case EQUALS:
+                case LESS:
+                case LESS_EQUAL:
+                case GREATER:
+                case GREATER_EQUAL:
                 case CONTAINS:
                     if (!validator.apply(value)) {
                         throw raiseServiceFaultException(INVALID_FIELD_VALUE, getInvalidFieldMessage(GenericSearchRequestField.SEARCH_VALUE.value()));
@@ -79,6 +101,30 @@ public interface RequestValidator<T> {
             final String valueLowerBound,
             final String valueUpperBound) {
         validateSearchValue(searchType, value, valueLowerBound, valueUpperBound, RequestValidator::isInteger);
+    }
+
+    static void validateDateTimeSearchValue(
+            final SearchType searchType,
+            final String value,
+            final String valueLowerBound,
+            final String valueUpperBound) {
+        validateSearchValue(searchType, value, valueLowerBound, valueUpperBound, RequestValidator::isDateTime);
+    }
+
+    static void validateReservationType(
+            final SearchType searchType,
+            final String value,
+            final String valueLowerBound,
+            final String valueUpperBound) {
+        validateSearchValue(searchType, value, valueLowerBound, valueUpperBound, ReservationTypes::exists);
+    }
+
+    static void validateReservationStatus(
+            final SearchType searchType,
+            final String value,
+            final String valueLowerBound,
+            final String valueUpperBound) {
+        validateSearchValue(searchType, value, valueLowerBound, valueUpperBound, ReservationStatuses::exists);
     }
 
     static void validatePageNumber(final int page) {

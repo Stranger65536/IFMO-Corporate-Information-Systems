@@ -16,7 +16,9 @@ import com.emc.internal.reserv.dto.UpdateReservationRequest;
 import com.emc.internal.reserv.dto.UpdateReservationResponse;
 import com.emc.internal.reserv.entity.Reservation;
 import com.emc.internal.reserv.service.ReservationService;
+import com.emc.internal.reserv.validator.RequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -30,15 +32,37 @@ import static java.util.stream.Collectors.toList;
 @Service
 public class ReservationFacadeImpl implements ReservationFacade {
     private final ReservationService reservationService;
+    private final RequestValidator<GetReservationsRequest> getReservationsRequestValidator;
+    private final RequestValidator<PlaceReservationRequest> placeReservationRequestValidator;
+    private final RequestValidator<UpdateReservationRequest> updateReservationRequestValidator;
+    private final RequestValidator<AcceptReservationRequest> acceptReservationRequestValidator;
+    private final RequestValidator<ApproveReservationRequest> approveReservationRequestValidator;
+    private final RequestValidator<CancelReservationRequest> cancelReservationRequestValidator;
+    private final RequestValidator<ProposeNewTimeRequest> proposeNewTimeRequestValidator;
 
     @Autowired
-    public ReservationFacadeImpl(final ReservationService reservationService) {
+    public ReservationFacadeImpl(
+            final ReservationService reservationService,
+            final RequestValidator<GetReservationsRequest> getReservationsRequestValidator,
+            final RequestValidator<PlaceReservationRequest> placeReservationRequestValidator,
+            final RequestValidator<UpdateReservationRequest> updateReservationRequestValidator,
+            final RequestValidator<AcceptReservationRequest> acceptReservationRequestValidator,
+            final RequestValidator<ApproveReservationRequest> approveReservationRequestValidator,
+            final RequestValidator<CancelReservationRequest> cancelReservationRequestValidator,
+            final RequestValidator<ProposeNewTimeRequest> proposeNewTimeRequestValidator) {
         this.reservationService = reservationService;
+        this.getReservationsRequestValidator = getReservationsRequestValidator;
+        this.placeReservationRequestValidator = placeReservationRequestValidator;
+        this.updateReservationRequestValidator = updateReservationRequestValidator;
+        this.acceptReservationRequestValidator = acceptReservationRequestValidator;
+        this.approveReservationRequestValidator = approveReservationRequestValidator;
+        this.cancelReservationRequestValidator = cancelReservationRequestValidator;
+        this.proposeNewTimeRequestValidator = proposeNewTimeRequestValidator;
     }
 
     @Override
     public GetReservationsResponse getReservations(final GetReservationsRequest request) {
-        //TODO validate input
+        getReservationsRequestValidator.validate(request);
         final Collection<Reservation> matchedReservations = reservationService.getReservations(
                 request.getPage(),
                 request.getPageSize(),
@@ -56,42 +80,43 @@ public class ReservationFacadeImpl implements ReservationFacade {
 
     @Override
     public PlaceReservationResponse placeReservation(final PlaceReservationRequest request) {
-        //TODO validate input
+        placeReservationRequestValidator.validate(request);
+        SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         //noinspection ReturnOfNull
         return null;
     }
 
     @Override
     public UpdateReservationResponse updateReservation(final UpdateReservationRequest request) {
-        //TODO validate input
+        updateReservationRequestValidator.validate(request);
         //noinspection ReturnOfNull
         return null;
     }
 
     @Override
     public AcceptReservationResponse acceptReservation(final AcceptReservationRequest request) {
-        //TODO validate input
+        acceptReservationRequestValidator.validate(request);
         //noinspection ReturnOfNull
         return null;
     }
 
     @Override
     public ApproveReservationResponse approveReservation(final ApproveReservationRequest request) {
-        //TODO validate input
+        approveReservationRequestValidator.validate(request);
         //noinspection ReturnOfNull
         return null;
     }
 
     @Override
     public CancelReservationResponse cancelReservation(final CancelReservationRequest request) {
-        //TODO validate input
+        cancelReservationRequestValidator.validate(request);
         //noinspection ReturnOfNull
         return null;
     }
 
     @Override
     public ProposeNewTimeResponse proposeNewTime(final ProposeNewTimeRequest request) {
-        //TODO validate input
+        proposeNewTimeRequestValidator.validate(request);
         //noinspection ReturnOfNull
         return null;
     }

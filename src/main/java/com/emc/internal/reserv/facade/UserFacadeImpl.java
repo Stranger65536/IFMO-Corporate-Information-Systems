@@ -8,8 +8,8 @@ import com.emc.internal.reserv.dto.RegistrationRequest;
 import com.emc.internal.reserv.dto.UserSearchableField;
 import com.emc.internal.reserv.entity.User;
 import com.emc.internal.reserv.service.UserService;
-import com.emc.internal.reserv.util.convert.FieldConverter;
-import com.emc.internal.reserv.util.validate.RequestValidator;
+import com.emc.internal.reserv.converter.FieldConverter;
+import com.emc.internal.reserv.validator.RequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

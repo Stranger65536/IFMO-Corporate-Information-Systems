@@ -32,4 +32,12 @@ public class EndpointUtil {
         fault.setDescription(message == null ? "" : message);
         return fault;
     }
+
+    public static String getInvalidReservationTypeMessage(final int id) {
+        return format("Reservation type width id {0} does not exist!", id);
+    }
+
+    public static String getInvalidTimeRangeMessage(final String fieldName) {
+        return format("Reservation time range is invalid, check field {0}!", fieldName);
+    }
 }
