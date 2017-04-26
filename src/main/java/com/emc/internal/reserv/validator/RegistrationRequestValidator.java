@@ -18,7 +18,7 @@ import static com.emc.internal.reserv.validator.RequestValidator.isMatchPattern;
 @Service
 public class RegistrationRequestValidator implements RequestValidator<RegistrationRequest> {
     private static final int MAX_EMAIL_LENGTH = 254;
-    private static final Pattern NAME = Pattern.compile("[\\\\p{L} .'\\-]{0,35}");
+    private static final Pattern NAME = Pattern.compile("[\\p{L} .'\\-]{0,35}");
     private static final Pattern USERNAME = Pattern.compile("[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]{6,32}");
     private static final Pattern EMAIL = Pattern.compile("(([^<>()\\[\\]\\\\.,;:\\s@']+(\\.[^<>()\\[\\]\\\\.,;:\\s@']+)*)|('.+'))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))");
 
