@@ -3,6 +3,7 @@ package com.emc.internal.reserv.entity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.Access;
@@ -21,6 +22,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Getter
+@ToString
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @Table(name = "roles")

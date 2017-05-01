@@ -42,14 +42,34 @@ public class EndpointUtil {
     }
 
     public static String getNonexistentUserIdMessage(final int userId) {
-        return format("User with id '{0}' has not been found!");
+        return format("User with id '{0}' has not been found!", userId);
+    }
+
+    public static String getNonexistentReservationIdMessage(final long reservationId) {
+        return format("Reservation with id '{0}' has not been found!", reservationId);
     }
 
     public static String getNonexistentUsernameMessage(final String username) {
-        return format("User with username '{0}' has not been found!");
+        return format("User with username '{0}' has not been found!", username);
+    }
+
+    public static String getPendingReservationsLimitExceededMessage() {
+        return "Can't perform the requested action due to exceeded limit of the reservations waiting for approval";
+    }
+
+    public static String getUnavailableEventOverlappingMessage() {
+        return "Can't perform the requested action due to overlapping with an approved 'unavailable' reservation";
     }
 
     public static String getNonexistentResourceIdMessage(final int resourceId) {
-        return format("Resource with id '{0}' has not been found!");
+        return format("Resource with id '{0}' has not been found!", resourceId);
+    }
+
+    public static String getAccessDeniedMessage() {
+        return format("You don't have enough privileges to perform this action!");
+    }
+
+    public static String getReservationInfoIsDifferentMessage() {
+        return format("Actual reservation status is different from the specified information!");
     }
 }

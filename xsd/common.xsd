@@ -4,7 +4,7 @@
            elementFormDefault="qualified">
     <xs:simpleType name="Username">
         <xs:restriction base="xs:string">
-            <xs:pattern value="[\p{L}\p{M}\p{S}\p{N}\p{P}]{6,32}"/>
+            <xs:pattern value="[\p{L}\p{M}\p{S}\p{N}\p{P}]{5,32}"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="Email">
@@ -16,7 +16,7 @@
     </xs:simpleType>
     <xs:simpleType name="Password">
         <xs:restriction base="xs:string">
-            <xs:minLength value="6"/>
+            <xs:minLength value="5"/>
             <xs:maxLength value="32"/>
         </xs:restriction>
     </xs:simpleType>
@@ -32,11 +32,13 @@
             <xs:enumeration value="USER_ALREADY_REGISTERED"/>
             <xs:enumeration value="USER_DOES_NOT_EXIST"/>
             <xs:enumeration value="RESOURCE_DOES_NOT_EXIST"/>
+            <xs:enumeration value="RESERVATION_DOES_NOT_EXIST"/>
+            <xs:enumeration value="RESERVATION_INFO_IS_DIFFERENT"/>
             <xs:enumeration value="RESOURCE_IS_NOT_UNIQUE"/>
             <xs:enumeration value="RESERVATION_TYPE_DOES_NOT_EXIST"/>
             <xs:enumeration value="RESERVATION_STATUS_DOES_NOT_EXIST"/>
-            <xs:enumeration value="EVENT_OVERLAPS_WITH_UNAVAILABLE_EVENT"/>
-            <xs:enumeration value="EVENT_OVERLAPS_WITH_EVENT"/>
+            <xs:enumeration value="RESERVATION_OVERLAPS_WITH_UNAVAILABLE_RESERVATION"/>
+            <xs:enumeration value="RESERVATION_OVERLAPS_WITH_ANOTHER_RESERVATION"/>
             <xs:enumeration value="PENDING_RESERVATIONS_LIMIT_EXCEEDED"/>
             <xs:enumeration value="ACCESS_DENIED"/>
         </xs:restriction>

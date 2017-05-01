@@ -215,7 +215,7 @@ task prepareEnvironment {
 
 task cleanStatic {
     doLast {
-        delete frontendDir + '/build/bundle'
+        delete frontendDir + '/build'
         delete "${project.projectDir}/static"
     }
 }
@@ -227,8 +227,8 @@ task gulpBuild(type: GulpTask) {
 }
 
 task copyBundles(type: Copy) {
-    from frontendDir + 'build'
-    into 'static'
+    from frontendDir + '/build'
+    into "${project.projectDir}/static"
 }
 
 task rebuildFrontend {

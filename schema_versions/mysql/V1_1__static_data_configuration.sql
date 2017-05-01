@@ -13,7 +13,7 @@ FROM `roles`
 WHERE `name` = 'admin';
 
 INSERT INTO `reserv-io`.`users` (`username`, `email`, `password`, `role_id`)
-VALUES ('admin', '', SHA2('admin', 512), @admin_role_id);
+VALUES ('admin', 'reserv-io-admin@emc.com', SHA2('admin', 512), @admin_role_id);
 
 INSERT INTO `reserv-io`.`reservation_types` (`name`)
 VALUES ('Regular');

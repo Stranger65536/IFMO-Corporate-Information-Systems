@@ -141,12 +141,6 @@ CREATE TABLE `reserv-io`.`actions` (
 )
   ENGINE = InnoDB;
 
-CREATE TABLE `reserv-io`.`dual` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`)
-)
-  ENGINE = InnoDB;
-
 CREATE VIEW `reserv-io`.`actual_reservations` AS
   SELECT
     `r`.`id`,

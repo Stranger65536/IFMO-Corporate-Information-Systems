@@ -4,6 +4,7 @@ import com.emc.internal.reserv.dto.ResourceInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -21,6 +22,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Getter
+@ToString
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @Table(name = "resources")

@@ -2,6 +2,7 @@ package com.emc.internal.reserv.entity;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -24,6 +25,7 @@ import java.sql.Timestamp;
  */
 @Entity
 @Getter
+@ToString
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @Table(name = "actual_reservations")

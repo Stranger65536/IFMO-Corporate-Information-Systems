@@ -5,6 +5,7 @@ import com.emc.internal.reserv.util.RuntimeUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -20,6 +21,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import static java.util.Optional.ofNullable;
@@ -31,6 +33,7 @@ import static java.util.stream.Collectors.toList;
  */
 @Entity
 @Getter
+@ToString
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @Table(name = "reservations")
@@ -79,7 +82,7 @@ public class Reservation {
     public static class ReservationBuilder {
         private long id;
         private User user;
-        private Collection<Action> actions;
+        private Collection<Action> actions = new ArrayList<>();
 
         public ReservationBuilder(final Reservation model) {
             this.id = model.id;

@@ -3,14 +3,14 @@
   <process id="Reservation" name="Reservation" isExecutable="true">
     <serviceTask id="CheckPendingReservationsNumber" name="Check pending reservations number" activiti:expression="${!reservationService.isPendingReservationsNumberLimitExceeded(user)}" activiti:resultVariableName="pendingCheck"></serviceTask>
     <exclusiveGateway id="ReservationsNumberDecision" name="Exclusive Gateway"></exclusiveGateway>
-    <serviceTask id="DeclinePlacementLimitExceeded" name="Decline placement with limit reason" activiti:expression="${reservationService.message(&quot;limit check failed&quot;)}"></serviceTask>
-    <serviceTask id="StorePendingReservation" name="Store pending reservation" activiti:expression="${reservationService.createReservation(user, resource, startsAt, endsAt, type)}"></serviceTask>
+    <serviceTask id="DeclinePlacementLimitExceeded" name="Decline placement with limit reason" activiti:expression="${PENDING_RESERVATIONS_LIMIT_EXCEEDED}" activiti:resultVariableName="faultCode"></serviceTask>
+    <serviceTask id="StorePendingReservation" name="Store pending reservation" activiti:expression="${reservationService.fulfillReservationPlacement(reservation, resource, startsAt, endsAt, type)}"></serviceTask>
     <sequenceFlow id="flow_reservations_number_check" sourceRef="CheckPendingReservationsNumber" targetRef="ReservationsNumberDecision"></sequenceFlow>
     <sequenceFlow id="flow_destroy_limit_reason" sourceRef="DeclinePlacementLimitExceeded" targetRef="DestroyEvent"></sequenceFlow>
-    <serviceTask id="CheckPlaceUnavailableOverlappings" name="Check resource has no overlappings with &quot;Unavailable event&quot;" activiti:expression="${!reservationService.hasOverlappingsWithUnavailableEvent(resource, startsAt, endsAt)}" activiti:resultVariableName="overlappingCheck"></serviceTask>
+    <serviceTask id="CheckPlaceUnavailableOverlappings" name="Check resource has no overlappings with approved &quot;Unavailable&quot; reservations" activiti:expression="${!reservationService.hasOverlappingsWithUnavailableReservations(resource, startsAt, endsAt)}" activiti:resultVariableName="overlappingCheck"></serviceTask>
     <exclusiveGateway id="InitialUnavailableOverlappingDecision" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow_initial_unavailable_event_check" sourceRef="CheckPlaceUnavailableOverlappings" targetRef="InitialUnavailableOverlappingDecision"></sequenceFlow>
-    <serviceTask id="DeclinePlacementUnavailableOverlapping" name="Decline placement with &quot;Unavailable event&quot; overlapping reason" activiti:expression="${reservationService.message(&quot;overlapping check failed&quot;)}"></serviceTask>
+    <serviceTask id="DeclinePlacementUnavailableOverlapping" name="Decline placement with &quot;Unavailable&quot; reservation overlapping reason" activiti:expression="${EVENT_OVERLAPS_WITH_UNAVAILABLE_EVENT}" activiti:resultVariableName="faultCode"></serviceTask>
     <sequenceFlow id="flow_reservations_number_check_failed" name="Equal or greater than limit" sourceRef="ReservationsNumberDecision" targetRef="DeclinePlacementLimitExceeded">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pendingCheck == false}]]></conditionExpression>
     </sequenceFlow>
@@ -21,56 +21,74 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${overlappingCheck == false}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow_destroy_unavailable_event_reason" sourceRef="DeclinePlacementUnavailableOverlapping" targetRef="DestroyEvent"></sequenceFlow>
-    <userTask id="UpdateUserAction" name="Update" activiti:candidateGroups="users"></userTask>
-    <userTask id="ApproveUserAction" name="Approve" activiti:candidateGroups="moderators,administrators"></userTask>
-    <userTask id="ProposeNewTimeUserAction" name="Propose new time" activiti:candidateGroups="moderators,administrators"></userTask>
-    <userTask id="CancelUserAction" name="Cancel" activiti:candidateGroups="users,moderators,administrators"></userTask>
-    <serviceTask id="StoreCancelledReservation" name="Store cancelled reservation" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
-    <sequenceFlow id="flow_cancel_user_action" sourceRef="CancelUserAction" targetRef="StoreCancelledReservation"></sequenceFlow>
+    <serviceTask id="StoreCancelledReservation" name="Store cancelled reservation" activiti:expression="${reservationService.fulfillReservationCancel(reservation)}"></serviceTask>
     <startEvent id="StartEvent" name="Start"></startEvent>
     <sequenceFlow id="flow_init" sourceRef="StartEvent" targetRef="CheckPendingReservationsNumber"></sequenceFlow>
     <endEvent id="EndEvent" name="End"></endEvent>
-    <serviceTask id="CheckApprovedOverlappings" name="Check resource has no overlappings with other reservations" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
-    <sequenceFlow id="flow_approve_user_action" sourceRef="ApproveUserAction" targetRef="CheckApprovedOverlappings"></sequenceFlow>
+    <serviceTask id="CheckApprovedOverlappings" name="Check resource has no overlappings with other reservations" activiti:expression="${!reservationService.hasOverlappingsWithReservations(resource, startsAt, endsAt)}" activiti:resultVariableName="overlappingCheck"></serviceTask>
     <exclusiveGateway id="ApproveOverlappingDecision" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow_approve_event_overlapping_check" sourceRef="CheckApprovedOverlappings" targetRef="ApproveOverlappingDecision"></sequenceFlow>
-    <serviceTask id="CheckUpdateUnavailableOverlappings" name="Check resource has no overlappings with &quot;Unavailable event&quot;" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
+    <serviceTask id="CheckUpdateUnavailableOverlappings" name="Check resource has no overlappings with approved &quot;Unavailable&quot; reservations" activiti:expression="${!reservationService.hasOverlappingsWithUnavailableReservations(newResource, newStartsAt, newEndsAt)}" activiti:resultVariableName="overlappingCheck"></serviceTask>
     <exclusiveGateway id="UpdateUnavailableOverlappingDecision" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow_update_event_overlapping_check" sourceRef="CheckUpdateUnavailableOverlappings" targetRef="UpdateUnavailableOverlappingDecision"></sequenceFlow>
-    <userTask id="AcceptUserAction" name="Accept"></userTask>
-    <serviceTask id="CheckAcceptOverlappings" name="Check resource has no overlappings with other reservations" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
+    <serviceTask id="CheckAcceptOverlappings" name="Check resource has no overlappings with other reservations" activiti:expression="${!reservationService.hasOverlappingsWithReservations(resource, startsAt, endsAt)}" activiti:resultVariableName="overlappingCheck"></serviceTask>
     <exclusiveGateway id="AcceptOverlappingDecision" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow_accept_event_overlapping_check" sourceRef="CheckAcceptOverlappings" targetRef="AcceptOverlappingDecision"></sequenceFlow>
-    <serviceTask id="CheckProposeUnavailableOverlappings" name="Check resource has no overlappings with &quot;Unavailable event&quot;" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
-    <sequenceFlow id="flow_propose_new_time_user_action" sourceRef="ProposeNewTimeUserAction" targetRef="CheckProposeUnavailableOverlappings"></sequenceFlow>
+    <serviceTask id="CheckProposeUnavailableOverlappings" name="Check resource has no overlappings with approved &quot;Unavailable&quot; reservations" activiti:expression="${!reservationService.hasOverlappingsWithUnavailableReservations(newResource, newStartsAt, newEndsAt)}" activiti:resultVariableName="overlappingCheck"></serviceTask>
     <exclusiveGateway id="ProposeUnavailableOverlappingDecision" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow_propose_new_time_unavailable_event_check" sourceRef="CheckProposeUnavailableOverlappings" targetRef="ProposeUnavailableOverlappingDecision"></sequenceFlow>
     <serviceTask id="StoreNewTimeProposal" name="Store new time proposal" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
     <serviceTask id="StoreUpdatedReservation" name="Store updated reservation" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
     <serviceTask id="StoreApprovedReservation" name="Store approved reservation" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
     <serviceTask id="StoreAcceptedReservation" name="Store accepted reservation" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
-    <sequenceFlow id="flow_propose_new_time_unavailable_event_check_passed" name="No overlappings" sourceRef="ProposeUnavailableOverlappingDecision" targetRef="StoreNewTimeProposal"></sequenceFlow>
-    <sequenceFlow id="flow_accept_event_overlapping_check_passed" name="No overlappings" sourceRef="AcceptOverlappingDecision" targetRef="StoreAcceptedReservation"></sequenceFlow>
-    <sequenceFlow id="flow_update_event_overlapping_check_passed" name="No overlappings" sourceRef="UpdateUnavailableOverlappingDecision" targetRef="StoreUpdatedReservation"></sequenceFlow>
-    <sequenceFlow id="flow_approve_event_overlapping_check_passed" name="No overlappings" sourceRef="ApproveOverlappingDecision" targetRef="StoreApprovedReservation"></sequenceFlow>
+    <sequenceFlow id="flow_propose_new_time_unavailable_event_check_passed" name="No overlappings" sourceRef="ProposeUnavailableOverlappingDecision" targetRef="StoreNewTimeProposal">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${overlappingCheck == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_accept_event_overlapping_check_passed" name="No overlappings" sourceRef="AcceptOverlappingDecision" targetRef="StoreAcceptedReservation">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${overlappingCheck == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_update_event_overlapping_check_passed" name="No overlappings" sourceRef="UpdateUnavailableOverlappingDecision" targetRef="StoreUpdatedReservation">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${overlappingCheck == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_approve_event_overlapping_check_passed" name="No overlappings" sourceRef="ApproveOverlappingDecision" targetRef="StoreApprovedReservation">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${overlappingCheck == true}]]></conditionExpression>
+    </sequenceFlow>
     <sequenceFlow id="flow_end" sourceRef="StoreCancelledReservation" targetRef="EndEvent"></sequenceFlow>
-    <serviceTask id="DeclineProposalUnavailableOverlapping" name="Decline proposal with &quot;Unavailable event&quot; overlapping reason" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
+    <serviceTask id="DeclineProposalUnavailableOverlapping" name="Decline proposal with &quot;Unavailable&quot; reservation overlapping reason" activiti:expression="${RESERVATION_OVERLAPS_WITH_UNAVAILABLE_RESERVATION}" activiti:resultVariableName="faultCode"></serviceTask>
     <exclusiveGateway id="UserActionDecision" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow_initial_unavailable_event_check_passed" name="No overlappings" sourceRef="InitialUnavailableOverlappingDecision" targetRef="StorePendingReservation">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${overlappingCheck == true}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="flow_propose_new_time_decision" sourceRef="UserActionDecision" targetRef="ProposeNewTimeUserAction"></sequenceFlow>
-    <sequenceFlow id="flow_cancel_decision" sourceRef="UserActionDecision" targetRef="CancelUserAction"></sequenceFlow>
-    <sequenceFlow id="flow_approve_decision" sourceRef="UserActionDecision" targetRef="ApproveUserAction"></sequenceFlow>
-    <serviceTask id="DeclineAcceptOverlapping" name="Decline acceptance with overlapping reason" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
-    <serviceTask id="DeclineUpdateUnavailableOverlapping" name="Decline update with &quot;Unavailable event&quot; overlapping reason" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
-    <serviceTask id="DeclineApproveOverlapping" name="Decline approval with overlapping reason" activiti:expression="${system.out.println(&quot;yep&quot;)}"></serviceTask>
-    <sequenceFlow id="flow_propose_new_time_unavailable_event_check_failed" name="Else" sourceRef="ProposeUnavailableOverlappingDecision" targetRef="DeclineProposalUnavailableOverlapping"></sequenceFlow>
-    <sequenceFlow id="flow_accept_event_overlapping_check_failed" name="Else" sourceRef="AcceptOverlappingDecision" targetRef="DeclineAcceptOverlapping"></sequenceFlow>
-    <sequenceFlow id="flow_update_event_overlapping_check_failed" name="Else" sourceRef="UpdateUnavailableOverlappingDecision" targetRef="DeclineUpdateUnavailableOverlapping"></sequenceFlow>
-    <sequenceFlow id="flow_approve_event_overlapping_check_failed" name="Else" sourceRef="ApproveOverlappingDecision" targetRef="DeclineApproveOverlapping"></sequenceFlow>
-    <sequenceFlow id="flow_update_decision" sourceRef="UserActionDecision" targetRef="UpdateUserAction"></sequenceFlow>
-    <sequenceFlow id="flow_accept_decision" sourceRef="UserActionDecision" targetRef="AcceptUserAction"></sequenceFlow>
+    <sequenceFlow id="flow_propose_new_time_decision" name="Propose new time" sourceRef="UserActionDecision" targetRef="CheckProposeUnavailableOverlappings">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == PROPOSE_NEW_TIME}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_cancel_decision" name="Cancel" sourceRef="UserActionDecision" targetRef="StoreCancelledReservation">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == CANCEL}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_approve_decision" name="Approve" sourceRef="UserActionDecision" targetRef="CheckApprovedOverlappings">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == APPROVE}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="DeclineAcceptOverlapping" name="Decline acceptance with another reservation overlapping reason" activiti:expression="${RESERVATION_OVERLAPS_WITH_ANOTHER_RESERVATION}" activiti:resultVariableName="faultCode"></serviceTask>
+    <serviceTask id="DeclineUpdateUnavailableOverlapping" name="Decline update with &quot;Unavailable&quot; reservation overlapping reason" activiti:expression="${RESERVATION_OVERLAPS_WITH_UNAVAILABLE_RESERVATION}" activiti:resultVariableName="faultCode"></serviceTask>
+    <serviceTask id="DeclineApproveOverlapping" name="Decline acceptance with another reservation overlapping reason" activiti:expression="${RESERVATION_OVERLAPS_WITH_ANOTHER_RESERVATION}" activiti:resultVariableName="faultCode"></serviceTask>
+    <sequenceFlow id="flow_propose_new_time_unavailable_event_check_failed" name="Else" sourceRef="ProposeUnavailableOverlappingDecision" targetRef="DeclineProposalUnavailableOverlapping">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${overlappingCheck == false}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_accept_event_overlapping_check_failed" name="Else" sourceRef="AcceptOverlappingDecision" targetRef="DeclineAcceptOverlapping">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${overlappingCheck == false}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_update_event_overlapping_check_failed" name="Else" sourceRef="UpdateUnavailableOverlappingDecision" targetRef="DeclineUpdateUnavailableOverlapping">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${overlappingCheck == false}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_approve_event_overlapping_check_failed" name="Else" sourceRef="ApproveOverlappingDecision" targetRef="DeclineApproveOverlapping">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${overlappingCheck == false}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_update_decision" name="Update" sourceRef="UserActionDecision" targetRef="CheckUpdateUnavailableOverlappings">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == UPDATE}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_accept_decision" name="Accept" sourceRef="UserActionDecision" targetRef="CheckAcceptOverlappings">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == ACCEPT}]]></conditionExpression>
+    </sequenceFlow>
     <sequenceFlow id="flow_after_declined_proposal_action_choose" sourceRef="DeclineProposalUnavailableOverlapping" targetRef="UserAction"></sequenceFlow>
     <sequenceFlow id="flow_after_proposal_action_choose" sourceRef="StoreNewTimeProposal" targetRef="UserAction"></sequenceFlow>
     <sequenceFlow id="flow_after_declined_aceptance_action_choose" sourceRef="DeclineAcceptOverlapping" targetRef="UserAction"></sequenceFlow>
@@ -79,8 +97,6 @@
     <sequenceFlow id="flow_after_update_action_choose" sourceRef="StoreUpdatedReservation" targetRef="UserAction"></sequenceFlow>
     <sequenceFlow id="flow_after_declined_approval_action_choose" sourceRef="DeclineApproveOverlapping" targetRef="UserAction"></sequenceFlow>
     <sequenceFlow id="flow_after_approval_action_choose" sourceRef="StoreApprovedReservation" targetRef="UserAction"></sequenceFlow>
-    <sequenceFlow id="flow_accept_user_action" sourceRef="AcceptUserAction" targetRef="CheckAcceptOverlappings"></sequenceFlow>
-    <sequenceFlow id="flow_update_user_action" sourceRef="UpdateUserAction" targetRef="CheckUpdateUnavailableOverlappings"></sequenceFlow>
     <endEvent id="DestroyEvent" name="CancelEnd">
       <terminateEventDefinition></terminateEventDefinition>
     </endEvent>
@@ -111,80 +127,65 @@
       <bpmndi:BPMNShape bpmnElement="DeclinePlacementUnavailableOverlapping" id="BPMNShape_DeclinePlacementUnavailableOverlapping">
         <omgdc:Bounds height="81.0" width="138.0" x="700.0" y="104.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="UpdateUserAction" id="BPMNShape_UpdateUserAction">
-        <omgdc:Bounds height="55.0" width="105.0" x="523.0" y="491.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="ApproveUserAction" id="BPMNShape_ApproveUserAction">
-        <omgdc:Bounds height="55.0" width="105.0" x="716.0" y="491.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="ProposeNewTimeUserAction" id="BPMNShape_ProposeNewTimeUserAction">
-        <omgdc:Bounds height="55.0" width="105.0" x="138.0" y="491.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="CancelUserAction" id="BPMNShape_CancelUserAction">
-        <omgdc:Bounds height="55.0" width="105.0" x="899.0" y="491.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="StoreCancelledReservation" id="BPMNShape_StoreCancelledReservation">
-        <omgdc:Bounds height="71.0" width="111.0" x="896.0" y="604.0"></omgdc:Bounds>
+        <omgdc:Bounds height="71.0" width="111.0" x="896.0" y="491.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="StartEvent" id="BPMNShape_StartEvent">
         <omgdc:Bounds height="35.0" width="35.0" x="40.0" y="104.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="EndEvent" id="BPMNShape_EndEvent">
-        <omgdc:Bounds height="35.0" width="35.0" x="934.0" y="724.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="934.0" y="611.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="CheckApprovedOverlappings" id="BPMNShape_CheckApprovedOverlappings">
-        <omgdc:Bounds height="81.0" width="115.0" x="711.0" y="599.0"></omgdc:Bounds>
+        <omgdc:Bounds height="81.0" width="115.0" x="711.0" y="486.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="ApproveOverlappingDecision" id="BPMNShape_ApproveOverlappingDecision">
-        <omgdc:Bounds height="40.0" width="40.0" x="748.0" y="721.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="748.0" y="608.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="CheckUpdateUnavailableOverlappings" id="BPMNShape_CheckUpdateUnavailableOverlappings">
-        <omgdc:Bounds height="95.0" width="135.0" x="508.0" y="593.0"></omgdc:Bounds>
+        <omgdc:Bounds height="95.0" width="135.0" x="508.0" y="480.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="UpdateUnavailableOverlappingDecision" id="BPMNShape_UpdateUnavailableOverlappingDecision">
-        <omgdc:Bounds height="40.0" width="40.0" x="555.0" y="721.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="AcceptUserAction" id="BPMNShape_AcceptUserAction">
-        <omgdc:Bounds height="55.0" width="105.0" x="327.0" y="491.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="555.0" y="608.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="CheckAcceptOverlappings" id="BPMNShape_CheckAcceptOverlappings">
-        <omgdc:Bounds height="81.0" width="115.0" x="322.0" y="599.0"></omgdc:Bounds>
+        <omgdc:Bounds height="81.0" width="115.0" x="322.0" y="486.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="AcceptOverlappingDecision" id="BPMNShape_AcceptOverlappingDecision">
-        <omgdc:Bounds height="40.0" width="40.0" x="359.0" y="721.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="359.0" y="608.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="CheckProposeUnavailableOverlappings" id="BPMNShape_CheckProposeUnavailableOverlappings">
-        <omgdc:Bounds height="95.0" width="135.0" x="123.0" y="592.0"></omgdc:Bounds>
+        <omgdc:Bounds height="95.0" width="135.0" x="123.0" y="479.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="ProposeUnavailableOverlappingDecision" id="BPMNShape_ProposeUnavailableOverlappingDecision">
-        <omgdc:Bounds height="40.0" width="40.0" x="170.0" y="721.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="170.0" y="608.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="StoreNewTimeProposal" id="BPMNShape_StoreNewTimeProposal">
-        <omgdc:Bounds height="65.0" width="105.0" x="138.0" y="791.0"></omgdc:Bounds>
+        <omgdc:Bounds height="65.0" width="105.0" x="138.0" y="678.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="StoreUpdatedReservation" id="BPMNShape_StoreUpdatedReservation">
-        <omgdc:Bounds height="76.0" width="105.0" x="523.0" y="786.0"></omgdc:Bounds>
+        <omgdc:Bounds height="76.0" width="105.0" x="523.0" y="673.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="StoreApprovedReservation" id="BPMNShape_StoreApprovedReservation">
-        <omgdc:Bounds height="71.0" width="105.0" x="716.0" y="788.0"></omgdc:Bounds>
+        <omgdc:Bounds height="71.0" width="105.0" x="716.0" y="675.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="StoreAcceptedReservation" id="BPMNShape_StoreAcceptedReservation">
-        <omgdc:Bounds height="76.0" width="105.0" x="327.0" y="786.0"></omgdc:Bounds>
+        <omgdc:Bounds height="76.0" width="105.0" x="327.0" y="673.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="DeclineProposalUnavailableOverlapping" id="BPMNShape_DeclineProposalUnavailableOverlapping">
-        <omgdc:Bounds height="81.0" width="121.0" x="130.0" y="910.0"></omgdc:Bounds>
+        <omgdc:Bounds height="88.0" width="121.0" x="130.0" y="795.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="UserActionDecision" id="BPMNShape_UserActionDecision">
         <omgdc:Bounds height="40.0" width="40.0" x="555.0" y="390.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="DeclineAcceptOverlapping" id="BPMNShape_DeclineAcceptOverlapping">
-        <omgdc:Bounds height="81.0" width="120.0" x="320.0" y="910.0"></omgdc:Bounds>
+        <omgdc:Bounds height="89.0" width="120.0" x="320.0" y="793.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="DeclineUpdateUnavailableOverlapping" id="BPMNShape_DeclineUpdateUnavailableOverlapping">
-        <omgdc:Bounds height="81.0" width="120.0" x="516.0" y="911.0"></omgdc:Bounds>
+        <omgdc:Bounds height="93.0" width="120.0" x="516.0" y="793.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="DeclineApproveOverlapping" id="BPMNShape_DeclineApproveOverlapping">
-        <omgdc:Bounds height="81.0" width="120.0" x="709.0" y="910.0"></omgdc:Bounds>
+        <omgdc:Bounds height="88.0" width="120.0" x="709.0" y="796.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="DestroyEvent" id="BPMNShape_DestroyEvent">
         <omgdc:Bounds height="35.0" width="35.0" x="934.0" y="45.0"></omgdc:Bounds>
@@ -206,7 +207,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_reservations_number_check_failed" id="BPMNEdge_flow_reservations_number_check_failed">
         <omgdi:waypoint x="320.0" y="101.0"></omgdi:waypoint>
-        <omgdi:waypoint x="320.0" y="63.0"></omgdi:waypoint>
+        <omgdi:waypoint x="320.0" y="62.0"></omgdi:waypoint>
         <omgdi:waypoint x="419.0" y="63.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
           <omgdc:Bounds height="42.0" width="100.0" x="330.0" y="71.0"></omgdc:Bounds>
@@ -233,70 +234,57 @@
         <omgdi:waypoint x="951.0" y="144.0"></omgdi:waypoint>
         <omgdi:waypoint x="951.0" y="80.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow_cancel_user_action" id="BPMNEdge_flow_cancel_user_action">
-        <omgdi:waypoint x="951.0" y="546.0"></omgdi:waypoint>
-        <omgdi:waypoint x="951.0" y="604.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_init" id="BPMNEdge_flow_init">
         <omgdi:waypoint x="75.0" y="121.0"></omgdi:waypoint>
         <omgdi:waypoint x="130.0" y="121.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow_approve_user_action" id="BPMNEdge_flow_approve_user_action">
-        <omgdi:waypoint x="768.0" y="546.0"></omgdi:waypoint>
-        <omgdi:waypoint x="769.0" y="560.0"></omgdi:waypoint>
-        <omgdi:waypoint x="768.0" y="599.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_approve_event_overlapping_check" id="BPMNEdge_flow_approve_event_overlapping_check">
-        <omgdi:waypoint x="768.0" y="680.0"></omgdi:waypoint>
-        <omgdi:waypoint x="768.0" y="721.0"></omgdi:waypoint>
+        <omgdi:waypoint x="768.0" y="567.0"></omgdi:waypoint>
+        <omgdi:waypoint x="768.0" y="608.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_update_event_overlapping_check" id="BPMNEdge_flow_update_event_overlapping_check">
-        <omgdi:waypoint x="575.0" y="688.0"></omgdi:waypoint>
-        <omgdi:waypoint x="575.0" y="721.0"></omgdi:waypoint>
+        <omgdi:waypoint x="575.0" y="575.0"></omgdi:waypoint>
+        <omgdi:waypoint x="575.0" y="608.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_accept_event_overlapping_check" id="BPMNEdge_flow_accept_event_overlapping_check">
-        <omgdi:waypoint x="379.0" y="680.0"></omgdi:waypoint>
-        <omgdi:waypoint x="379.0" y="721.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow_propose_new_time_user_action" id="BPMNEdge_flow_propose_new_time_user_action">
-        <omgdi:waypoint x="190.0" y="546.0"></omgdi:waypoint>
-        <omgdi:waypoint x="190.0" y="592.0"></omgdi:waypoint>
+        <omgdi:waypoint x="379.0" y="567.0"></omgdi:waypoint>
+        <omgdi:waypoint x="379.0" y="608.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_propose_new_time_unavailable_event_check" id="BPMNEdge_flow_propose_new_time_unavailable_event_check">
-        <omgdi:waypoint x="190.0" y="687.0"></omgdi:waypoint>
-        <omgdi:waypoint x="190.0" y="721.0"></omgdi:waypoint>
+        <omgdi:waypoint x="190.0" y="574.0"></omgdi:waypoint>
+        <omgdi:waypoint x="190.0" y="608.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_propose_new_time_unavailable_event_check_passed" id="BPMNEdge_flow_propose_new_time_unavailable_event_check_passed">
-        <omgdi:waypoint x="190.0" y="761.0"></omgdi:waypoint>
-        <omgdi:waypoint x="190.0" y="791.0"></omgdi:waypoint>
+        <omgdi:waypoint x="190.0" y="648.0"></omgdi:waypoint>
+        <omgdi:waypoint x="190.0" y="678.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="78.0" x="195.0" y="761.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="100.0" x="195.0" y="648.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_accept_event_overlapping_check_passed" id="BPMNEdge_flow_accept_event_overlapping_check_passed">
-        <omgdi:waypoint x="379.0" y="761.0"></omgdi:waypoint>
-        <omgdi:waypoint x="379.0" y="786.0"></omgdi:waypoint>
+        <omgdi:waypoint x="379.0" y="648.0"></omgdi:waypoint>
+        <omgdi:waypoint x="379.0" y="673.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="78.0" x="384.0" y="761.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="100.0" x="384.0" y="648.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_update_event_overlapping_check_passed" id="BPMNEdge_flow_update_event_overlapping_check_passed">
-        <omgdi:waypoint x="575.0" y="761.0"></omgdi:waypoint>
-        <omgdi:waypoint x="575.0" y="786.0"></omgdi:waypoint>
+        <omgdi:waypoint x="575.0" y="648.0"></omgdi:waypoint>
+        <omgdi:waypoint x="575.0" y="673.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="78.0" x="580.0" y="761.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="100.0" x="580.0" y="648.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_approve_event_overlapping_check_passed" id="BPMNEdge_flow_approve_event_overlapping_check_passed">
-        <omgdi:waypoint x="768.0" y="761.0"></omgdi:waypoint>
-        <omgdi:waypoint x="768.0" y="788.0"></omgdi:waypoint>
+        <omgdi:waypoint x="768.0" y="648.0"></omgdi:waypoint>
+        <omgdi:waypoint x="768.0" y="675.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="78.0" x="773.0" y="761.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="100.0" x="773.0" y="648.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_end" id="BPMNEdge_flow_end">
-        <omgdi:waypoint x="951.0" y="675.0"></omgdi:waypoint>
-        <omgdi:waypoint x="951.0" y="724.0"></omgdi:waypoint>
+        <omgdi:waypoint x="951.0" y="562.0"></omgdi:waypoint>
+        <omgdi:waypoint x="951.0" y="611.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_initial_unavailable_event_check_passed" id="BPMNEdge_flow_initial_unavailable_event_check_passed">
         <omgdi:waypoint x="621.0" y="218.0"></omgdi:waypoint>
@@ -310,145 +298,152 @@
       <bpmndi:BPMNEdge bpmnElement="flow_propose_new_time_decision" id="BPMNEdge_flow_propose_new_time_decision">
         <omgdi:waypoint x="555.0" y="410.0"></omgdi:waypoint>
         <omgdi:waypoint x="190.0" y="410.0"></omgdi:waypoint>
-        <omgdi:waypoint x="190.0" y="491.0"></omgdi:waypoint>
+        <omgdi:waypoint x="190.0" y="479.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="442.0" y="417.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_cancel_decision" id="BPMNEdge_flow_cancel_decision">
         <omgdi:waypoint x="575.0" y="430.0"></omgdi:waypoint>
         <omgdi:waypoint x="629.0" y="454.0"></omgdi:waypoint>
         <omgdi:waypoint x="951.0" y="454.0"></omgdi:waypoint>
         <omgdi:waypoint x="951.0" y="491.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="637.0" y="441.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_approve_decision" id="BPMNEdge_flow_approve_decision">
         <omgdi:waypoint x="575.0" y="430.0"></omgdi:waypoint>
         <omgdi:waypoint x="620.0" y="466.0"></omgdi:waypoint>
-        <omgdi:waypoint x="766.0" y="466.0"></omgdi:waypoint>
-        <omgdi:waypoint x="768.0" y="491.0"></omgdi:waypoint>
+        <omgdi:waypoint x="768.0" y="466.0"></omgdi:waypoint>
+        <omgdi:waypoint x="768.0" y="486.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="650.0" y="473.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_propose_new_time_unavailable_event_check_failed" id="BPMNEdge_flow_propose_new_time_unavailable_event_check_failed">
-        <omgdi:waypoint x="170.0" y="741.0"></omgdi:waypoint>
-        <omgdi:waypoint x="107.0" y="741.0"></omgdi:waypoint>
-        <omgdi:waypoint x="107.0" y="951.0"></omgdi:waypoint>
-        <omgdi:waypoint x="130.0" y="950.0"></omgdi:waypoint>
+        <omgdi:waypoint x="170.0" y="628.0"></omgdi:waypoint>
+        <omgdi:waypoint x="107.0" y="628.0"></omgdi:waypoint>
+        <omgdi:waypoint x="107.0" y="838.0"></omgdi:waypoint>
+        <omgdi:waypoint x="130.0" y="839.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="20.0" x="153.0" y="745.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="100.0" x="153.0" y="632.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_accept_event_overlapping_check_failed" id="BPMNEdge_flow_accept_event_overlapping_check_failed">
-        <omgdi:waypoint x="359.0" y="741.0"></omgdi:waypoint>
-        <omgdi:waypoint x="296.0" y="740.0"></omgdi:waypoint>
-        <omgdi:waypoint x="296.0" y="951.0"></omgdi:waypoint>
-        <omgdi:waypoint x="320.0" y="950.0"></omgdi:waypoint>
+        <omgdi:waypoint x="359.0" y="628.0"></omgdi:waypoint>
+        <omgdi:waypoint x="296.0" y="627.0"></omgdi:waypoint>
+        <omgdi:waypoint x="296.0" y="838.0"></omgdi:waypoint>
+        <omgdi:waypoint x="320.0" y="837.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="20.0" x="341.0" y="746.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="100.0" x="341.0" y="633.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_update_event_overlapping_check_failed" id="BPMNEdge_flow_update_event_overlapping_check_failed">
-        <omgdi:waypoint x="555.0" y="741.0"></omgdi:waypoint>
-        <omgdi:waypoint x="486.0" y="740.0"></omgdi:waypoint>
-        <omgdi:waypoint x="486.0" y="952.0"></omgdi:waypoint>
-        <omgdi:waypoint x="516.0" y="951.0"></omgdi:waypoint>
+        <omgdi:waypoint x="555.0" y="628.0"></omgdi:waypoint>
+        <omgdi:waypoint x="486.0" y="627.0"></omgdi:waypoint>
+        <omgdi:waypoint x="486.0" y="839.0"></omgdi:waypoint>
+        <omgdi:waypoint x="516.0" y="839.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="20.0" x="539.0" y="746.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="100.0" x="539.0" y="633.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_approve_event_overlapping_check_failed" id="BPMNEdge_flow_approve_event_overlapping_check_failed">
-        <omgdi:waypoint x="748.0" y="741.0"></omgdi:waypoint>
-        <omgdi:waypoint x="680.0" y="740.0"></omgdi:waypoint>
-        <omgdi:waypoint x="680.0" y="951.0"></omgdi:waypoint>
-        <omgdi:waypoint x="709.0" y="950.0"></omgdi:waypoint>
+        <omgdi:waypoint x="748.0" y="628.0"></omgdi:waypoint>
+        <omgdi:waypoint x="680.0" y="627.0"></omgdi:waypoint>
+        <omgdi:waypoint x="680.0" y="838.0"></omgdi:waypoint>
+        <omgdi:waypoint x="709.0" y="840.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="20.0" x="730.0" y="746.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="100.0" x="730.0" y="633.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_update_decision" id="BPMNEdge_flow_update_decision">
         <omgdi:waypoint x="575.0" y="430.0"></omgdi:waypoint>
-        <omgdi:waypoint x="575.0" y="491.0"></omgdi:waypoint>
+        <omgdi:waypoint x="575.0" y="480.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="539.0" y="449.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_accept_decision" id="BPMNEdge_flow_accept_decision">
         <omgdi:waypoint x="575.0" y="430.0"></omgdi:waypoint>
         <omgdi:waypoint x="526.0" y="454.0"></omgdi:waypoint>
-        <omgdi:waypoint x="377.0" y="454.0"></omgdi:waypoint>
-        <omgdi:waypoint x="379.0" y="491.0"></omgdi:waypoint>
+        <omgdi:waypoint x="379.0" y="454.0"></omgdi:waypoint>
+        <omgdi:waypoint x="379.0" y="486.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="430.0" y="462.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_after_declined_proposal_action_choose" id="BPMNEdge_flow_after_declined_proposal_action_choose">
-        <omgdi:waypoint x="251.0" y="950.0"></omgdi:waypoint>
-        <omgdi:waypoint x="264.0" y="955.0"></omgdi:waypoint>
-        <omgdi:waypoint x="264.0" y="1008.0"></omgdi:waypoint>
-        <omgdi:waypoint x="97.0" y="1008.0"></omgdi:waypoint>
+        <omgdi:waypoint x="251.0" y="839.0"></omgdi:waypoint>
+        <omgdi:waypoint x="264.0" y="839.0"></omgdi:waypoint>
+        <omgdi:waypoint x="264.0" y="896.0"></omgdi:waypoint>
+        <omgdi:waypoint x="97.0" y="896.0"></omgdi:waypoint>
         <omgdi:waypoint x="97.0" y="394.0"></omgdi:waypoint>
         <omgdi:waypoint x="667.0" y="394.0"></omgdi:waypoint>
         <omgdi:waypoint x="716.0" y="410.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_after_proposal_action_choose" id="BPMNEdge_flow_after_proposal_action_choose">
-        <omgdi:waypoint x="243.0" y="823.0"></omgdi:waypoint>
-        <omgdi:waypoint x="277.0" y="824.0"></omgdi:waypoint>
-        <omgdi:waypoint x="277.0" y="1017.0"></omgdi:waypoint>
-        <omgdi:waypoint x="89.0" y="1017.0"></omgdi:waypoint>
+        <omgdi:waypoint x="243.0" y="710.0"></omgdi:waypoint>
+        <omgdi:waypoint x="277.0" y="711.0"></omgdi:waypoint>
+        <omgdi:waypoint x="277.0" y="906.0"></omgdi:waypoint>
+        <omgdi:waypoint x="89.0" y="906.0"></omgdi:waypoint>
         <omgdi:waypoint x="89.0" y="387.0"></omgdi:waypoint>
         <omgdi:waypoint x="668.0" y="387.0"></omgdi:waypoint>
         <omgdi:waypoint x="716.0" y="410.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_after_declined_aceptance_action_choose" id="BPMNEdge_flow_after_declined_aceptance_action_choose">
-        <omgdi:waypoint x="440.0" y="950.0"></omgdi:waypoint>
-        <omgdi:waypoint x="460.0" y="953.0"></omgdi:waypoint>
-        <omgdi:waypoint x="460.0" y="1024.0"></omgdi:waypoint>
-        <omgdi:waypoint x="80.0" y="1024.0"></omgdi:waypoint>
+        <omgdi:waypoint x="440.0" y="837.0"></omgdi:waypoint>
+        <omgdi:waypoint x="460.0" y="839.0"></omgdi:waypoint>
+        <omgdi:waypoint x="460.0" y="915.0"></omgdi:waypoint>
+        <omgdi:waypoint x="80.0" y="915.0"></omgdi:waypoint>
         <omgdi:waypoint x="80.0" y="380.0"></omgdi:waypoint>
         <omgdi:waypoint x="677.0" y="380.0"></omgdi:waypoint>
         <omgdi:waypoint x="716.0" y="410.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_after_aceptance_action_choose" id="BPMNEdge_flow_after_aceptance_action_choose">
-        <omgdi:waypoint x="432.0" y="824.0"></omgdi:waypoint>
-        <omgdi:waypoint x="468.0" y="824.0"></omgdi:waypoint>
-        <omgdi:waypoint x="468.0" y="1032.0"></omgdi:waypoint>
-        <omgdi:waypoint x="70.0" y="1032.0"></omgdi:waypoint>
+        <omgdi:waypoint x="432.0" y="711.0"></omgdi:waypoint>
+        <omgdi:waypoint x="468.0" y="711.0"></omgdi:waypoint>
+        <omgdi:waypoint x="468.0" y="925.0"></omgdi:waypoint>
+        <omgdi:waypoint x="70.0" y="925.0"></omgdi:waypoint>
         <omgdi:waypoint x="70.0" y="373.0"></omgdi:waypoint>
         <omgdi:waypoint x="683.0" y="373.0"></omgdi:waypoint>
         <omgdi:waypoint x="768.0" y="383.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_after_declined_update_action_choose" id="BPMNEdge_flow_after_declined_update_action_choose">
-        <omgdi:waypoint x="636.0" y="951.0"></omgdi:waypoint>
-        <omgdi:waypoint x="657.0" y="952.0"></omgdi:waypoint>
-        <omgdi:waypoint x="657.0" y="1040.0"></omgdi:waypoint>
-        <omgdi:waypoint x="61.0" y="1040.0"></omgdi:waypoint>
+        <omgdi:waypoint x="636.0" y="839.0"></omgdi:waypoint>
+        <omgdi:waypoint x="657.0" y="840.0"></omgdi:waypoint>
+        <omgdi:waypoint x="657.0" y="934.0"></omgdi:waypoint>
+        <omgdi:waypoint x="61.0" y="934.0"></omgdi:waypoint>
         <omgdi:waypoint x="61.0" y="364.0"></omgdi:waypoint>
         <omgdi:waypoint x="692.0" y="364.0"></omgdi:waypoint>
         <omgdi:waypoint x="768.0" y="383.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_after_update_action_choose" id="BPMNEdge_flow_after_update_action_choose">
-        <omgdi:waypoint x="628.0" y="824.0"></omgdi:waypoint>
-        <omgdi:waypoint x="668.0" y="824.0"></omgdi:waypoint>
-        <omgdi:waypoint x="668.0" y="1050.0"></omgdi:waypoint>
-        <omgdi:waypoint x="53.0" y="1049.0"></omgdi:waypoint>
+        <omgdi:waypoint x="628.0" y="711.0"></omgdi:waypoint>
+        <omgdi:waypoint x="668.0" y="711.0"></omgdi:waypoint>
+        <omgdi:waypoint x="668.0" y="944.0"></omgdi:waypoint>
+        <omgdi:waypoint x="53.0" y="944.0"></omgdi:waypoint>
         <omgdi:waypoint x="53.0" y="356.0"></omgdi:waypoint>
         <omgdi:waypoint x="697.0" y="356.0"></omgdi:waypoint>
         <omgdi:waypoint x="768.0" y="383.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_after_declined_approval_action_choose" id="BPMNEdge_flow_after_declined_approval_action_choose">
-        <omgdi:waypoint x="829.0" y="950.0"></omgdi:waypoint>
-        <omgdi:waypoint x="852.0" y="953.0"></omgdi:waypoint>
-        <omgdi:waypoint x="852.0" y="1060.0"></omgdi:waypoint>
-        <omgdi:waypoint x="46.0" y="1060.0"></omgdi:waypoint>
+        <omgdi:waypoint x="829.0" y="840.0"></omgdi:waypoint>
+        <omgdi:waypoint x="852.0" y="838.0"></omgdi:waypoint>
+        <omgdi:waypoint x="852.0" y="955.0"></omgdi:waypoint>
+        <omgdi:waypoint x="46.0" y="955.0"></omgdi:waypoint>
         <omgdi:waypoint x="46.0" y="348.0"></omgdi:waypoint>
         <omgdi:waypoint x="700.0" y="348.0"></omgdi:waypoint>
         <omgdi:waypoint x="768.0" y="383.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_after_approval_action_choose" id="BPMNEdge_flow_after_approval_action_choose">
-        <omgdi:waypoint x="821.0" y="823.0"></omgdi:waypoint>
-        <omgdi:waypoint x="868.0" y="822.0"></omgdi:waypoint>
-        <omgdi:waypoint x="868.0" y="1070.0"></omgdi:waypoint>
-        <omgdi:waypoint x="36.0" y="1069.0"></omgdi:waypoint>
+        <omgdi:waypoint x="821.0" y="710.0"></omgdi:waypoint>
+        <omgdi:waypoint x="868.0" y="711.0"></omgdi:waypoint>
+        <omgdi:waypoint x="868.0" y="966.0"></omgdi:waypoint>
+        <omgdi:waypoint x="36.0" y="966.0"></omgdi:waypoint>
         <omgdi:waypoint x="36.0" y="341.0"></omgdi:waypoint>
         <omgdi:waypoint x="708.0" y="341.0"></omgdi:waypoint>
         <omgdi:waypoint x="768.0" y="383.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow_accept_user_action" id="BPMNEdge_flow_accept_user_action">
-        <omgdi:waypoint x="379.0" y="546.0"></omgdi:waypoint>
-        <omgdi:waypoint x="379.0" y="599.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow_update_user_action" id="BPMNEdge_flow_update_user_action">
-        <omgdi:waypoint x="575.0" y="546.0"></omgdi:waypoint>
-        <omgdi:waypoint x="575.0" y="593.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_initial_action_choose" id="BPMNEdge_flow_initial_action_choose">
         <omgdi:waypoint x="768.0" y="336.0"></omgdi:waypoint>

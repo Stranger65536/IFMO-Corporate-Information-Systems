@@ -4,6 +4,7 @@ import com.emc.internal.reserv.dto.UserInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -26,6 +27,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Getter
+@ToString(exclude = "password")
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @SuppressWarnings({"DuplicateStringLiteralInspection", "WeakerAccess"})

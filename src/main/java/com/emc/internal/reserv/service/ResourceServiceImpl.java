@@ -68,15 +68,15 @@ public class ResourceServiceImpl implements ResourceService {
                         "location: {}",
                 enterMethodMessage(),
                 resource.getId(), resource.getName(), resource.getLocation());
-        final Optional<Resource> resourceOptional = resourceRepository
+        final Optional<Resource> resourceOptional = Optional.ofNullable(resourceRepository.findOne(resource.getId()));
+
+        resourceOptional.orElseThrow(() -> raiseServiceFaultException(RESOURCE_DOES_NOT_EXIST,
+                format("No resource with id {0} has been found!", resource.getId())));
+
+        final Optional<Resource> resourceOptionalByName = resourceRepository
                 .findOneByNameAndLocation(resource.getName(), resource.getLocation());
 
-        if (!resourceOptional.isPresent()) {
-            throw raiseServiceFaultException(RESOURCE_DOES_NOT_EXIST,
-                    format("No resource with id {0} has been found!", resource.getId()));
-        }
-
-        if (resourceOptional.get().getId() != resource.getId()) {
+        if (resourceOptionalByName.isPresent() && resourceOptionalByName.get().getId() != resource.getId()) {
             throw raiseServiceFaultException(RESOURCE_IS_NOT_UNIQUE,
                     format("Resource with name {0} and location {1} already exists",
                             resource.getName(), resource.getLocation()));

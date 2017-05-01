@@ -22,7 +22,7 @@ import static javax.xml.bind.DatatypeConverter.parseDateTime;
  */
 public interface RequestValidator<T> {
     Range<Integer> PAGE_SIZE_RANGE = Range.between(1, 100);
-    Range<Integer> PASSWORD_LENGTH_RANGE = Range.between(6, 32);
+    Range<Integer> PASSWORD_LENGTH_RANGE = Range.between(5, 32);
     Range<Integer> RESOURCE_NAME_LENGTH_RANGE = Range.between(1, 25);
     Range<Integer> RESOURCE_LOCATION_LENGTH_RANGE = Range.between(0, 45);
     int MAX_SEARCH_VALUE_LENGTH = 254;

@@ -26,17 +26,11 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
         this.authenticationEntryPoint = CustomBasicAuthenticationEntryPoint;
     }
 
-    //TODO remove after final configuration
-//    @Override
-//    public void configure(final WebSecurity web) throws Exception {
-//        web.debug(true);
-//    }
-
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http.requiresChannel().anyRequest().requiresSecure();
         http.authorizeRequests()
-                .antMatchers("/*.html", "/**/*.xsd", "/*.ico", "/js/**", "/css/**", "/**/*.wsdl", "/error", REGISTER_WS_ENDPOINT).permitAll()
+                .antMatchers("/", "/*.html", "/**/*.xsd", "/*.ico", "/js/**", "/css/**", "/img/**", "/**/*.wsdl", "/error", REGISTER_WS_ENDPOINT).permitAll()
                 .anyRequest().authenticated()
                 .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers(REGISTER_WS_ENDPOINT)
                 .and().httpBasic().authenticationEntryPoint(authenticationEntryPoint);

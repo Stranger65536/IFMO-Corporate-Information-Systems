@@ -14,9 +14,12 @@ import com.emc.internal.reserv.dto.ProposeNewTimeRequest;
 import com.emc.internal.reserv.dto.ProposeNewTimeResponse;
 import com.emc.internal.reserv.dto.UpdateReservationRequest;
 import com.emc.internal.reserv.dto.UpdateReservationResponse;
+import com.emc.internal.reserv.entity.ActualReservation;
 import com.emc.internal.reserv.entity.Reservation;
+import com.emc.internal.reserv.entity.ReservationType;
 import com.emc.internal.reserv.entity.ReservationTypes;
 import com.emc.internal.reserv.entity.Resource;
+import com.emc.internal.reserv.entity.Roles;
 import com.emc.internal.reserv.entity.User;
 import com.emc.internal.reserv.service.ReservationService;
 import com.emc.internal.reserv.service.ResourceService;
@@ -25,15 +28,27 @@ import com.emc.internal.reserv.validator.RequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Objects;
 
+import static com.emc.internal.reserv.dto.FaultCode.ACCESS_DENIED;
+import static com.emc.internal.reserv.dto.FaultCode.RESERVATION_DOES_NOT_EXIST;
+import static com.emc.internal.reserv.dto.FaultCode.RESERVATION_INFO_IS_DIFFERENT;
 import static com.emc.internal.reserv.dto.FaultCode.RESOURCE_DOES_NOT_EXIST;
 import static com.emc.internal.reserv.dto.FaultCode.USER_DOES_NOT_EXIST;
+import static com.emc.internal.reserv.util.EndpointUtil.getAccessDeniedMessage;
+import static com.emc.internal.reserv.util.EndpointUtil.getNonexistentReservationIdMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.getNonexistentResourceIdMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.getNonexistentUsernameMessage;
+import static com.emc.internal.reserv.util.EndpointUtil.getReservationInfoIsDifferentMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
 import static com.emc.internal.reserv.util.RuntimeUtil.toLocalDateTime;
+import static java.sql.Timestamp.valueOf;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -96,11 +111,10 @@ public class ReservationFacadeImpl implements ReservationFacade {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
     public PlaceReservationResponse placeReservation(final PlaceReservationRequest request) {
         placeReservationRequestValidator.validate(request);
-        final String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        final User user = userService.getUser(username).orElseThrow(() ->
-                raiseServiceFaultException(USER_DOES_NOT_EXIST, getNonexistentUsernameMessage(username)));
+        final User user = getCurrentUser();
         final Resource resource = resourceService.getResource(request.getResourceId()).orElseThrow(() ->
                 raiseServiceFaultException(RESOURCE_DOES_NOT_EXIST, getNonexistentResourceIdMessage(request.getResourceId())));
         //noinspection ConstantConditions optional check made at validator
@@ -110,8 +124,15 @@ public class ReservationFacadeImpl implements ReservationFacade {
                 toLocalDateTime(request.getStartsAt()),
                 toLocalDateTime(request.getEndsAt()),
                 ReservationTypes.getById(request.getType()).get());
+        final PlaceReservationResponse response = new PlaceReservationResponse();
+        response.setReservationInfo(reservation.toReservationInfo());
+        return response;
+    }
 
-        return null;
+    private User getCurrentUser() {
+        final String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userService.getUser(username).orElseThrow(() ->
+                raiseServiceFaultException(USER_DOES_NOT_EXIST, getNonexistentUsernameMessage(username)));
     }
 
     @Override
@@ -136,10 +157,31 @@ public class ReservationFacadeImpl implements ReservationFacade {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
     public CancelReservationResponse cancelReservation(final CancelReservationRequest request) {
         cancelReservationRequestValidator.validate(request);
-        //noinspection ReturnOfNull
-        return null;
+        final User user = getCurrentUser();
+        final Reservation reservation = reservationService.getReservation(request.getReservationId()).orElseThrow(() ->
+                raiseServiceFaultException(RESERVATION_DOES_NOT_EXIST, getNonexistentReservationIdMessage(request.getReservationId())));
+
+        checkSufficientPrivilegesToCancel(user, reservation);
+
+        final Resource resource = resourceService.getResource(request.getResourceId()).orElseThrow(() ->
+                raiseServiceFaultException(RESOURCE_DOES_NOT_EXIST, getNonexistentResourceIdMessage(request.getResourceId())));
+        final ActualReservation actualReservation = reservationService.getActualReservation(request.getReservationId()).orElseThrow(() ->
+                raiseServiceFaultException(RESERVATION_DOES_NOT_EXIST, getNonexistentReservationIdMessage(request.getReservationId())));
+        //noinspection ConstantConditions optional check made at validator
+        final ReservationType reservationType = ReservationTypes.getById(request.getType()).get();
+
+        checkReservationIsTheSame(actualReservation, resource, toLocalDateTime(request.getStartsAt()),
+                toLocalDateTime(request.getEndsAt()), reservationType);
+
+        final Reservation result = reservationService.cancelReservation(reservation);
+        final CancelReservationResponse response = new CancelReservationResponse();
+
+        response.setReservationInfo(result.toReservationInfo());
+
+        return response;
     }
 
     @Override
@@ -147,5 +189,26 @@ public class ReservationFacadeImpl implements ReservationFacade {
         proposeNewTimeRequestValidator.validate(request);
         //noinspection ReturnOfNull
         return null;
+    }
+
+    private static void checkSufficientPrivilegesToCancel(final User user, final Reservation reservation) {
+        if (reservation.getUser().getId() != user.getId() && user.getRole().equals(Roles.USER.getRole())) {
+            throw raiseServiceFaultException(ACCESS_DENIED, getAccessDeniedMessage());
+        }
+    }
+
+    @SuppressWarnings({"OverlyComplexBooleanExpression", "MethodWithMoreThanThreeNegations"})
+    private static void checkReservationIsTheSame(
+            final ActualReservation actualReservation,
+            final Resource resource,
+            final LocalDateTime startsAt,
+            final LocalDateTime endsAt,
+            final ReservationType reservationType) {
+        if (actualReservation.getResource().getId() != resource.getId()
+                || !Objects.equals(actualReservation.getStartsAt(), valueOf(startsAt))
+                || !Objects.equals(actualReservation.getEndsAt(), valueOf(endsAt))
+                || !Objects.equals(actualReservation.getType(), reservationType)) {
+            throw raiseServiceFaultException(RESERVATION_INFO_IS_DIFFERENT, getReservationInfoIsDifferentMessage());
+        }
     }
 }

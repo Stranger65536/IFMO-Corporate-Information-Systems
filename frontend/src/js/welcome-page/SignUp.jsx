@@ -37,7 +37,7 @@ export class SignUp extends React.Component {
                     stateField: 'signUpUsername',
                     hintText: 'Username',
                     floatingLabelText: 'Username',
-                    errorText: 'Username must be 6-32 characters length and must be not email-like',
+                    errorText: 'Username must be 5-32 characters length and must be not email-like',
                     validationFunction: this.signUpUsernameValidation,
                     afterGeneralValidation: true
                 },
@@ -55,7 +55,7 @@ export class SignUp extends React.Component {
                     stateField: 'signUpPassword',
                     hintText: 'Password',
                     floatingLabelText: 'Password',
-                    errorText: 'Password must be 6-32 characters length'
+                    errorText: 'Password must be 5-32 characters length'
                 },
                 passwordAgain: {
                     patterns: [],

@@ -5,6 +5,7 @@ import com.emc.internal.reserv.util.RuntimeUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -30,6 +31,7 @@ import static java.util.Optional.ofNullable;
  */
 @Entity
 @Getter
+@ToString(exclude = "reservation")
 @EqualsAndHashCode
 @Access(AccessType.FIELD)
 @Table(name = "actions")
