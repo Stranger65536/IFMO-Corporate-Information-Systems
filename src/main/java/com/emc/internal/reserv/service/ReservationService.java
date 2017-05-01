@@ -1,11 +1,12 @@
 package com.emc.internal.reserv.service;
 
-import com.emc.internal.reserv.dto.FaultCode;
 import com.emc.internal.reserv.dto.ReservationSearchableField;
 import com.emc.internal.reserv.dto.SearchType;
 import com.emc.internal.reserv.dto.SortingOrder;
 import com.emc.internal.reserv.entity.Reservation;
 import com.emc.internal.reserv.entity.ReservationType;
+import com.emc.internal.reserv.entity.Resource;
+import com.emc.internal.reserv.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -25,57 +26,64 @@ public interface ReservationService {
                                             final SortingOrder sortingOrder,
                                             final ReservationSearchableField sortingField);
 
-    Reservation placeReservation(final int userId,
-                                 final int resourceId,
+    Reservation placeReservation(final User user,
+                                 final Resource resource,
                                  final LocalDateTime startsAt,
                                  final LocalDateTime endsAt,
                                  final ReservationType type);
 
-    Reservation updateReservation(final int userId,
-                                  final long reservationId,
-                                  final int resourceId,
+    Reservation updateReservation(final User user,
+                                  final Reservation reservation,
+                                  final Resource resource,
                                   final LocalDateTime startsAt,
                                   final LocalDateTime endsAt,
                                   final ReservationType type);
 
-    Reservation acceptReservation(final int userId,
-                                  final long reservationId,
-                                  final int resourceId,
+    Reservation acceptReservation(final User user,
+                                  final Reservation reservation,
+                                  final Resource resource,
                                   final LocalDateTime startsAt,
                                   final LocalDateTime endsAt,
                                   final ReservationType type);
 
-    Reservation cancelReservation(final int userId,
-                                  final long reservationId,
-                                  final int resourceId,
+    Reservation cancelReservation(final User user,
+                                  final Reservation reservation,
+                                  final Resource resource,
                                   final LocalDateTime startsAt,
                                   final LocalDateTime endsAt,
                                   final ReservationType type);
 
-    Reservation proposeNewTime(final int userId,
-                               final long reservationId,
-                               final int resourceId,
+    Reservation proposeNewTime(final User user,
+                               final Reservation reservation,
+                               final Resource resource,
                                final LocalDateTime startsAt,
                                final LocalDateTime endsAt,
                                final ReservationType type,
-                               final int newResourceId,
+                               final Resource newResource,
                                final LocalDateTime newStartsAt,
                                final LocalDateTime newEndsAt,
                                final ReservationType newType);
 
-    boolean isPendingReservationsNumberLimitExceeded(final int userId);
+    @SuppressWarnings("unused") //used explicitly at bpmn
+    boolean isPendingReservationsNumberLimitExceeded(final User user);
 
-    boolean hasOverlappingsWithUnavailableEvent(final int resourceId,
+    @SuppressWarnings("unused") //used explicitly at bpmn
+    boolean hasOverlappingsWithUnavailableEvent(final Resource resource,
                                                 final LocalDateTime startsAt,
                                                 final LocalDateTime endsAt);
 
-    boolean hasOverlappingsWithEvent(final int resourceId,
+    @SuppressWarnings("unused") //used explicitly at bpmn
+    boolean hasOverlappingsWithEvent(final Resource resource,
                                      final LocalDateTime startsAt,
                                      final LocalDateTime endsAt);
 
-    void declineRequest(final String placementUuid, final FaultCode code, final String message);
+    @SuppressWarnings("unused") //used explicitly at bpmn
+    void createReservation(
+            final User user,
+            final Resource resource,
+            final LocalDateTime start,
+            final LocalDateTime end,
+            final ReservationType type);
 
-    void passRequest(final String placementUuid);
-
-    void storeReservation(final Reservation reservation);
+    void message(final String message);
 }

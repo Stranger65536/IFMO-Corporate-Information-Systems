@@ -92,12 +92,18 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     @Transactional(isolation = READ_COMMITTED, propagation = REQUIRED)
     public Optional<Resource> getResource(final int id) {
-        return Optional.ofNullable(resourceRepository.findOne(id));
+        log.info("{} id: {}", enterMethodMessage(), id);
+        final Optional<Resource> result = Optional.ofNullable(resourceRepository.findOne(id));
+        log.info(exitMethodMessage());
+        return result;
     }
 
     @Override
     @Transactional(isolation = READ_COMMITTED, propagation = REQUIRED)
     public Collection<Resource> getResources() {
-        return resourceRepository.findAll();
+        log.info(enterMethodMessage());
+        final Collection<Resource> result = resourceRepository.findAll();
+        log.info(exitMethodMessage());
+        return result;
     }
 }

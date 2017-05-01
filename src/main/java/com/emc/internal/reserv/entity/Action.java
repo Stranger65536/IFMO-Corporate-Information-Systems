@@ -81,7 +81,7 @@ public class Action {
         reservation = null;
     }
 
-    public Action(final ReservationBuilder builder) {
+    public Action(final ActionBuilder builder) {
         this.id = builder.id;
         this.time = builder.reservedAt;
         this.reservationStart = builder.reservationStart;
@@ -93,8 +93,8 @@ public class Action {
         this.reservation = builder.reservation;
     }
 
-    public ReservationBuilder builder() {
-        return new ReservationBuilder(this);
+    public ActionBuilder builder() {
+        return new ActionBuilder(this);
     }
 
     public ActionInfo toActionInfo() {
@@ -113,7 +113,7 @@ public class Action {
 
     @NoArgsConstructor
     @SuppressWarnings("PublicInnerClass")
-    public static class ReservationBuilder {
+    public static class ActionBuilder {
         private long id;
         private Timestamp reservedAt;
         private Timestamp reservationStart;
@@ -124,7 +124,7 @@ public class Action {
         private ReservationStatus status;
         private Reservation reservation;
 
-        public ReservationBuilder(final Action model) {
+        public ActionBuilder(final Action model) {
             this.id = model.id;
             this.reservedAt = model.time;
             this.reservationStart = model.reservationStart;
@@ -136,47 +136,47 @@ public class Action {
             this.reservation = model.reservation;
         }
 
-        public ReservationBuilder id(final int id) {
+        public ActionBuilder id(final int id) {
             this.id = id;
             return this;
         }
 
-        public ReservationBuilder reservedAt(final Timestamp reservedAt) {
+        public ActionBuilder reservedAt(final Timestamp reservedAt) {
             this.reservedAt = reservedAt;
             return this;
         }
 
-        public ReservationBuilder reservationStart(final Timestamp reservationStart) {
+        public ActionBuilder reservationStart(final Timestamp reservationStart) {
             this.reservationStart = reservationStart;
             return this;
         }
 
-        public ReservationBuilder reservationEnd(final Timestamp reservationEnd) {
+        public ActionBuilder reservationEnd(final Timestamp reservationEnd) {
             this.reservationEnd = reservationEnd;
             return this;
         }
 
-        public ReservationBuilder user(final User user) {
+        public ActionBuilder user(final User user) {
             this.user = user;
             return this;
         }
 
-        public ReservationBuilder resource(final Resource resource) {
+        public ActionBuilder resource(final Resource resource) {
             this.resource = resource;
             return this;
         }
 
-        public ReservationBuilder type(final ReservationType type) {
+        public ActionBuilder type(final ReservationType type) {
             this.type = type;
             return this;
         }
 
-        public ReservationBuilder status(final ReservationStatus status) {
+        public ActionBuilder status(final ReservationStatus status) {
             this.status = status;
             return this;
         }
 
-        public ReservationBuilder reservation(final Reservation reservation) {
+        public ActionBuilder reservation(final Reservation reservation) {
             this.reservation = reservation;
             return this;
         }

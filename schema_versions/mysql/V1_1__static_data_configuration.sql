@@ -21,12 +21,14 @@ INSERT INTO `reserv-io`.`reservation_types` (`name`)
 VALUES ('Unavailable');
 
 INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
-VALUES ('Approved');
-INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
-VALUES ('Canceled');
-INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
 VALUES ('Waiting for approval');
 INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
+VALUES ('Approved');
+INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
+VALUES ('Accepted');
+INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
 VALUES ('New time proposed');
+INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
+VALUES ('Canceled');
 
 COMMIT;

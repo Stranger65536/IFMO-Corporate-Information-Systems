@@ -2,11 +2,11 @@ package com.emc.internal.reserv.converter;
 
 import com.emc.internal.reserv.dto.ReservationSearchableField;
 import com.google.common.primitives.Ints;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.springframework.stereotype.Service;
 
 import static com.emc.internal.reserv.util.RuntimeUtil.raiseFieldCoverageException;
 import static com.emc.internal.reserv.util.RuntimeUtil.toLocalDateTime;
+import static javax.xml.bind.DatatypeConverter.parseDateTime;
 
 /**
  * @author trofiv
@@ -32,7 +32,7 @@ public class ReservationSearchableFieldConverter implements FieldConverter<Reser
             case ENDS_AT:
             case CREATED_ON:
             case UPDATED_ON:
-                return toLocalDateTime(XMLGregorianCalendarImpl.parse(value));
+                return toLocalDateTime(parseDateTime(value));
             default:
                 throw raiseFieldCoverageException();
         }

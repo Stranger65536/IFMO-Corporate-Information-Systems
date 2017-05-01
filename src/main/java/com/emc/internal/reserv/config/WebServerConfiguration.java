@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
@@ -15,6 +18,7 @@ import static java.util.Collections.singletonMap;
  * @date 22.04.2017
  */
 @Configuration
+//TODO favicon
 public class WebServerConfiguration {
     @Value("${spring.config.location}../static/")
     private String resourceDirectory;
@@ -33,5 +37,17 @@ public class WebServerConfiguration {
         requestHandler.setLocations(singletonList(new FileSystemResource(resourceDirectory + "favicon.ico")));
         requestHandler.setCacheSeconds(0);
         return requestHandler;
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new MyWebMvcConfigurerAdapter();
+    }
+
+    private static class MyWebMvcConfigurerAdapter extends WebMvcConfigurerAdapter {
+        @Override
+        public void addCorsMappings(final CorsRegistry registry) {
+            registry.addMapping("/**/*").allowedOrigins("*");
+        }
     }
 }

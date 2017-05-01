@@ -12,7 +12,7 @@ CREATE TABLE `reserv-io`.`users` (
   `first_name`  NVARCHAR(35) NULL,
   `last_name`   NVARCHAR(35) NULL,
   `middle_name` NVARCHAR(35) NULL,
-  `login`       NVARCHAR(25) NOT NULL,
+  `username`    NVARCHAR(25) NOT NULL,
   `email`       VARCHAR(45)  NOT NULL,
   `password`    VARCHAR(128) NOT NULL,
   `role_id`     INT          NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE `reserv-io`.`users` (
   INDEX `first_name_idx` (`first_name` ASC),
   INDEX `last_name_idx` (`last_name` ASC),
   INDEX `middle_name_idx` (`middle_name` ASC),
-  UNIQUE INDEX `login_idx` (`login` ASC),
+  UNIQUE INDEX `username_idx` (`username` ASC),
   UNIQUE INDEX `email_idx` (`email` ASC),
   CONSTRAINT `fk_user_role`
   FOREIGN KEY (`role_id`)
@@ -141,6 +141,12 @@ CREATE TABLE `reserv-io`.`actions` (
 )
   ENGINE = InnoDB;
 
+CREATE TABLE `reserv-io`.`dual` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+)
+  ENGINE = InnoDB;
+
 CREATE VIEW `reserv-io`.`actual_reservations` AS
   SELECT
     `r`.`id`,
@@ -164,3 +170,70 @@ CREATE VIEW `reserv-io`.`actual_reservations` AS
           GROUP BY `r`.`id`) `b`
       ON `a`.`id` = `b`.`action_id`
     JOIN `reserv-io`.`reservations` `r` ON `r`.`id` = `a`.`reservation_id`;
+
+CREATE VIEW `reserv-io`.`actual_reserved_resources` AS
+  SELECT
+    `r`.`id`,
+    `a`.`resource_id`,
+    `a`.`type_id`,
+    `a`.`status_id`,
+    `a`.`reservation_start`,
+    `a`.`reservation_end`
+  FROM `reserv-io`.`actions` `a`
+    JOIN (SELECT
+            `r`.`id`      `id`,
+            MAX(`a`.`id`) `action_id`
+          FROM `reserv-io`.`reservations` `r`
+            JOIN `reserv-io`.`actions` `a` ON `r`.`id` = `a`.`reservation_id`
+          WHERE (`r`.`id` NOT IN
+                 (SELECT `r`.`id` `id`
+                  FROM `reserv-io`.`reservations` `r`
+                    JOIN `reserv-io`.`actions` `a` ON `r`.`id` = `a`.`reservation_id`
+                  WHERE (`a`.`status_id` IN
+                         (SELECT `id`
+                          FROM `reserv-io`.`reservation_statuses`
+                          WHERE `name` = 'Canceled')))
+                 AND `a`.`status_id` IN
+                     (SELECT `id`
+                      FROM `reserv-io`.`reservation_statuses`
+                      WHERE `name` = 'Approved' OR `name` = 'Accepted'))
+          GROUP BY `r`.`id`) `b`
+      ON `a`.`id` = `b`.`action_id`
+    JOIN `reserv-io`.`reservations` `r` ON `r`.`id` = `a`.`reservation_id`;
+
+DELIMITER $$
+CREATE PROCEDURE HAS_OVERLAPPING_RESERVATION(
+  IN  RESOURCE  INT,
+  IN  STARTS_AT DATETIME,
+  IN  ENDS_AT   DATETIME,
+  OUT RESULT    BIT)
+  BEGIN
+    SELECT CASE WHEN EXISTS(
+        SELECT *
+        FROM actual_reserved_resources r
+        WHERE r.resource_id = RESOURCE
+              AND r.reservation_start <= STARTS_AT
+              AND r.reservation_end >= ENDS_AT)
+      THEN TRUE
+           ELSE FALSE END
+    INTO RESULT;
+  END$$
+
+CREATE PROCEDURE HAS_OVERLAPPING_RESERVATION_WITH_TYPE(
+  IN  RESOURCE         INT,
+  IN  RESERVATION_TYPE INT,
+  IN  STARTS_AT        DATETIME,
+  IN  ENDS_AT          DATETIME,
+  OUT RESULT           BIT)
+  BEGIN
+    SELECT CASE WHEN EXISTS(
+        SELECT *
+        FROM actual_reserved_resources r
+        WHERE r.resource_id = RESOURCE
+              AND r.type_id = RESERVATION_TYPE
+              AND r.reservation_start <= STARTS_AT
+              AND r.reservation_end >= ENDS_AT)
+      THEN TRUE
+           ELSE FALSE END
+    INTO RESULT;
+  END$$

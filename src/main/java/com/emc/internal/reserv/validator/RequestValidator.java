@@ -2,14 +2,11 @@ package com.emc.internal.reserv.validator;
 
 import com.emc.internal.reserv.dto.GenericSearchRequestField;
 import com.emc.internal.reserv.dto.SearchType;
-import com.emc.internal.reserv.entity.ReservationStatus;
 import com.emc.internal.reserv.entity.ReservationStatuses;
 import com.emc.internal.reserv.entity.ReservationTypes;
 import com.google.common.primitives.Ints;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.apache.commons.lang3.Range;
 
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -17,6 +14,7 @@ import static com.emc.internal.reserv.dto.FaultCode.INVALID_FIELD_VALUE;
 import static com.emc.internal.reserv.util.EndpointUtil.getInvalidFieldMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
 import static com.emc.internal.reserv.util.RuntimeUtil.raiseForgotEnumBranchException;
+import static javax.xml.bind.DatatypeConverter.parseDateTime;
 
 /**
  * @author trofiv
@@ -38,7 +36,7 @@ public interface RequestValidator<T> {
     static boolean isDateTime(final String value) {
         if (value != null) {
             try {
-                XMLGregorianCalendarImpl.parse(value);
+                parseDateTime(value);
                 return true;
             } catch (IllegalArgumentException ignored) {
                 return false;

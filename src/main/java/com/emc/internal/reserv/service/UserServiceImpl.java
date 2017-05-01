@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.TypedQuery;
 import java.security.MessageDigest;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,7 +72,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UserDetails loadUserByUsername(final String username) {
         final Optional<User> userOptional = userRepository.findOneByEmailOrLogin(username);
         final User user = userOptional.orElseThrow(() -> new UsernameNotFoundException(
-                format("User with identity '{0} has not been found!'", username)));
+                format("User with identity '{0}' has not been found!", username)));
 
         return new org.springframework.security.core.userdetails.User(
                 username, user.getPassword(), true, true, true, true,
@@ -130,6 +129,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         log.info(exitMethodMessage());
         return optional;
     }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED, propagation = REQUIRED)
+    public Optional<User> getUser(final String username) {
+        log.info("{} username: {}", enterMethodMessage(), username);
+        final Optional<User> optional = userRepository.findOneByUsername(username);
+        log.info(exitMethodMessage());
+        return optional;
+    }
+
 
     @Override
     @Transactional(isolation = READ_COMMITTED, propagation = REQUIRED)

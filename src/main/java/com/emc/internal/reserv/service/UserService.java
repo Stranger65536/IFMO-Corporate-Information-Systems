@@ -22,6 +22,8 @@ public interface UserService {
 
     Optional<User> getUser(final int id);
 
+    Optional<User> getUser(final String username);
+
     Collection<User> getUsers(final int page,
                               final int pageSize,
                               final UserSearchableField searchField,

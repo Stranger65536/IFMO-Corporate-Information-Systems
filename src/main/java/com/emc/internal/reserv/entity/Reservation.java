@@ -92,7 +92,7 @@ public class Reservation {
             return this;
         }
 
-        public ReservationBuilder usersId(final User user) {
+        public ReservationBuilder user(final User user) {
             this.user = user;
             return this;
         }

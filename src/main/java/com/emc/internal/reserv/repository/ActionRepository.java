@@ -1,6 +1,7 @@
 package com.emc.internal.reserv.repository;
 
 import com.emc.internal.reserv.entity.Action;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,5 +10,5 @@ import org.springframework.stereotype.Repository;
  * @date 05.03.2017
  */
 @Repository
-public interface ActionRepository extends CrudRepository<Action, Long> {
+public interface ActionRepository extends JpaRepository<Action, Long> {
 }

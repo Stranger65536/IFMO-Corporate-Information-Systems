@@ -1,6 +1,7 @@
 package com.emc.internal.reserv.util;
 
 import lombok.SneakyThrows;
+import org.apache.tomcat.jni.Local;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -9,6 +10,9 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Calendar;
+
+import static java.time.ZoneOffset.UTC;
 
 /**
  * @author trofiv
@@ -25,29 +29,23 @@ public class RuntimeUtil {
         }
     }
 
-    //TODO extract code duplicates
     public static String explicitCallProhibitedError() {
-        final StackTraceElement e = Thread.currentThread().getStackTrace()[2];
+        return getMethodName() + " must not be called explicitly!";
+    }
+
+    private static String getMethodName() {
+        final StackTraceElement e = Thread.currentThread().getStackTrace()[3];
         final String s = e.getClassName();
         return s.substring(s.lastIndexOf('.') + 1, s.length())
-                + '.' + e.getMethodName()
-                + " must not be called explicitly!";
+                + '.' + e.getMethodName();
     }
 
     public static String enterMethodMessage() {
-        final StackTraceElement e = Thread.currentThread().getStackTrace()[2];
-        final String s = e.getClassName();
-        return s.substring(s.lastIndexOf('.') + 1, s.length())
-                + '.' + e.getMethodName()
-                + ".enter";
+        return getMethodName() + ".enter";
     }
 
     public static String exitMethodMessage() {
-        final StackTraceElement e = Thread.currentThread().getStackTrace()[2];
-        final String s = e.getClassName();
-        return s.substring(s.lastIndexOf('.') + 1, s.length())
-                + '.' + e.getMethodName()
-                + ".exit";
+        return getMethodName() + ".exit";
     }
 
     public static UnsupportedOperationException raiseForgotEnumBranchException() {
@@ -69,12 +67,12 @@ public class RuntimeUtil {
         return calendar;
     }
 
-    public static Timestamp toTimestamp(final XMLGregorianCalendar calendar) {
-        return new Timestamp(calendar.toGregorianCalendar().getTimeInMillis());
+    public static LocalDateTime toLocalDateTime(final Calendar calendar) {
+        return calendar.toInstant().atOffset(UTC).toLocalDateTime();
     }
 
     public static LocalDateTime toLocalDateTime(final XMLGregorianCalendar calendar) {
-        return calendar.toGregorianCalendar().toZonedDateTime().toLocalDateTime();
+        return calendar.toGregorianCalendar().toInstant().atOffset(UTC).toLocalDateTime();
     }
 
     public static UnsupportedOperationException raiseUninitializedEntityField() {

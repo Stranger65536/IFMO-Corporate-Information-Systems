@@ -18,6 +18,7 @@ import java.util.Optional;
  */
 public enum ReservationStatuses {
     APPROVED("Approved"),
+    ACCEPTED("Accepted"),
     CANCELED("Canceled"),
     WAITING_FOR_APPROVAL("Waiting for approval"),
     NEW_TIME_PROPOSED("New time proposed");
@@ -41,7 +42,7 @@ public enum ReservationStatuses {
     }
 
     @Component
-    @SuppressWarnings("PublicInnerClass")
+    @SuppressWarnings({"PublicInnerClass", "unused"})
     public static class ReservationStatusRepositoryInjector {
         private final ReservationStatusRepository reservationStatusRepository;
 

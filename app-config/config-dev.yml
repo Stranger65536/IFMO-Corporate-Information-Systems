@@ -11,7 +11,7 @@ spring:
   profiles:
     active: dev
   datasource:
-    url: jdbc:mysql://localhost:3306/reserv-io?useSSL=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/reserv-io?useSSL=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&noAccessToProcedureBodies=true
     username: dbuser
     password: awesomepassword
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -38,3 +38,8 @@ spring:
     rest-api-enabled: false
 logging:
   config: file:${spring.config.location}/log4j2-dev.yml
+com:
+  emc:
+    internal:
+      reserv:
+        pending-reservations-limit: 10

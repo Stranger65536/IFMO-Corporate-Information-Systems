@@ -40,4 +40,16 @@ public class EndpointUtil {
     public static String getInvalidTimeRangeMessage(final String fieldName) {
         return format("Reservation time range is invalid, check field {0}!", fieldName);
     }
+
+    public static String getNonexistentUserIdMessage(final int userId) {
+        return format("User with id '{0}' has not been found!");
+    }
+
+    public static String getNonexistentUsernameMessage(final String username) {
+        return format("User with username '{0}' has not been found!");
+    }
+
+    public static String getNonexistentResourceIdMessage(final int resourceId) {
+        return format("Resource with id '{0}' has not been found!");
+    }
 }
