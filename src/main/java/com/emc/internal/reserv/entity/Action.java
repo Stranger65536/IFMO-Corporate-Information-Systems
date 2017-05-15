@@ -12,6 +12,7 @@ import org.hibernate.annotations.FetchMode;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -66,11 +67,12 @@ public class Action {
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "status_id")
     private final ReservationStatus status;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "reservation_id")
     private final Reservation reservation;
 
+    @SuppressWarnings("unused") //used by hibernate
     public Action() {
         id = 0;
         time = null;
@@ -138,7 +140,7 @@ public class Action {
             this.reservation = model.reservation;
         }
 
-        public ActionBuilder id(final int id) {
+        public ActionBuilder id(final long id) {
             this.id = id;
             return this;
         }

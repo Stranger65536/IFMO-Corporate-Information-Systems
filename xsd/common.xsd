@@ -34,6 +34,7 @@
             <xs:enumeration value="RESOURCE_DOES_NOT_EXIST"/>
             <xs:enumeration value="RESERVATION_DOES_NOT_EXIST"/>
             <xs:enumeration value="RESERVATION_INFO_IS_DIFFERENT"/>
+            <xs:enumeration value="ACTION_IS_NOT_SUPPORTED_AT_RESERVATION_STATE"/>
             <xs:enumeration value="RESOURCE_IS_NOT_UNIQUE"/>
             <xs:enumeration value="RESERVATION_TYPE_DOES_NOT_EXIST"/>
             <xs:enumeration value="RESERVATION_STATUS_DOES_NOT_EXIST"/>

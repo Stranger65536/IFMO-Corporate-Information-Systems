@@ -39,6 +39,7 @@ public class Resource {
     @Column(name = "location", length = 45)
     private final String location;
 
+    @SuppressWarnings("unused") //used by hibernate
     public Resource() {
         id = 0;
         name = null;
@@ -49,6 +50,10 @@ public class Resource {
         this.id = builder.id;
         this.name = builder.name;
         this.location = builder.location;
+    }
+
+    public ResourceBuilder builder() {
+        return new ResourceBuilder(this);
     }
 
     public ResourceInfo toResourceInfo() {

@@ -16,6 +16,7 @@ import com.emc.internal.reserv.dto.UpdateReservationRequest;
 import com.emc.internal.reserv.dto.UpdateReservationResponse;
 import com.emc.internal.reserv.entity.ActualReservation;
 import com.emc.internal.reserv.entity.Reservation;
+import com.emc.internal.reserv.entity.ReservationStatuses;
 import com.emc.internal.reserv.entity.ReservationType;
 import com.emc.internal.reserv.entity.ReservationTypes;
 import com.emc.internal.reserv.entity.Resource;
@@ -24,7 +25,9 @@ import com.emc.internal.reserv.entity.User;
 import com.emc.internal.reserv.service.ReservationService;
 import com.emc.internal.reserv.service.ResourceService;
 import com.emc.internal.reserv.service.UserService;
+import com.emc.internal.reserv.util.RuntimeUtil;
 import com.emc.internal.reserv.validator.RequestValidator;
+import com.google.common.collect.Streams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -37,11 +40,13 @@ import java.util.Collection;
 import java.util.Objects;
 
 import static com.emc.internal.reserv.dto.FaultCode.ACCESS_DENIED;
+import static com.emc.internal.reserv.dto.FaultCode.ACTION_IS_NOT_SUPPORTED_AT_RESERVATION_STATE;
 import static com.emc.internal.reserv.dto.FaultCode.RESERVATION_DOES_NOT_EXIST;
 import static com.emc.internal.reserv.dto.FaultCode.RESERVATION_INFO_IS_DIFFERENT;
 import static com.emc.internal.reserv.dto.FaultCode.RESOURCE_DOES_NOT_EXIST;
 import static com.emc.internal.reserv.dto.FaultCode.USER_DOES_NOT_EXIST;
 import static com.emc.internal.reserv.util.EndpointUtil.getAccessDeniedMessage;
+import static com.emc.internal.reserv.util.EndpointUtil.getActionIsNotSupportedMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.getNonexistentReservationIdMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.getNonexistentResourceIdMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.getNonexistentUsernameMessage;
@@ -165,6 +170,7 @@ public class ReservationFacadeImpl implements ReservationFacade {
                 raiseServiceFaultException(RESERVATION_DOES_NOT_EXIST, getNonexistentReservationIdMessage(request.getReservationId())));
 
         checkSufficientPrivilegesToCancel(user, reservation);
+        checkReservationIsNotCancelled(reservation);
 
         final Resource resource = resourceService.getResource(request.getResourceId()).orElseThrow(() ->
                 raiseServiceFaultException(RESOURCE_DOES_NOT_EXIST, getNonexistentResourceIdMessage(request.getResourceId())));
@@ -194,6 +200,14 @@ public class ReservationFacadeImpl implements ReservationFacade {
     private static void checkSufficientPrivilegesToCancel(final User user, final Reservation reservation) {
         if (reservation.getUser().getId() != user.getId() && user.getRole().equals(Roles.USER.getRole())) {
             throw raiseServiceFaultException(ACCESS_DENIED, getAccessDeniedMessage());
+        }
+    }
+
+    private static void checkReservationIsNotCancelled(final Reservation reservation) {
+        if (Objects.equals(Streams.findLast(reservation.getActions().stream())
+                        .orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getStatus(),
+                ReservationStatuses.CANCELED.getReservationStatus())) {
+            throw raiseServiceFaultException(ACTION_IS_NOT_SUPPORTED_AT_RESERVATION_STATE, getActionIsNotSupportedMessage());
         }
     }
 

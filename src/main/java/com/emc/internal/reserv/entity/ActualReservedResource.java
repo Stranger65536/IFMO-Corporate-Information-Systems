@@ -33,7 +33,6 @@ import java.sql.Timestamp;
 public class ActualReservedResource {
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private final long id;
     @ManyToOne
     @Fetch(FetchMode.JOIN)

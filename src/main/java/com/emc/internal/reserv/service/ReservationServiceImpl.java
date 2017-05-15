@@ -247,7 +247,6 @@ public class ReservationServiceImpl implements ReservationService {
                 .reservedAt(valueOf(LocalDateTime.now()))
                 .status(CANCELED.getReservationStatus())
                 .build();
-        actionRepository.saveAndFlush(action);
         reservation.getActions().add(action);
         reservationRepository.saveAndFlush(reservation);
         log.info(exitMethodMessage());
@@ -264,11 +263,8 @@ public class ReservationServiceImpl implements ReservationService {
                 .processInstanceBusinessKey(Long.toString(reservation.getId()))
                 .singleResult();
 
-        processEngine.getTaskService().complete(task.getId(),
-                ImmutableMap.<String, Object>builder()
-                        .put("action", CANCEL)
-                        .put("reservation", reservation)
-                        .build());
+        processEngine.getTaskService().setVariable(task.getId(), "action", CANCEL);
+        processEngine.getTaskService().complete(task.getId());
 
         final Reservation result = reservationRepository.findOne(reservation.getId());
         log.info(exitMethodMessage());

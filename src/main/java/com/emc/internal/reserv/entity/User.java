@@ -60,6 +60,7 @@ public class User {
     @JoinColumn(name = "role_id")
     private final Role role;
 
+    @SuppressWarnings("unused") //used by hibernate
     public User() {
         id = 0;
         firstName = null;
