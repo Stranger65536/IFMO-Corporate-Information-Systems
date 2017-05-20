@@ -109,8 +109,8 @@ public class Action {
         info.setEndsAt(toCalendar(ofNullable(this.reservationEnd).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
         info.setUserId(ofNullable(this.user).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
         info.setResourceId(ofNullable(this.resource).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
-        info.setType(ofNullable(this.type).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
-        info.setStatus(ofNullable(this.status).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
+        info.setType(ofNullable(this.type).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).toType());
+        info.setStatus(ofNullable(this.status).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).toStatus());
         info.setReservationId(ofNullable(this.reservation).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
         return info;
     }

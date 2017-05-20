@@ -9,6 +9,7 @@ import lombok.ToString;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.SortNatural;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -21,6 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,6 +52,8 @@ public class Reservation {
     private final User user;
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
     @BatchSize(size = 10)
+    @OrderBy("id ASC")
+    @SortNatural
     private final Collection<Action> actions;
 
     @SuppressWarnings("unused") //used by hibernate

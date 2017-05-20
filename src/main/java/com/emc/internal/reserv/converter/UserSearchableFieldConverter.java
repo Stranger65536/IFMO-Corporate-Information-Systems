@@ -1,9 +1,11 @@
 package com.emc.internal.reserv.converter;
 
+import com.emc.internal.reserv.dto.SearchType;
 import com.emc.internal.reserv.dto.UserSearchableField;
 import com.google.common.primitives.Ints;
 import org.springframework.stereotype.Service;
 
+import static com.emc.internal.reserv.converter.FieldConverter.convertIfIsNotContainsSearch;
 import static com.emc.internal.reserv.util.RuntimeUtil.raiseFieldCoverageException;
 
 /**
@@ -13,15 +15,14 @@ import static com.emc.internal.reserv.util.RuntimeUtil.raiseFieldCoverageExcepti
 @Service
 public class UserSearchableFieldConverter implements FieldConverter<UserSearchableField> {
     @Override
-    public Object convertField(final UserSearchableField field, final String value) {
+    public Object convertField(final UserSearchableField field, final SearchType searchType, final String value) {
         if (field == null) {
             return value;
         }
 
         switch (field) {
             case ID:
-                //noinspection ReturnOfNull
-                return value == null ? null : Ints.tryParse(value);
+                return convertIfIsNotContainsSearch(searchType, v -> v == null ? null : Ints.tryParse(v), value);
             case EMAIL:
             case USERNAME:
             case FIRST_NAME:

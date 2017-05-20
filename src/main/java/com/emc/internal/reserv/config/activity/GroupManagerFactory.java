@@ -25,7 +25,6 @@ public class GroupManagerFactory implements SessionFactory {
         return GroupIdentityManager.class;
     }
 
-
     @Override
     public Session openSession() {
         return new CustomGroupEntityManager(userRepository);

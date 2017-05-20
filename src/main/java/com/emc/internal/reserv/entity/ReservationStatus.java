@@ -1,5 +1,6 @@
 package com.emc.internal.reserv.entity;
 
+import com.emc.internal.reserv.dto.Status;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import static com.emc.internal.reserv.util.RuntimeUtil.raiseEnumValueNotMapped;
 
 /**
  * @author trofiv
@@ -41,6 +44,14 @@ public class ReservationStatus {
     public ReservationStatus(final ReservationStatusBuilder builder) {
         this.id = builder.id;
         this.name = builder.name;
+    }
+
+    public Status toStatus() {
+        try {
+            return Status.valueOf(this.name);
+        } catch (IllegalArgumentException ignored) {
+            throw raiseEnumValueNotMapped(this.name);
+        }
     }
 
     public ReservationStatusBuilder builder() {

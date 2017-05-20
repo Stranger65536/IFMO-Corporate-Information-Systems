@@ -3,7 +3,6 @@ package com.emc.internal.reserv.service;
 import com.emc.internal.reserv.entity.Resource;
 
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * @author trofiv
@@ -14,7 +13,7 @@ public interface ResourceService {
 
     Resource updateResource(final Resource resource);
 
-    Optional<Resource> getResource(final int id);
+    Resource getResource(final int id);
 
     Collection<Resource> getResources();
 }

@@ -13,39 +13,36 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.emc.internal.reserv.dto.FaultCode.RESERVATION_TYPE_DOES_NOT_EXIST;
+import static com.emc.internal.reserv.util.EndpointUtil.getInvalidReservationTypeMessage;
+import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
+
 /**
  * @author trofiv
  * @date 03.04.2017
  */
 @Log4j2
 public enum ReservationTypes {
-    REGULAR("Regular"),
-    UNAVAILABLE("Unavailable");
+    REGULAR,
+    UNAVAILABLE;
 
-    private static final Map<Integer, ReservationType> INDEX = new HashMap<>(ReservationTypes.values().length);
-    private final String name;
+    private static final Map<String, ReservationType> INDEX = new HashMap<>(ReservationTypes.values().length);
     @Getter
     private ReservationType reservationType;
 
-    ReservationTypes(final String name) {
-        this.name = name;
-    }
-
-    public static Optional<ReservationType> getById(final int id) {
-        return Optional.ofNullable(INDEX.get(id));
+    public static ReservationType getByName(final String name) {
+        return Optional.ofNullable(INDEX.get(name)).orElseThrow(() ->
+                raiseServiceFaultException(RESERVATION_TYPE_DOES_NOT_EXIST,
+                        getInvalidReservationTypeMessage(name)));
     }
 
     @SuppressWarnings("BooleanMethodNameMustStartWithQuestion")
-    public static boolean exists(final String id) {
-        try {
-            return INDEX.containsKey(Integer.parseInt(id));
-        } catch (NumberFormatException ignored) {
-            return false;
-        }
+    public static boolean exists(final String name) {
+        return INDEX.containsKey(name);
     }
 
     @Component
-    @SuppressWarnings("PublicInnerClass")
+    @SuppressWarnings({"PublicInnerClass", "unused"})
     public static class ReservationTypeRepositoryInjector {
         private final ReservationTypeRepository reservationTypeRepository;
 
@@ -57,9 +54,9 @@ public enum ReservationTypes {
         @PostConstruct
         public void postConstruct() {
             for (ReservationTypes type : EnumSet.allOf(ReservationTypes.class)) {
-                final Optional<ReservationType> optionalRow = reservationTypeRepository.findOneByName(type.name);
-                type.reservationType = optionalRow.orElseThrow(() -> new ObjectNotFoundException(type.name, ReservationType.class.getSimpleName()));
-                INDEX.put(type.reservationType.getId(), type.reservationType);
+                final Optional<ReservationType> optionalRow = reservationTypeRepository.findOneByName(type.name());
+                type.reservationType = optionalRow.orElseThrow(() -> new ObjectNotFoundException(type.name(), ReservationType.class.getSimpleName()));
+                INDEX.put(type.name(), type.reservationType);
             }
         }
     }

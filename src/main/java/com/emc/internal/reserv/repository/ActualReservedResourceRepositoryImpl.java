@@ -1,5 +1,6 @@
 package com.emc.internal.reserv.repository;
 
+import com.emc.internal.reserv.entity.Reservation;
 import com.emc.internal.reserv.entity.ReservationType;
 import com.emc.internal.reserv.entity.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.sql.Timestamp;
  */
 @Service
 public class ActualReservedResourceRepositoryImpl implements ActualReservedResourceRepository {
+    private static final String RESERVATION = "RESERVATION";
     private static final String RESOURCE = "RESOURCE";
     private static final String RESERVATION_TYPE = "RESERVATION_TYPE";
     private static final String STARTS_AT = "STARTS_AT";
@@ -26,6 +28,51 @@ public class ActualReservedResourceRepositoryImpl implements ActualReservedResou
     @Autowired
     public ActualReservedResourceRepositoryImpl(final EntityManager entityManager) {
         this.entityManager = entityManager;
+    }
+
+    @Override
+    public boolean hasOverlappingReservation(
+            final Reservation reservation,
+            final Resource resource,
+            final ReservationType reservationType,
+            final Timestamp start,
+            final Timestamp end) {
+        final StoredProcedureQuery query = entityManager
+                .createStoredProcedureQuery("HAS_OVERLAPPING_RESERVATION_WITH_TYPE_SELF_CHECK")
+                .registerStoredProcedureParameter(RESERVATION, Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(RESOURCE, Integer.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(RESERVATION_TYPE, Integer.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(STARTS_AT, Timestamp.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(ENDS_AT, Timestamp.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(RESULT, Boolean.class, ParameterMode.OUT)
+                .setParameter(RESERVATION, reservation.getId())
+                .setParameter(RESOURCE, resource.getId())
+                .setParameter(RESERVATION_TYPE, reservationType.getId())
+                .setParameter(STARTS_AT, start)
+                .setParameter(ENDS_AT, end);
+        query.execute();
+        return (boolean) query.getOutputParameterValue(RESULT);
+    }
+
+    @Override
+    public boolean hasOverlappingReservation(
+            final Reservation reservation,
+            final Resource resource,
+            final Timestamp start,
+            final Timestamp end) {
+        final StoredProcedureQuery query = entityManager
+                .createStoredProcedureQuery("HAS_OVERLAPPING_RESERVATION_SELF_CHECK")
+                .registerStoredProcedureParameter(RESERVATION, Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(RESOURCE, Integer.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(STARTS_AT, Timestamp.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(ENDS_AT, Timestamp.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(RESULT, Boolean.class, ParameterMode.OUT)
+                .setParameter(RESERVATION, reservation.getId())
+                .setParameter(RESOURCE, resource.getId())
+                .setParameter(STARTS_AT, start)
+                .setParameter(ENDS_AT, end);
+        query.execute();
+        return (boolean) query.getOutputParameterValue(RESULT);
     }
 
     @Override
@@ -60,7 +107,7 @@ public class ActualReservedResourceRepositoryImpl implements ActualReservedResou
                 .registerStoredProcedureParameter(STARTS_AT, Timestamp.class, ParameterMode.IN)
                 .registerStoredProcedureParameter(ENDS_AT, Timestamp.class, ParameterMode.IN)
                 .registerStoredProcedureParameter(RESULT, Boolean.class, ParameterMode.OUT)
-                .setParameter(RESOURCE, resource)
+                .setParameter(RESOURCE, resource.getId())
                 .setParameter(STARTS_AT, start)
                 .setParameter(ENDS_AT, end);
         query.execute();

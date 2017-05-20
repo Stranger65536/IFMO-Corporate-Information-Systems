@@ -1,11 +1,11 @@
 package com.emc.internal.reserv.endpoint;
 
-import com.emc.internal.reserv.dto.AcceptReservationRequest;
-import com.emc.internal.reserv.dto.AcceptReservationResponse;
 import com.emc.internal.reserv.dto.ApproveReservationRequest;
 import com.emc.internal.reserv.dto.ApproveReservationResponse;
 import com.emc.internal.reserv.dto.CancelReservationRequest;
 import com.emc.internal.reserv.dto.CancelReservationResponse;
+import com.emc.internal.reserv.dto.GetReservationRequest;
+import com.emc.internal.reserv.dto.GetReservationResponse;
 import com.emc.internal.reserv.dto.GetReservationsRequest;
 import com.emc.internal.reserv.dto.GetReservationsResponse;
 import com.emc.internal.reserv.dto.PlaceReservationRequest;
@@ -38,6 +38,12 @@ public class ReservationEndpoint {
         this.reservationFacade = reservationFacade;
     }
 
+    @PayloadRoot(namespace = API_NAMESPACE_URI, localPart = "GetReservationRequest")
+    @ResponsePayload
+    public GetReservationResponse getReservation(@RequestPayload final GetReservationRequest request) {
+        return reservationFacade.getReservation(request);
+    }
+
     @PayloadRoot(namespace = API_NAMESPACE_URI, localPart = "GetReservationsRequest")
     @ResponsePayload
     public GetReservationsResponse getReservations(@RequestPayload final GetReservationsRequest request) {
@@ -54,12 +60,6 @@ public class ReservationEndpoint {
     @ResponsePayload
     public UpdateReservationResponse updateReservation(@RequestPayload final UpdateReservationRequest request) {
         return reservationFacade.updateReservation(request);
-    }
-
-    @PayloadRoot(namespace = API_NAMESPACE_URI, localPart = "AcceptReservationRequest")
-    @ResponsePayload
-    public AcceptReservationResponse acceptReservation(@RequestPayload final AcceptReservationRequest request) {
-        return reservationFacade.acceptReservation(request);
     }
 
     @PayloadRoot(namespace = API_NAMESPACE_URI, localPart = "ApproveReservationRequest")

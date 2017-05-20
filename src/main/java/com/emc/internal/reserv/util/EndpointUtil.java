@@ -33,36 +33,52 @@ public class EndpointUtil {
         return fault;
     }
 
-    public static String getInvalidReservationTypeMessage(final int id) {
-        return format("Reservation type width id {0} does not exist!", id);
+    public static String getInvalidRoleMessage(final String name) {
+        return format("Role with name ''{0}'' does not exist!", name);
+    }
+
+    public static String getInvalidReservationTypeMessage(final String name) {
+        return format("Reservation type with name ''{0}'' does not exist!", name);
     }
 
     public static String getInvalidTimeRangeMessage(final String fieldName) {
-        return format("Reservation time range is invalid, check field {0}!", fieldName);
+        return format("Reservation time range is invalid, check field ''{0}''!", fieldName);
     }
 
-    public static String getNonexistentUserIdMessage(final int userId) {
+    public static String getNonExistentUserIdMessage(final int userId) {
         return format("User with id ''{0}'' has not been found!", userId);
     }
 
-    public static String getNonexistentReservationIdMessage(final long reservationId) {
+    public static String getNonExistentReservationIdMessage(final long reservationId) {
         return format("Reservation with id ''{0}'' has not been found!", reservationId);
     }
 
-    public static String getNonexistentUsernameMessage(final String username) {
+    public static String getNonExistentUsernameMessage(final String username) {
         return format("User with username ''{0}'' has not been found!", username);
     }
 
+    public static String getNonExistentResourceIdMessage(final int resourceId) {
+        return format("Resource with id ''{0}'' has not been found!", resourceId);
+    }
+
+    public static String getUserEmailTakenMessage(final String email) {
+        return format("User with email ''{0}'' already exists!", email);
+    }
+
+    public static String getUsernameTakenMessage(final String username) {
+        return format("User with username ''{0}'' already exists!", username);
+    }
+
+    public static String getResourceIsNotUniqueMessage(final String name, final String location) {
+        return format("Resource with name ''{0}'' and location ''{1}'' already exists!", name, location);
+    }
+
     public static String getPendingReservationsLimitExceededMessage() {
-        return "Can''t perform the requested action due to exceeded limit of the reservations waiting for approval";
+        return "Can't perform the requested action due to exceeded limit of the reservations waiting for approval";
     }
 
     public static String getUnavailableEventOverlappingMessage() {
-        return "Can''t perform the requested action due to overlapping with an approved ''unavailable'' reservation";
-    }
-
-    public static String getNonexistentResourceIdMessage(final int resourceId) {
-        return format("Resource with id ''{0}'' has not been found!", resourceId);
+        return "Can't perform the requested action due to overlapping with an approved 'unavailable' reservation";
     }
 
     public static String getAccessDeniedMessage() {
@@ -71,6 +87,10 @@ public class EndpointUtil {
 
     public static String getActionIsNotSupportedMessage() {
         return format("Requested action is not supported at the current reservation state");
+    }
+
+    public static String getPasswordDoesNotMatchMessage() {
+        return format("Password does not match the actual user password");
     }
 
     public static String getReservationInfoIsDifferentMessage() {

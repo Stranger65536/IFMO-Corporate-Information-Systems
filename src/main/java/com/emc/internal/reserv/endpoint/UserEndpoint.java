@@ -1,10 +1,13 @@
 package com.emc.internal.reserv.endpoint;
 
+import com.emc.internal.reserv.dto.ChangePasswordRequest;
 import com.emc.internal.reserv.dto.GetUserRequest;
 import com.emc.internal.reserv.dto.GetUserResponse;
 import com.emc.internal.reserv.dto.GetUsersRequest;
 import com.emc.internal.reserv.dto.GetUsersResponse;
+import com.emc.internal.reserv.dto.GrantPermissionsRequest;
 import com.emc.internal.reserv.dto.RegistrationRequest;
+import com.emc.internal.reserv.dto.UpdateUserInfoRequest;
 import com.emc.internal.reserv.facade.UserFacade;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,24 @@ public class UserEndpoint {
     @ResponsePayload
     public void registerUser(@RequestPayload final RegistrationRequest request) {
         userFacade.registerUser(request);
+    }
+
+    @PayloadRoot(namespace = API_NAMESPACE_URI, localPart = "UpdateUserInfoRequest")
+    @ResponsePayload
+    public void updateUserInfo(@RequestPayload final UpdateUserInfoRequest request) {
+        userFacade.updateUserInfo(request);
+    }
+
+    @PayloadRoot(namespace = API_NAMESPACE_URI, localPart = "ChangePasswordRequest")
+    @ResponsePayload
+    public void changePassword(@RequestPayload final ChangePasswordRequest request) {
+        userFacade.changePassword(request);
+    }
+
+    @PayloadRoot(namespace = API_NAMESPACE_URI, localPart = "GrantPermissionsRequest")
+    @ResponsePayload
+    public void grantPermissions(@RequestPayload final GrantPermissionsRequest request) {
+        userFacade.grantPermissions(request);
     }
 
     @PayloadRoot(namespace = API_NAMESPACE_URI, localPart = "GetUserRequest")

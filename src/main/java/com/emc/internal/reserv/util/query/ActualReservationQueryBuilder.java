@@ -1,9 +1,9 @@
 package com.emc.internal.reserv.util.query;
 
+import com.emc.internal.reserv.dto.ReservationSearchableField;
 import com.emc.internal.reserv.dto.SearchType;
 import com.emc.internal.reserv.dto.SortingOrder;
-import com.emc.internal.reserv.dto.UserSearchableField;
-import com.emc.internal.reserv.entity.User;
+import com.emc.internal.reserv.entity.ActualReservation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +14,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Root;
+import java.sql.Timestamp;
 
 import static com.emc.internal.reserv.util.RuntimeUtil.raiseForgotEnumBranchException;
 import static java.text.MessageFormat.format;
@@ -23,28 +24,28 @@ import static java.text.MessageFormat.format;
  * @date 14.04.2017
  */
 @Service
-public class UserQueryBuilder implements QueryBuilder<User, UserSearchableField> {
+public class ActualReservationQueryBuilder implements QueryBuilder<ActualReservation, ReservationSearchableField> {
     private final EntityManager entityManager;
 
     @Autowired
-    public UserQueryBuilder(final EntityManager entityManager) {
+    public ActualReservationQueryBuilder(final EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
     @Override
     @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
-    public TypedQuery<User> buildQuery(
-            final UserSearchableField searchField,
+    public TypedQuery<ActualReservation> buildQuery(
+            final ReservationSearchableField searchField,
             final SearchType searchType,
             final Object searchValue,
             final Object searchValueLowerBound,
             final Object searchValueUpperBound,
             final SortingOrder sortingOrder,
-            final UserSearchableField sortingField) {
+            final ReservationSearchableField sortingField) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<User> query = builder.createQuery(User.class);
-        final Root<User> root = query.from(User.class);
-        CriteriaQuery<User> select = query.select(root);
+        final CriteriaQuery<ActualReservation> query = builder.createQuery(ActualReservation.class);
+        final Root<ActualReservation> root = query.from(ActualReservation.class);
+        CriteriaQuery<ActualReservation> select = query.select(root);
 
         if (sortingField != null) {
             select = select.orderBy(getOrderExpression(builder, sortingOrder, getSortExpression(sortingField, root)));
@@ -57,23 +58,45 @@ public class UserQueryBuilder implements QueryBuilder<User, UserSearchableField>
     }
 
     @Override
-    public Expression<?> getSortExpression(final UserSearchableField sortingField, final From root) {
-        return sortingField == UserSearchableField.ROLE
-                ? root.get(sortingField.value()).get("name")
-                : root.get(sortingField.value());
+    public Expression<?> getSortExpression(final ReservationSearchableField sortingField, final From root) {
+        switch (sortingField) {
+            case ID:
+            case OWNER:
+            case RESOURCE:
+            case ENDS_AT:
+            case STARTS_AT:
+            case CREATED_ON:
+            case UPDATED_ON:
+                return root.get(sortingField.value());
+            case TYPE:
+            case STATUS:
+                return root.get(sortingField.value()).get("name");
+            default:
+                throw raiseForgotEnumBranchException();
+        }
     }
 
     @Override
     public Expression<Boolean> getEqualsExpression(
             final From root,
             final CriteriaBuilder builder,
-            final UserSearchableField searchField,
+            final ReservationSearchableField searchField,
             final Object searchValue) {
-        return builder.equal(
-                searchField == UserSearchableField.ROLE
-                        ? root.<String>get(searchField.value()).get("name")
-                        : root.get(searchField.value()),
-                searchValue);
+        switch (searchField) {
+            case ID:
+            case OWNER:
+            case RESOURCE:
+            case ENDS_AT:
+            case STARTS_AT:
+            case CREATED_ON:
+            case UPDATED_ON:
+                return builder.equal(root.get(searchField.value()), searchValue);
+            case TYPE:
+            case STATUS:
+                return builder.equal(root.get(searchField.value()).get("name"), searchValue);
+            default:
+                throw raiseForgotEnumBranchException();
+        }
     }
 
     @Override
@@ -81,18 +104,20 @@ public class UserQueryBuilder implements QueryBuilder<User, UserSearchableField>
     public Expression<Boolean> getGreaterEqualsExpression(
             final From root,
             final CriteriaBuilder builder,
-            final UserSearchableField searchField,
+            final ReservationSearchableField searchField,
             final Object searchValue) {
         switch (searchField) {
             case ID:
+            case OWNER:
+            case RESOURCE:
                 return builder.greaterThanOrEqualTo(root.<Integer>get(searchField.value()), (Integer) searchValue);
-            case EMAIL:
-            case USERNAME:
-            case FIRST_NAME:
-            case LAST_NAME:
-            case MIDDLE_NAME:
-                return builder.greaterThanOrEqualTo(root.<String>get(searchField.value()), (String) searchValue);
-            case ROLE:
+            case ENDS_AT:
+            case STARTS_AT:
+            case CREATED_ON:
+            case UPDATED_ON:
+                return builder.greaterThanOrEqualTo(root.<Timestamp>get(searchField.value()), (Timestamp) searchValue);
+            case TYPE:
+            case STATUS:
                 return builder.greaterThanOrEqualTo(root.<String>get(searchField.value()).get("name"), (String) searchValue);
             default:
                 throw raiseForgotEnumBranchException();
@@ -104,18 +129,20 @@ public class UserQueryBuilder implements QueryBuilder<User, UserSearchableField>
     public Expression<Boolean> getLessEqualsExpression(
             final From root,
             final CriteriaBuilder builder,
-            final UserSearchableField searchField,
+            final ReservationSearchableField searchField,
             final Object searchValue) {
         switch (searchField) {
             case ID:
+            case OWNER:
+            case RESOURCE:
                 return builder.lessThanOrEqualTo(root.<Integer>get(searchField.value()), (Integer) searchValue);
-            case EMAIL:
-            case USERNAME:
-            case FIRST_NAME:
-            case LAST_NAME:
-            case MIDDLE_NAME:
-                return builder.lessThanOrEqualTo(root.<String>get(searchField.value()), (String) searchValue);
-            case ROLE:
+            case ENDS_AT:
+            case STARTS_AT:
+            case CREATED_ON:
+            case UPDATED_ON:
+                return builder.lessThanOrEqualTo(root.<Timestamp>get(searchField.value()), (Timestamp) searchValue);
+            case TYPE:
+            case STATUS:
                 return builder.lessThanOrEqualTo(root.<String>get(searchField.value()).get("name"), (String) searchValue);
             default:
                 throw raiseForgotEnumBranchException();
@@ -127,18 +154,20 @@ public class UserQueryBuilder implements QueryBuilder<User, UserSearchableField>
     public Expression<Boolean> getGreaterExpression(
             final From root,
             final CriteriaBuilder builder,
-            final UserSearchableField searchField,
+            final ReservationSearchableField searchField,
             final Object searchValue) {
         switch (searchField) {
             case ID:
+            case OWNER:
+            case RESOURCE:
                 return builder.greaterThan(root.<Integer>get(searchField.value()), (Integer) searchValue);
-            case EMAIL:
-            case USERNAME:
-            case FIRST_NAME:
-            case LAST_NAME:
-            case MIDDLE_NAME:
-                return builder.greaterThan(root.<String>get(searchField.value()), (String) searchValue);
-            case ROLE:
+            case ENDS_AT:
+            case STARTS_AT:
+            case CREATED_ON:
+            case UPDATED_ON:
+                return builder.greaterThan(root.<Timestamp>get(searchField.value()), (Timestamp) searchValue);
+            case TYPE:
+            case STATUS:
                 return builder.greaterThan(root.<String>get(searchField.value()).get("name"), (String) searchValue);
             default:
                 throw raiseForgotEnumBranchException();
@@ -150,18 +179,20 @@ public class UserQueryBuilder implements QueryBuilder<User, UserSearchableField>
     public Expression<Boolean> getLessExpression(
             final From root,
             final CriteriaBuilder builder,
-            final UserSearchableField searchField,
+            final ReservationSearchableField searchField,
             final Object searchValue) {
         switch (searchField) {
             case ID:
+            case OWNER:
+            case RESOURCE:
                 return builder.lessThan(root.<Integer>get(searchField.value()), (Integer) searchValue);
-            case EMAIL:
-            case USERNAME:
-            case FIRST_NAME:
-            case LAST_NAME:
-            case MIDDLE_NAME:
-                return builder.lessThan(root.<String>get(searchField.value()), (String) searchValue);
-            case ROLE:
+            case ENDS_AT:
+            case STARTS_AT:
+            case CREATED_ON:
+            case UPDATED_ON:
+                return builder.lessThan(root.<Timestamp>get(searchField.value()), (Timestamp) searchValue);
+            case TYPE:
+            case STATUS:
                 return builder.lessThan(root.<String>get(searchField.value()).get("name"), (String) searchValue);
             default:
                 throw raiseForgotEnumBranchException();
@@ -173,32 +204,48 @@ public class UserQueryBuilder implements QueryBuilder<User, UserSearchableField>
     public Expression<Boolean> getLikeExpression(
             final From root,
             final CriteriaBuilder builder,
-            final UserSearchableField searchField,
+            final ReservationSearchableField searchField,
             final Object searchValue) {
-        return builder.like(
-                searchField == UserSearchableField.ROLE
-                        ? root.<String>get(searchField.value()).get("name").as(String.class)
-                        : root.<String>get(searchField.value()).as(String.class),
-                format("%{0}%", searchValue), '%');
+        switch (searchField) {
+            case ID:
+            case ENDS_AT:
+            case STARTS_AT:
+            case CREATED_ON:
+            case UPDATED_ON:
+                return builder.like(root.<String>get(searchField.value()).as(String.class),
+                        format("%{0}%", searchValue), '%');
+            case OWNER:
+            case RESOURCE:
+                return builder.like(root.<String>get(searchField.value()).get("id").as(String.class),
+                        format("%{0}%", searchValue), '%');
+            case TYPE:
+            case STATUS:
+                return builder.like(root.<String>get(searchField.value()).get("name").as(String.class),
+                        format("%{0}%", searchValue), '%');
+            default:
+                throw raiseForgotEnumBranchException();
+        }
     }
 
     @Override
     public Expression<Boolean> getBetweenExpression(
             final Root<?> root,
             final CriteriaBuilder builder,
-            final UserSearchableField searchField,
+            final ReservationSearchableField searchField,
             final Object searchValueLowerBound,
             final Object searchValueUpperBound) {
         switch (searchField) {
             case ID:
+            case OWNER:
+            case RESOURCE:
                 return builder.between(root.get(searchField.value()), (Integer) searchValueLowerBound, (Integer) searchValueUpperBound);
-            case EMAIL:
-            case USERNAME:
-            case FIRST_NAME:
-            case LAST_NAME:
-            case MIDDLE_NAME:
-                return builder.between(root.get(searchField.value()), (String) searchValueLowerBound, (String) searchValueUpperBound);
-            case ROLE:
+            case ENDS_AT:
+            case STARTS_AT:
+            case CREATED_ON:
+            case UPDATED_ON:
+                return builder.between(root.get(searchField.value()), (Timestamp) searchValueLowerBound, (Timestamp) searchValueUpperBound);
+            case TYPE:
+            case STATUS:
                 return builder.between(root.<String>get(searchField.value()).get("name"), (String) searchValueLowerBound, (String) searchValueUpperBound);
             default:
                 throw raiseForgotEnumBranchException();

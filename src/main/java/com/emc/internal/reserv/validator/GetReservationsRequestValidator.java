@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 
 import static com.emc.internal.reserv.util.RuntimeUtil.raiseForgotEnumBranchException;
 import static com.emc.internal.reserv.validator.RequestValidator.validateDateTimeSearchValue;
+import static com.emc.internal.reserv.validator.RequestValidator.validateIfIsNotContainsSearch;
 import static com.emc.internal.reserv.validator.RequestValidator.validateIntegerSearchValue;
 import static com.emc.internal.reserv.validator.RequestValidator.validatePageNumber;
 import static com.emc.internal.reserv.validator.RequestValidator.validatePageSize;
-import static com.emc.internal.reserv.validator.RequestValidator.validateReservationStatus;
-import static com.emc.internal.reserv.validator.RequestValidator.validateReservationType;
+import static com.emc.internal.reserv.validator.RequestValidator.validateSearchType;
 
 /**
  * @author trofiv
@@ -22,27 +22,25 @@ public class GetReservationsRequestValidator implements RequestValidator<GetRese
         validatePageSize(request.getPageSize());
         validatePageNumber(request.getPage());
         if (request.getSearchField() != null) {
+            validateSearchType(request.getSearchType());
             switch (request.getSearchField()) {
                 case ID:
-                case RESOURCE_ID:
-                case OWNER_ID:
-                    validateIntegerSearchValue(request.getSearchType(), request.getSearchValue(),
-                            request.getSearchValueLowerBound(), request.getSearchValueUpperBound());
+                case RESOURCE:
+                case OWNER:
+                    validateIfIsNotContainsSearch(request.getSearchType(),
+                            () -> validateIntegerSearchValue(request.getSearchType(), request.getSearchValue(),
+                                    request.getSearchValueLowerBound(), request.getSearchValueUpperBound()));
                     break;
                 case STARTS_AT:
                 case ENDS_AT:
                 case CREATED_ON:
                 case UPDATED_ON:
-                    validateDateTimeSearchValue(request.getSearchType(), request.getSearchValue(),
-                            request.getSearchValueLowerBound(), request.getSearchValueUpperBound());
+                    validateIfIsNotContainsSearch(request.getSearchType(),
+                            () -> validateDateTimeSearchValue(request.getSearchType(), request.getSearchValue(),
+                                    request.getSearchValueLowerBound(), request.getSearchValueUpperBound()));
                     break;
                 case STATUS:
-                    validateReservationStatus(request.getSearchType(), request.getSearchValue(),
-                            request.getSearchValueLowerBound(), request.getSearchValueUpperBound());
-                    break;
                 case TYPE:
-                    validateReservationType(request.getSearchType(), request.getSearchValue(),
-                            request.getSearchValueLowerBound(), request.getSearchValueUpperBound());
                     break;
                 default:
                     throw raiseForgotEnumBranchException();

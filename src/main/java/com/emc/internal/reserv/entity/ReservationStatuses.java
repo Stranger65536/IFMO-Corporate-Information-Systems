@@ -12,30 +12,34 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.emc.internal.reserv.dto.FaultCode.RESERVATION_TYPE_DOES_NOT_EXIST;
+import static com.emc.internal.reserv.util.EndpointUtil.getInvalidReservationTypeMessage;
+import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
+
 /**
  * @author trofiv
  * @date 03.04.2017
  */
 public enum ReservationStatuses {
-    APPROVED("Approved"),
-    ACCEPTED("Accepted"),
-    CANCELED("Canceled"),
-    WAITING_FOR_APPROVAL("Waiting for approval"),
-    NEW_TIME_PROPOSED("New time proposed");
+    APPROVED,
+    CANCELED,
+    WAITING_FOR_APPROVAL,
+    NEW_TIME_PROPOSED;
 
-    private static final Map<Integer, ReservationStatus> INDEX = new HashMap<>(ReservationStatuses.values().length);
-    private final String name;
+    private static final Map<String, ReservationStatus> INDEX = new HashMap<>(ReservationStatuses.values().length);
     @Getter
     private ReservationStatus reservationStatus;
 
-    ReservationStatuses(final String name) {
-        this.name = name;
+    public static ReservationStatus getByName(final String name) {
+        return Optional.ofNullable(INDEX.get(name)).orElseThrow(() ->
+                raiseServiceFaultException(RESERVATION_TYPE_DOES_NOT_EXIST,
+                        getInvalidReservationTypeMessage(name)));
     }
 
     @SuppressWarnings("BooleanMethodNameMustStartWithQuestion")
-    public static boolean exists(final String id) {
+    public static boolean exists(final String name) {
         try {
-            return INDEX.containsKey(Integer.parseInt(id));
+            return INDEX.containsKey(name);
         } catch (NumberFormatException ignored) {
             return false;
         }
@@ -54,9 +58,9 @@ public enum ReservationStatuses {
         @PostConstruct
         public void postConstruct() {
             for (ReservationStatuses status : EnumSet.allOf(ReservationStatuses.class)) {
-                final Optional<ReservationStatus> optionalRow = reservationStatusRepository.findOneByName(status.name);
-                status.reservationStatus = optionalRow.orElseThrow(() -> new ObjectNotFoundException(status.name, ReservationStatus.class.getSimpleName()));
-                INDEX.put(status.reservationStatus.getId(), status.reservationStatus);
+                final Optional<ReservationStatus> optionalRow = reservationStatusRepository.findOneByName(status.name());
+                status.reservationStatus = optionalRow.orElseThrow(() -> new ObjectNotFoundException(status.name(), ReservationStatus.class.getSimpleName()));
+                INDEX.put(status.name(), status.reservationStatus);
             }
         }
     }

@@ -8,6 +8,5 @@ public enum UserAction {
     APPROVE,
     CANCEL,
     UPDATE,
-    ACCEPT,
     PROPOSE_NEW_TIME
 }

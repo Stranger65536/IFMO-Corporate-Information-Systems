@@ -3,6 +3,7 @@ package com.emc.internal.reserv.service;
 import com.emc.internal.reserv.dto.SearchType;
 import com.emc.internal.reserv.dto.SortingOrder;
 import com.emc.internal.reserv.dto.UserSearchableField;
+import com.emc.internal.reserv.entity.Role;
 import com.emc.internal.reserv.entity.User;
 import com.emc.internal.reserv.entity.User.UserBuilder;
 import com.emc.internal.reserv.repository.UserRepository;
@@ -20,18 +21,24 @@ import javax.persistence.TypedQuery;
 import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.emc.internal.reserv.dto.FaultCode.USER_ALREADY_REGISTERED;
+import static com.emc.internal.reserv.dto.FaultCode.USER_DOES_NOT_EXIST;
 import static com.emc.internal.reserv.entity.Roles.USER;
+import static com.emc.internal.reserv.util.EndpointUtil.getNonExistentUserIdMessage;
+import static com.emc.internal.reserv.util.EndpointUtil.getNonExistentUsernameMessage;
+import static com.emc.internal.reserv.util.EndpointUtil.getUserEmailTakenMessage;
+import static com.emc.internal.reserv.util.EndpointUtil.getUsernameTakenMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
 import static com.emc.internal.reserv.util.RuntimeUtil.enterMethodMessage;
 import static com.emc.internal.reserv.util.RuntimeUtil.exitMethodMessage;
 import static com.emc.internal.reserv.util.RuntimeUtil.hashPassword;
-import static java.text.MessageFormat.format;
 import static java.util.Collections.singletonList;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Isolation.SERIALIZABLE;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 
 /**
@@ -71,8 +78,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional(isolation = READ_COMMITTED)
     public UserDetails loadUserByUsername(final String username) {
         final Optional<User> userOptional = userRepository.findOneByEmailOrLogin(username);
-        final User user = userOptional.orElseThrow(() -> new UsernameNotFoundException(
-                format("User with identity '{0}' has not been found!", username)));
+        final User user = userOptional.orElseThrow(() -> new UsernameNotFoundException(getNonExistentUsernameMessage(username)));
 
         return new org.springframework.security.core.userdetails.User(
                 username, user.getPassword(), true, true, true, true,
@@ -88,23 +94,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             final String firstName,
             final String lastName,
             final String middleName) {
-        log.info("{} " +
+        log.debug("{} " +
                         "username: {}, " +
                         "email: {}, " +
-                        "password: {}, " +
                         "firstName: {}, " +
                         "lastName: {}, " +
                         "middleName: {}",
                 enterMethodMessage(),
-                username, email, hashPassword(password), firstName, lastName, middleName);
-        if (userRepository.findOneByEmail(email).isPresent()) {
-            throw raiseServiceFaultException(USER_ALREADY_REGISTERED,
-                    format("User with email {0} is already registered", email));
-        }
-        if (userRepository.findOneByUsername(username).isPresent()) {
-            throw raiseServiceFaultException(USER_ALREADY_REGISTERED,
-                    format("User with username {0} is already registered", username));
-        }
+                username, email, firstName, lastName, middleName);
+        checkEmailIsNotTaken(email);
+        checkUsernameIsNotTaken(username);
 
         final User user = new UserBuilder()
                 .username(username)
@@ -116,29 +115,42 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .role(USER.getRole())
                 .build();
 
-        userRepository.saveAndFlush(user);
+        userRepository.save(user);
 
-        log.info(exitMethodMessage());
+        log.debug(exitMethodMessage());
+    }
+
+    private void checkEmailIsNotTaken(final String email) {
+        if (userRepository.findOneByEmail(email).isPresent()) {
+            throw raiseServiceFaultException(USER_ALREADY_REGISTERED, getUserEmailTakenMessage(email));
+        }
+    }
+
+    private void checkUsernameIsNotTaken(final String username) {
+        if (userRepository.findOneByUsername(username).isPresent()) {
+            throw raiseServiceFaultException(USER_ALREADY_REGISTERED, getUsernameTakenMessage(username));
+        }
     }
 
     @Override
     @Transactional(isolation = READ_COMMITTED, propagation = REQUIRED)
-    public Optional<User> getUser(final int id) {
-        log.info("{} id: {}", enterMethodMessage(), id);
-        final Optional<User> optional = Optional.ofNullable(userRepository.findOne(id));
-        log.info(exitMethodMessage());
-        return optional;
+    public User getUser(final int id) {
+        log.debug("{} id: {}", enterMethodMessage(), id);
+        final User user = Optional.ofNullable(userRepository.findOne(id)).orElseThrow(() ->
+                raiseServiceFaultException(USER_DOES_NOT_EXIST, getNonExistentUserIdMessage(id)));
+        log.debug(exitMethodMessage());
+        return user;
     }
 
     @Override
     @Transactional(isolation = READ_COMMITTED, propagation = REQUIRED)
-    public Optional<User> getUser(final String username) {
-        log.info("{} username: {}", enterMethodMessage(), username);
-        final Optional<User> optional = userRepository.findOneByUsername(username);
-        log.info(exitMethodMessage());
-        return optional;
+    public User getUser(final String username) {
+        log.debug("{} username: {}", enterMethodMessage(), username);
+        final User user = userRepository.findOneByUsername(username).orElseThrow(() ->
+                raiseServiceFaultException(USER_DOES_NOT_EXIST, getNonExistentUsernameMessage(username)));
+        log.debug(exitMethodMessage());
+        return user;
     }
-
 
     @Override
     @Transactional(isolation = READ_COMMITTED, propagation = REQUIRED)
@@ -152,7 +164,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             final Object searchValueUpperBound,
             final SortingOrder sortingOrder,
             final UserSearchableField sortingField) {
-        log.info("{} " +
+        log.debug("{} " +
                         "page: {}, " +
                         "pageSize: {}, " +
                         "searchField: {}, " +
@@ -175,7 +187,78 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         final List<User> result = query.getResultList();
 
-        log.info(exitMethodMessage());
+        log.debug(exitMethodMessage());
         return result;
+    }
+
+    @Override
+    @Transactional(propagation = MANDATORY)
+    public void updateUserInfo(
+            final User user,
+            final String email,
+            final String username,
+            final String firstName,
+            final String middleName,
+            final String lastName) {
+        log.debug("{} " +
+                        "user: {}, " +
+                        "email: {}, " +
+                        "username: {}, " +
+                        "firstName: {}, " +
+                        "middleName: {}, " +
+                        "lastName: {}",
+                enterMethodMessage(),
+                user, email, username, firstName, middleName, lastName);
+        if (!Objects.equals(user.getEmail(), email)) {
+            checkEmailIsNotTaken(email);
+        }
+        if (!Objects.equals(user.getUsername(), username)) {
+            checkUsernameIsNotTaken(username);
+        }
+
+        final User updatedUser = user.builder()
+                .username(username)
+                .email(email)
+                .firstName(firstName)
+                .lastName(lastName)
+                .middleName(middleName)
+                .build();
+
+        userRepository.save(updatedUser);
+
+        log.debug(exitMethodMessage());
+    }
+
+    @Override
+    @Transactional(propagation = MANDATORY)
+    public void updatePassword(final User user, final String newPassword) {
+        log.debug("{} " +
+                        "user: {}",
+                enterMethodMessage(), user);
+
+        final User updatedUser = user.builder()
+                .password(hashPassword(newPassword))
+                .build();
+
+        userRepository.save(updatedUser);
+
+        log.debug(exitMethodMessage());
+    }
+
+    @Override
+    @Transactional(propagation = MANDATORY)
+    public void grantPermissions(final User user, final Role role) {
+        log.debug("{} " +
+                        "user: {}, " +
+                        "role: {}",
+                enterMethodMessage(), user, role);
+
+        final User updatedUser = user.builder()
+                .role(role)
+                .build();
+
+        userRepository.save(updatedUser);
+
+        log.debug(exitMethodMessage());
     }
 }

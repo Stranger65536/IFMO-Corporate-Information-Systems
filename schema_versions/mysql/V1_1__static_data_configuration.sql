@@ -1,11 +1,11 @@
 START TRANSACTION;
 
 INSERT INTO `reserv-io`.`roles` (`name`)
-VALUES ('user');
+VALUES ('USER');
 INSERT INTO `reserv-io`.`roles` (`name`)
-VALUES ('moderator');
+VALUES ('MODERATOR');
 INSERT INTO `reserv-io`.`roles` (`name`)
-VALUES ('admin');
+VALUES ('ADMIN');
 
 SELECT `id`
 INTO @admin_role_id
@@ -16,19 +16,17 @@ INSERT INTO `reserv-io`.`users` (`username`, `email`, `password`, `role_id`)
 VALUES ('admin', 'reserv-io-admin@emc.com', SHA2('admin', 512), @admin_role_id);
 
 INSERT INTO `reserv-io`.`reservation_types` (`name`)
-VALUES ('Regular');
+VALUES ('REGULAR');
 INSERT INTO `reserv-io`.`reservation_types` (`name`)
-VALUES ('Unavailable');
+VALUES ('UNAVAILABLE');
 
 INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
-VALUES ('Waiting for approval');
+VALUES ('APPROVED');
 INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
-VALUES ('Approved');
+VALUES ('CANCELED');
 INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
-VALUES ('Accepted');
+VALUES ('WAITING_FOR_APPROVAL');
 INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
-VALUES ('New time proposed');
-INSERT INTO `reserv-io`.`reservation_statuses` (`name`)
-VALUES ('Canceled');
+VALUES ('NEW_TIME_PROPOSED');
 
 COMMIT;

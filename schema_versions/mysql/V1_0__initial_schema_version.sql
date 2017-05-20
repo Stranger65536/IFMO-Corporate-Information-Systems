@@ -206,8 +206,8 @@ CREATE PROCEDURE HAS_OVERLAPPING_RESERVATION(
         SELECT *
         FROM actual_reserved_resources r
         WHERE r.resource_id = RESOURCE
-              AND r.reservation_start <= STARTS_AT
-              AND r.reservation_end >= ENDS_AT)
+              AND r.reservation_start < ENDS_AT
+              AND r.reservation_end > STARTS_AT)
       THEN TRUE
            ELSE FALSE END
     INTO RESULT;
@@ -225,8 +225,48 @@ CREATE PROCEDURE HAS_OVERLAPPING_RESERVATION_WITH_TYPE(
         FROM actual_reserved_resources r
         WHERE r.resource_id = RESOURCE
               AND r.type_id = RESERVATION_TYPE
-              AND r.reservation_start <= STARTS_AT
-              AND r.reservation_end >= ENDS_AT)
+              AND r.reservation_start < ENDS_AT
+              AND r.reservation_end > STARTS_AT)
+      THEN TRUE
+           ELSE FALSE END
+    INTO RESULT;
+  END$$
+
+CREATE PROCEDURE HAS_OVERLAPPING_RESERVATION_SELF_CHECK(
+  IN  RESERVATION BIGINT,
+  IN  RESOURCE    INT,
+  IN  STARTS_AT   DATETIME,
+  IN  ENDS_AT     DATETIME,
+  OUT RESULT      BIT)
+  BEGIN
+    SELECT CASE WHEN EXISTS(
+        SELECT *
+        FROM actual_reserved_resources r
+        WHERE r.resource_id = RESOURCE
+              AND r.reservation_start < ENDS_AT
+              AND r.reservation_end > STARTS_AT
+              AND r.id <> RESERVATION)
+      THEN TRUE
+           ELSE FALSE END
+    INTO RESULT;
+  END$$
+
+CREATE PROCEDURE HAS_OVERLAPPING_RESERVATION_WITH_TYPE_SELF_CHECK(
+  IN  RESERVATION      BIGINT,
+  IN  RESOURCE         INT,
+  IN  RESERVATION_TYPE INT,
+  IN  STARTS_AT        DATETIME,
+  IN  ENDS_AT          DATETIME,
+  OUT RESULT           BIT)
+  BEGIN
+    SELECT CASE WHEN EXISTS(
+        SELECT *
+        FROM actual_reserved_resources r
+        WHERE r.resource_id = RESOURCE
+              AND r.type_id = RESERVATION_TYPE
+              AND r.reservation_start < ENDS_AT
+              AND r.reservation_end > STARTS_AT
+              AND r.id <> RESERVATION)
       THEN TRUE
            ELSE FALSE END
     INTO RESULT;

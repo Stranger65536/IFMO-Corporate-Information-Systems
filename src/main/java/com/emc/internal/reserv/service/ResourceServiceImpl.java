@@ -13,10 +13,11 @@ import java.util.Optional;
 
 import static com.emc.internal.reserv.dto.FaultCode.RESOURCE_DOES_NOT_EXIST;
 import static com.emc.internal.reserv.dto.FaultCode.RESOURCE_IS_NOT_UNIQUE;
+import static com.emc.internal.reserv.util.EndpointUtil.getNonExistentResourceIdMessage;
+import static com.emc.internal.reserv.util.EndpointUtil.getResourceIsNotUniqueMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
 import static com.emc.internal.reserv.util.RuntimeUtil.enterMethodMessage;
 import static com.emc.internal.reserv.util.RuntimeUtil.exitMethodMessage;
-import static java.text.MessageFormat.format;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Isolation.SERIALIZABLE;
 import static org.springframework.transaction.annotation.Propagation.REQUIRED;
@@ -39,21 +40,20 @@ public class ResourceServiceImpl implements ResourceService {
     @SuppressWarnings("DuplicateStringLiteralInspection")
     @Transactional(isolation = SERIALIZABLE, propagation = REQUIRED)
     public Resource createResource(final String name, final String location) {
-        log.info("{} " +
+        log.debug("{} " +
                         "name: {}, " +
                         "location: {}",
                 enterMethodMessage(),
                 name, location);
         if (resourceRepository.findOneByNameAndLocation(name, location).isPresent()) {
             throw raiseServiceFaultException(RESOURCE_IS_NOT_UNIQUE,
-                    format("Resource with name {0} and location {1} is already registered",
-                            name, location));
+                    getResourceIsNotUniqueMessage(name, location));
         }
 
         final Resource resource = new ResourceBuilder().name(name).location(location).build();
-        final Resource result = resourceRepository.saveAndFlush(resource);
+        final Resource result = resourceRepository.save(resource);
 
-        log.info(exitMethodMessage());
+        log.debug(exitMethodMessage());
 
         return result;
     }
@@ -62,48 +62,49 @@ public class ResourceServiceImpl implements ResourceService {
     @SuppressWarnings("DuplicateStringLiteralInspection")
     @Transactional(isolation = SERIALIZABLE, propagation = REQUIRED)
     public Resource updateResource(final Resource resource) {
-        log.info("{} " +
+        log.debug("{} " +
                         "id: {}, " +
                         "name: {}, " +
                         "location: {}",
                 enterMethodMessage(),
                 resource.getId(), resource.getName(), resource.getLocation());
-        final Optional<Resource> resourceOptional = Optional.ofNullable(resourceRepository.findOne(resource.getId()));
-
-        resourceOptional.orElseThrow(() -> raiseServiceFaultException(RESOURCE_DOES_NOT_EXIST,
-                format("No resource with id {0} has been found!", resource.getId())));
+        getResourceOrThrow(resource.getId());
 
         final Optional<Resource> resourceOptionalByName = resourceRepository
                 .findOneByNameAndLocation(resource.getName(), resource.getLocation());
 
         if (resourceOptionalByName.isPresent() && resourceOptionalByName.get().getId() != resource.getId()) {
             throw raiseServiceFaultException(RESOURCE_IS_NOT_UNIQUE,
-                    format("Resource with name {0} and location {1} already exists",
-                            resource.getName(), resource.getLocation()));
+                    getResourceIsNotUniqueMessage(resource.getName(), resource.getLocation()));
         }
 
-        final Resource result = resourceRepository.saveAndFlush(resource);
+        final Resource result = resourceRepository.save(resource);
 
-        log.info(exitMethodMessage());
+        log.debug(exitMethodMessage());
 
         return result;
     }
 
     @Override
     @Transactional(isolation = READ_COMMITTED, propagation = REQUIRED)
-    public Optional<Resource> getResource(final int id) {
-        log.info("{} id: {}", enterMethodMessage(), id);
-        final Optional<Resource> result = Optional.ofNullable(resourceRepository.findOne(id));
-        log.info(exitMethodMessage());
+    public Resource getResource(final int id) {
+        log.debug("{} id: {}", enterMethodMessage(), id);
+        final Resource result = getResourceOrThrow(id);
+        log.debug(exitMethodMessage());
         return result;
     }
 
     @Override
     @Transactional(isolation = READ_COMMITTED, propagation = REQUIRED)
     public Collection<Resource> getResources() {
-        log.info(enterMethodMessage());
+        log.debug(enterMethodMessage());
         final Collection<Resource> result = resourceRepository.findAll();
-        log.info(exitMethodMessage());
+        log.debug(exitMethodMessage());
         return result;
+    }
+
+    private Resource getResourceOrThrow(final int id) {
+        return Optional.ofNullable(resourceRepository.findOne(id)).orElseThrow(() ->
+                raiseServiceFaultException(RESOURCE_DOES_NOT_EXIST, getNonExistentResourceIdMessage(id)));
     }
 }

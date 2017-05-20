@@ -1,16 +1,14 @@
 package com.emc.internal.reserv.validator;
 
-import com.emc.internal.reserv.dto.ApproveReservationRequestField;
 import com.emc.internal.reserv.dto.ApproveReservationRequest;
-import com.emc.internal.reserv.entity.ReservationTypes;
+import com.emc.internal.reserv.dto.ApproveReservationRequestField;
 import org.springframework.stereotype.Service;
 
 import static com.emc.internal.reserv.dto.FaultCode.INVALID_FIELD_VALUE;
-import static com.emc.internal.reserv.dto.FaultCode.RESERVATION_TYPE_DOES_NOT_EXIST;
 import static com.emc.internal.reserv.util.EndpointUtil.getInvalidFieldMessage;
-import static com.emc.internal.reserv.util.EndpointUtil.getInvalidReservationTypeMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.getInvalidTimeRangeMessage;
 import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
+import static com.emc.internal.reserv.validator.RequestValidator.validateReservationType;
 
 /**
  * @author trofiv
@@ -29,8 +27,6 @@ public class ApproveReservationRequestValidator implements RequestValidator<Appr
         if (request.getStartsAt().compare(request.getEndsAt()) > 0) {
             throw raiseServiceFaultException(INVALID_FIELD_VALUE, getInvalidTimeRangeMessage(ApproveReservationRequestField.STARTS_AT.value()));
         }
-        ReservationTypes.getById(request.getType()).orElseThrow(() ->
-                raiseServiceFaultException(RESERVATION_TYPE_DOES_NOT_EXIST,
-                        getInvalidReservationTypeMessage(request.getType())));
+        validateReservationType(request.getType());
     }
 }

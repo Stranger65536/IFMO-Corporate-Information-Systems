@@ -1,11 +1,14 @@
 package com.emc.internal.reserv.converter;
 
 import com.emc.internal.reserv.dto.ReservationSearchableField;
+import com.emc.internal.reserv.dto.SearchType;
 import com.google.common.primitives.Ints;
 import org.springframework.stereotype.Service;
 
+import static com.emc.internal.reserv.converter.FieldConverter.convertIfIsNotContainsSearch;
 import static com.emc.internal.reserv.util.RuntimeUtil.raiseFieldCoverageException;
 import static com.emc.internal.reserv.util.RuntimeUtil.toLocalDateTime;
+import static java.sql.Timestamp.valueOf;
 import static javax.xml.bind.DatatypeConverter.parseDateTime;
 
 /**
@@ -15,24 +18,24 @@ import static javax.xml.bind.DatatypeConverter.parseDateTime;
 @Service
 public class ReservationSearchableFieldConverter implements FieldConverter<ReservationSearchableField> {
     @Override
-    public Object convertField(final ReservationSearchableField field, final String value) {
+    public Object convertField(final ReservationSearchableField field, final SearchType searchType, final String value) {
         if (field == null) {
             return value;
         }
 
         switch (field) {
             case ID:
-            case OWNER_ID:
-            case RESOURCE_ID:
-            case STATUS:
-            case TYPE:
-                //noinspection ReturnOfNull
-                return value == null ? null : Ints.tryParse(value);
+            case OWNER:
+            case RESOURCE:
+                return convertIfIsNotContainsSearch(searchType, v -> v == null ? null : Ints.tryParse(v), value);
             case STARTS_AT:
             case ENDS_AT:
             case CREATED_ON:
             case UPDATED_ON:
-                return toLocalDateTime(parseDateTime(value));
+                return convertIfIsNotContainsSearch(searchType, v -> valueOf(toLocalDateTime(parseDateTime(v))), value);
+            case STATUS:
+            case TYPE:
+                return value;
             default:
                 throw raiseFieldCoverageException();
         }

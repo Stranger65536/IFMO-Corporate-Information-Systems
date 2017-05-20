@@ -1,5 +1,7 @@
 package com.emc.internal.reserv.entity;
 
+import com.emc.internal.reserv.dto.ActualReservationInfo;
+import com.emc.internal.reserv.util.RuntimeUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -16,6 +18,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.sql.Timestamp;
+
+import static com.emc.internal.reserv.util.RuntimeUtil.toCalendar;
+import static java.util.Optional.ofNullable;
 
 /**
  * @author trofiv
@@ -76,5 +81,20 @@ public class ActualReservation {
         endsAt = null;
         createdOn = null;
         updatedOn = null;
+    }
+
+    public ActualReservationInfo toActualReservationInfo() {
+        final ActualReservationInfo info = new ActualReservationInfo();
+        info.setId(this.id);
+        info.setOwnerId(ofNullable(this.owner).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
+        info.setLastActionUserId(ofNullable(this.lastActionUser).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
+        info.setResourceId(ofNullable(this.resource).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).getId());
+        info.setType(ofNullable(this.type).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).toType());
+        info.setStatus(ofNullable(this.status).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).toStatus());
+        info.setStartsAt(toCalendar(ofNullable(this.startsAt).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
+        info.setEndsAt(toCalendar(ofNullable(this.endsAt).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
+        info.setCreatedOn(toCalendar(ofNullable(this.createdOn).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
+        info.setUpdatedOn(toCalendar(ofNullable(this.updatedOn).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
+        return info;
     }
 }

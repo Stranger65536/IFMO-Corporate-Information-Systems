@@ -1,7 +1,6 @@
 package com.emc.internal.reserv.util;
 
 import lombok.SneakyThrows;
-import org.apache.tomcat.jni.Local;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -12,6 +11,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 
+import static java.text.MessageFormat.format;
 import static java.time.ZoneOffset.UTC;
 
 /**
@@ -77,6 +77,10 @@ public class RuntimeUtil {
 
     public static UnsupportedOperationException raiseUninitializedEntityField() {
         return new UnsupportedOperationException("Mandatory entity field uninitialized!");
+    }
+
+    public static UnsupportedOperationException raiseEnumValueNotMapped(final String name) {
+        return new UnsupportedOperationException(format("Mandatory enum value ''{0}'' is not mapped to the orm object!", name));
     }
 
     @SneakyThrows

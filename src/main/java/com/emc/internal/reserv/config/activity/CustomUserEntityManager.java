@@ -51,7 +51,6 @@ public class CustomUserEntityManager extends UserEntityManager {
         return userToActivitiUser(userRepository.findOne(Integer.parseInt(userId)));
     }
 
-
     @Override
     public void deleteUser(final String userId) {
         throw new UnsupportedOperationException(explicitCallProhibitedError());

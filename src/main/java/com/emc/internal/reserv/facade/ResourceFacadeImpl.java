@@ -17,11 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Optional;
 
-import static com.emc.internal.reserv.dto.FaultCode.RESOURCE_DOES_NOT_EXIST;
-import static com.emc.internal.reserv.util.EndpointUtil.raiseServiceFaultException;
-import static java.text.MessageFormat.format;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -29,6 +25,7 @@ import static java.util.stream.Collectors.toList;
  * @date 17.04.2017
  */
 @Service
+//Callable service marked with the corresponding transactional level
 public class ResourceFacadeImpl implements ResourceFacade {
     private final ResourceService resourceService;
     private final RequestValidator<CreateResourceRequest> createResourceRequestValidator;
@@ -74,15 +71,9 @@ public class ResourceFacadeImpl implements ResourceFacade {
     @SuppressWarnings("DuplicateStringLiteralInspection")
     //TODO cache
     public GetResourceResponse getResource(final GetResourceRequest request) {
-        final Optional<Resource> optionalResource = resourceService.getResource(request.getId());
-        if (optionalResource.isPresent()) {
-            final GetResourceResponse response = new GetResourceResponse();
-            response.setResourceInfo(optionalResource.get().toResourceInfo());
-            return response;
-        } else {
-            throw raiseServiceFaultException(RESOURCE_DOES_NOT_EXIST,
-                    format("No resource with id {0} has been found!", request.getId()));
-        }
+        final GetResourceResponse response = new GetResourceResponse();
+        response.setResourceInfo(resourceService.getResource(request.getId()).toResourceInfo());
+        return response;
     }
 
     @Override

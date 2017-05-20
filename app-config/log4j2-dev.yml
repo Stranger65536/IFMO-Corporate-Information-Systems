@@ -28,21 +28,32 @@ Configutation:
 
   Loggers:
       Logger:
-        name: org.apache.ibatis
-        level: off
-        additivity: false
-      Logger:
-        name: org.springframework.orm
-        level: off
-        additivity: false
-      Logger:
-        name: org.hibernate
-        level: off
-        additivity: false
+        - name: org.hibernate
+          additivity: false
+          level: off
+        - name: org.jboss
+          additivity: false
+          level: off
+        - name: org.activiti
+          additivity: false
+          level: off
+        - name: org.apache.ibatis
+          additivity: false
+          level: off
+        - name: org.springframework.orm
+          additivity: false
+          level: off
+        - name: org.springframework
+          additivity: false
+          level: info
+          AppenderRef:
+            - ref: Console_Appender
+              level: info
+            - ref: RollingFile_Appender
+              level: info
       Root:
         level: debug
+        additivity: false
         AppenderRef:
           - ref: RollingFile_Appender
-            level: info
           - ref: Console_Appender
-            level: info
