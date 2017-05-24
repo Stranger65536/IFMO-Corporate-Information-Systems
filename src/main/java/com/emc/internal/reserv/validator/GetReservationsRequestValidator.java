@@ -33,8 +33,8 @@ public class GetReservationsRequestValidator implements RequestValidator<GetRese
                     break;
                 case STARTS_AT:
                 case ENDS_AT:
-                case CREATED_ON:
-                case UPDATED_ON:
+                case CREATED_AT:
+                case UPDATED_AT:
                     validateIfIsNotContainsSearch(request.getSearchType(),
                             () -> validateDateTimeSearchValue(request.getSearchType(), request.getSearchValue(),
                                     request.getSearchValueLowerBound(), request.getSearchValueUpperBound()));

@@ -36,6 +36,8 @@ spring:
     static-locations: file:${spring.config.location}../static/
   activity:
     rest-api-enabled: false
+olap:
+  schema-file: ./src/main/resources/reserv-io.mondrian.xml
 logging:
   config: file:${spring.config.location}/log4j2-dev.yml
 com:

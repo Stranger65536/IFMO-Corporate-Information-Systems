@@ -7,6 +7,7 @@
            jaxb:extensionBindingPrefixes="basic equals hashCode toString">
     <xs:import namespace="https://internal.emc.com/reserv-io/schema/register" schemaLocation="register.xsd"/>
     <xs:import namespace="https://internal.emc.com/reserv-io/schema/common" schemaLocation="common.xsd"/>
+    <xs:import namespace="https://internal.emc.com/reserv-io/schema/report" schemaLocation="report.xsd"/>
     <xs:simpleType name="GenericSearchRequestField">
         <xs:restriction base="xs:string">
             <xs:enumeration value="page"/>
@@ -101,8 +102,8 @@
             <xs:enumeration value="owner"/>
             <xs:enumeration value="startsAt"/>
             <xs:enumeration value="endsAt"/>
-            <xs:enumeration value="createdOn"/>
-            <xs:enumeration value="updatedOn"/>
+            <xs:enumeration value="createdAt"/>
+            <xs:enumeration value="updatedAt"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="ReservationSearchableField">
@@ -114,8 +115,8 @@
             <xs:enumeration value="owner"/>
             <xs:enumeration value="startsAt"/>
             <xs:enumeration value="endsAt"/>
-            <xs:enumeration value="createdOn"/>
-            <xs:enumeration value="updatedOn"/>
+            <xs:enumeration value="createdAt"/>
+            <xs:enumeration value="updatedAt"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="SearchValue">
@@ -277,8 +278,8 @@
                 <xs:element name="status" type="tns:Status"/>
                 <xs:element name="startsAt" type="xs:dateTime"/>
                 <xs:element name="endsAt" type="xs:dateTime"/>
-                <xs:element name="createdOn" type="xs:dateTime"/>
-                <xs:element name="updatedOn" type="xs:dateTime"/>
+                <xs:element name="createdAt" type="xs:dateTime"/>
+                <xs:element name="updatedAt" type="xs:dateTime"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

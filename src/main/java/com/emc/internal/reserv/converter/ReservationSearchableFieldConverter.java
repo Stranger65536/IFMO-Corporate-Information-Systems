@@ -30,8 +30,8 @@ public class ReservationSearchableFieldConverter implements FieldConverter<Reser
                 return convertIfIsNotContainsSearch(searchType, v -> v == null ? null : Ints.tryParse(v), value);
             case STARTS_AT:
             case ENDS_AT:
-            case CREATED_ON:
-            case UPDATED_ON:
+            case CREATED_AT:
+            case UPDATED_AT:
                 return convertIfIsNotContainsSearch(searchType, v -> valueOf(toLocalDateTime(parseDateTime(v))), value);
             case STATUS:
             case TYPE:

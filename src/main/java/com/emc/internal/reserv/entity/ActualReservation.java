@@ -65,10 +65,10 @@ public class ActualReservation {
     private final Timestamp endsAt;
     @Basic
     @Column(name = "created_at", nullable = false)
-    private final Timestamp createdOn;
+    private final Timestamp createdAt;
     @Basic
     @Column(name = "updated_at", nullable = false)
-    private final Timestamp updatedOn;
+    private final Timestamp updatedAt;
 
     public ActualReservation() {
         id = 0;
@@ -79,8 +79,8 @@ public class ActualReservation {
         status = null;
         startsAt = null;
         endsAt = null;
-        createdOn = null;
-        updatedOn = null;
+        createdAt = null;
+        updatedAt = null;
     }
 
     public ActualReservationInfo toActualReservationInfo() {
@@ -93,8 +93,8 @@ public class ActualReservation {
         info.setStatus(ofNullable(this.status).orElseThrow(RuntimeUtil::raiseUninitializedEntityField).toStatus());
         info.setStartsAt(toCalendar(ofNullable(this.startsAt).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
         info.setEndsAt(toCalendar(ofNullable(this.endsAt).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
-        info.setCreatedOn(toCalendar(ofNullable(this.createdOn).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
-        info.setUpdatedOn(toCalendar(ofNullable(this.updatedOn).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
+        info.setCreatedAt(toCalendar(ofNullable(this.createdAt).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
+        info.setUpdatedAt(toCalendar(ofNullable(this.updatedAt).orElseThrow(RuntimeUtil::raiseUninitializedEntityField)));
         return info;
     }
 }

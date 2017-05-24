@@ -232,14 +232,11 @@ public class ReservationServiceImpl implements ReservationService {
                         "reservation: {}",
                 enterMethodMessage(),
                 user, reservation);
-        final Task task = processEngine.getTaskService()
-                .createTaskQuery()
-                .processInstanceBusinessKey(Long.toString(reservation.getId()))
-                .singleResult();
+        final String taskId = getTask(reservation).getId();
 
-        processEngine.getTaskService().setVariable(task.getId(), ACTION_VARIABLE, CANCEL);
-        processEngine.getTaskService().setVariable(task.getId(), USER_VARIABLE, user);
-        processEngine.getTaskService().complete(task.getId());
+        processEngine.getTaskService().setVariable(taskId, ACTION_VARIABLE, CANCEL);
+        processEngine.getTaskService().setVariable(taskId, USER_VARIABLE, user);
+        processEngine.getTaskService().complete(taskId);
 
         final Reservation result = reservationRepository.findOne(reservation.getId());
         log.debug(exitMethodMessage());
@@ -266,19 +263,20 @@ public class ReservationServiceImpl implements ReservationService {
                         "newType: {}",
                 enterMethodMessage(),
                 user, reservation, newResource, newStartsAt, newEndsAt, newType);
-        final Task task = processEngine.getTaskService()
-                .createTaskQuery()
-                .processInstanceBusinessKey(Long.toString(reservation.getId()))
-                .singleResult();
+        final Task task = getTask(reservation);
+        final String taskId = task.getId();
+        final String executionId = task.getExecutionId();
 
-        processEngine.getRuntimeService().setVariable(task.getExecutionId(), FAULT_CODE, null);
-        processEngine.getTaskService().setVariable(task.getId(), ACTION_VARIABLE, PROPOSE_NEW_TIME);
-        processEngine.getTaskService().setVariable(task.getId(), USER_VARIABLE, user);
-        processEngine.getTaskService().setVariable(task.getId(), NEW_RESOURCE_VARIABLE, newResource);
-        processEngine.getTaskService().setVariable(task.getId(), NEW_STARTS_AT_VARIABLE, newStartsAt);
-        processEngine.getTaskService().setVariable(task.getId(), NEW_ENDS_AT_VARIABLE, newEndsAt);
-        processEngine.getTaskService().setVariable(task.getId(), NEW_TYPE_VARIABLE, newType);
-        processEngine.getTaskService().complete(task.getId());
+        processEngine.getRuntimeService().setVariable(executionId, FAULT_CODE, null);
+        processEngine.getTaskService().setVariable(taskId, ACTION_VARIABLE, PROPOSE_NEW_TIME);
+        processEngine.getTaskService().setVariable(taskId, USER_VARIABLE, user);
+        processEngine.getTaskService().setVariable(taskId, RESERVATION_VARIABLE, reservation);
+        processEngine.getTaskService().setVariable(taskId, RESOURCE_VARIABLE, getLastAction(reservation).getResource());
+        processEngine.getTaskService().setVariable(taskId, NEW_RESOURCE_VARIABLE, newResource);
+        processEngine.getTaskService().setVariable(taskId, NEW_STARTS_AT_VARIABLE, newStartsAt);
+        processEngine.getTaskService().setVariable(taskId, NEW_ENDS_AT_VARIABLE, newEndsAt);
+        processEngine.getTaskService().setVariable(taskId, NEW_TYPE_VARIABLE, newType);
+        processEngine.getTaskService().complete(taskId);
 
         final FaultCode faultCode = (FaultCode) processEngine.getRuntimeService().getVariable(task.getExecutionId(), FAULT_CODE);
 
@@ -317,19 +315,20 @@ public class ReservationServiceImpl implements ReservationService {
                         "newType: {}",
                 enterMethodMessage(),
                 user, reservation, newResource, newStartsAt, newEndsAt, newType);
-        final Task task = processEngine.getTaskService()
-                .createTaskQuery()
-                .processInstanceBusinessKey(Long.toString(reservation.getId()))
-                .singleResult();
+        final Task task = getTask(reservation);
+        final String taskId = task.getId();
+        final String executionId = task.getExecutionId();
 
-        processEngine.getRuntimeService().setVariable(task.getExecutionId(), FAULT_CODE, null);
-        processEngine.getTaskService().setVariable(task.getId(), ACTION_VARIABLE, UPDATE);
-        processEngine.getTaskService().setVariable(task.getId(), USER_VARIABLE, user);
-        processEngine.getTaskService().setVariable(task.getId(), NEW_RESOURCE_VARIABLE, newResource);
-        processEngine.getTaskService().setVariable(task.getId(), NEW_STARTS_AT_VARIABLE, newStartsAt);
-        processEngine.getTaskService().setVariable(task.getId(), NEW_ENDS_AT_VARIABLE, newEndsAt);
-        processEngine.getTaskService().setVariable(task.getId(), NEW_TYPE_VARIABLE, newType);
-        processEngine.getTaskService().complete(task.getId());
+        processEngine.getRuntimeService().setVariable(executionId, FAULT_CODE, null);
+        processEngine.getTaskService().setVariable(taskId, ACTION_VARIABLE, UPDATE);
+        processEngine.getTaskService().setVariable(taskId, USER_VARIABLE, user);
+        processEngine.getTaskService().setVariable(taskId, RESERVATION_VARIABLE, reservation);
+        processEngine.getTaskService().setVariable(taskId, RESOURCE_VARIABLE, getLastAction(reservation).getResource());
+        processEngine.getTaskService().setVariable(taskId, NEW_RESOURCE_VARIABLE, newResource);
+        processEngine.getTaskService().setVariable(taskId, NEW_STARTS_AT_VARIABLE, newStartsAt);
+        processEngine.getTaskService().setVariable(taskId, NEW_ENDS_AT_VARIABLE, newEndsAt);
+        processEngine.getTaskService().setVariable(taskId, NEW_TYPE_VARIABLE, newType);
+        processEngine.getTaskService().complete(taskId);
 
         final FaultCode faultCode = (FaultCode) processEngine.getRuntimeService().getVariable(task.getExecutionId(), FAULT_CODE);
 
@@ -358,15 +357,16 @@ public class ReservationServiceImpl implements ReservationService {
                         "reservation: {}",
                 enterMethodMessage(),
                 user, reservation);
-        final Task task = processEngine.getTaskService()
-                .createTaskQuery()
-                .processInstanceBusinessKey(Long.toString(reservation.getId()))
-                .singleResult();
+        final Task task = getTask(reservation);
+        final String taskId = task.getId();
+        final String executionId = task.getExecutionId();
 
-        processEngine.getRuntimeService().setVariable(task.getExecutionId(), FAULT_CODE, null);
-        processEngine.getTaskService().setVariable(task.getId(), ACTION_VARIABLE, APPROVE);
-        processEngine.getTaskService().setVariable(task.getId(), USER_VARIABLE, user);
-        processEngine.getTaskService().complete(task.getId());
+        processEngine.getRuntimeService().setVariable(executionId, FAULT_CODE, null);
+        processEngine.getTaskService().setVariable(taskId, ACTION_VARIABLE, APPROVE);
+        processEngine.getTaskService().setVariable(taskId, USER_VARIABLE, user);
+        processEngine.getTaskService().setVariable(taskId, RESERVATION_VARIABLE, reservation);
+        processEngine.getTaskService().setVariable(taskId, RESOURCE_VARIABLE, getLastAction(reservation).getResource());
+        processEngine.getTaskService().complete(taskId);
 
         final FaultCode faultCode = (FaultCode) processEngine.getRuntimeService().getVariable(task.getExecutionId(), FAULT_CODE);
 
@@ -471,6 +471,13 @@ public class ReservationServiceImpl implements ReservationService {
         actionRepository.save(action);
         reservation.getActions().add(action);
         reservationRepository.save(reservation);
+
+        final String taskId = getTask(reservation).getId();
+
+        processEngine.getTaskService().setVariable(taskId, STARTS_AT_VARIABLE, newStart);
+        processEngine.getTaskService().setVariable(taskId, ENDS_AT_VARIABLE, newEnd);
+        processEngine.getTaskService().setVariable(taskId, TYPE_VARIABLE, newType);
+
         log.debug(exitMethodMessage());
     }
 
@@ -504,6 +511,13 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.getActions().add(action);
         actionRepository.save(action);
         reservationRepository.save(reservation);
+
+        final String taskId = getTask(reservation).getId();
+
+        processEngine.getTaskService().setVariable(taskId, STARTS_AT_VARIABLE, newStart);
+        processEngine.getTaskService().setVariable(taskId, ENDS_AT_VARIABLE, newEnd);
+        processEngine.getTaskService().setVariable(taskId, TYPE_VARIABLE, newType);
+
         log.debug(exitMethodMessage());
     }
 
@@ -630,5 +644,12 @@ public class ReservationServiceImpl implements ReservationService {
     private static Action getLastAction(final Reservation reservation) {
         return Streams.findLast(reservation.getActions().stream())
                 .orElseThrow(RuntimeUtil::raiseUninitializedEntityField);
+    }
+
+    private Task getTask(final Reservation reservation) {
+        return processEngine.getTaskService()
+                .createTaskQuery()
+                .processInstanceBusinessKey(Long.toString(reservation.getId()))
+                .singleResult();
     }
 }

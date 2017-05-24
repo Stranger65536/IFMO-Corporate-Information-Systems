@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Schema name="ReservIO" metamodelVersion="4.0">
+    <PhysicalSchema>
+        <Table name="actual_reservations"/>
+    </PhysicalSchema>
+    <Cube name="Reservations">
+        <Dimensions>
+            <Dimension name="Resources" table="actual_reservations" key="ResourceID">
+                <Attributes>
+                    <Attribute name="ResourceID" keyColumn="resource_id"/>
+                </Attributes>
+                <Hierarchies>
+                    <Hierarchy name="ID" hasAll="true">
+                        <Level attribute="ResourceID"/>
+                    </Hierarchy>
+                </Hierarchies>
+            </Dimension>
+            <Dimension name="Users" table="actual_reservations" key="UserID">
+                <Attributes>
+                    <Attribute name="UserID" keyColumn="owner_id"/>
+                </Attributes>
+                <Hierarchies>
+                    <Hierarchy name="ID" hasAll="true">
+                        <Level attribute="UserID"/>
+                    </Hierarchy>
+                </Hierarchies>
+            </Dimension>
+        </Dimensions>
+        <MeasureGroups>
+            <MeasureGroup name="actual_reservations" table="actual_reservations">
+                <Measures>
+                    <Measure name="ReservationNumber" column="id" aggregator="count" formatString="Standard"/>
+                </Measures>
+                <DimensionLinks>
+                    <FactLink dimension="Resources"/>
+                    <FactLink dimension="Users"/>
+                </DimensionLinks>
+            </MeasureGroup>
+        </MeasureGroups>
+    </Cube>
+</Schema>

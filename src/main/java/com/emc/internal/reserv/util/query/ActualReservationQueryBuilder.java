@@ -65,8 +65,8 @@ public class ActualReservationQueryBuilder implements QueryBuilder<ActualReserva
             case RESOURCE:
             case ENDS_AT:
             case STARTS_AT:
-            case CREATED_ON:
-            case UPDATED_ON:
+            case CREATED_AT:
+            case UPDATED_AT:
                 return root.get(sortingField.value());
             case TYPE:
             case STATUS:
@@ -88,8 +88,8 @@ public class ActualReservationQueryBuilder implements QueryBuilder<ActualReserva
             case RESOURCE:
             case ENDS_AT:
             case STARTS_AT:
-            case CREATED_ON:
-            case UPDATED_ON:
+            case CREATED_AT:
+            case UPDATED_AT:
                 return builder.equal(root.get(searchField.value()), searchValue);
             case TYPE:
             case STATUS:
@@ -113,8 +113,8 @@ public class ActualReservationQueryBuilder implements QueryBuilder<ActualReserva
                 return builder.greaterThanOrEqualTo(root.<Integer>get(searchField.value()), (Integer) searchValue);
             case ENDS_AT:
             case STARTS_AT:
-            case CREATED_ON:
-            case UPDATED_ON:
+            case CREATED_AT:
+            case UPDATED_AT:
                 return builder.greaterThanOrEqualTo(root.<Timestamp>get(searchField.value()), (Timestamp) searchValue);
             case TYPE:
             case STATUS:
@@ -138,8 +138,8 @@ public class ActualReservationQueryBuilder implements QueryBuilder<ActualReserva
                 return builder.lessThanOrEqualTo(root.<Integer>get(searchField.value()), (Integer) searchValue);
             case ENDS_AT:
             case STARTS_AT:
-            case CREATED_ON:
-            case UPDATED_ON:
+            case CREATED_AT:
+            case UPDATED_AT:
                 return builder.lessThanOrEqualTo(root.<Timestamp>get(searchField.value()), (Timestamp) searchValue);
             case TYPE:
             case STATUS:
@@ -163,8 +163,8 @@ public class ActualReservationQueryBuilder implements QueryBuilder<ActualReserva
                 return builder.greaterThan(root.<Integer>get(searchField.value()), (Integer) searchValue);
             case ENDS_AT:
             case STARTS_AT:
-            case CREATED_ON:
-            case UPDATED_ON:
+            case CREATED_AT:
+            case UPDATED_AT:
                 return builder.greaterThan(root.<Timestamp>get(searchField.value()), (Timestamp) searchValue);
             case TYPE:
             case STATUS:
@@ -188,8 +188,8 @@ public class ActualReservationQueryBuilder implements QueryBuilder<ActualReserva
                 return builder.lessThan(root.<Integer>get(searchField.value()), (Integer) searchValue);
             case ENDS_AT:
             case STARTS_AT:
-            case CREATED_ON:
-            case UPDATED_ON:
+            case CREATED_AT:
+            case UPDATED_AT:
                 return builder.lessThan(root.<Timestamp>get(searchField.value()), (Timestamp) searchValue);
             case TYPE:
             case STATUS:
@@ -210,8 +210,8 @@ public class ActualReservationQueryBuilder implements QueryBuilder<ActualReserva
             case ID:
             case ENDS_AT:
             case STARTS_AT:
-            case CREATED_ON:
-            case UPDATED_ON:
+            case CREATED_AT:
+            case UPDATED_AT:
                 return builder.like(root.<String>get(searchField.value()).as(String.class),
                         format("%{0}%", searchValue), '%');
             case OWNER:
@@ -241,8 +241,8 @@ public class ActualReservationQueryBuilder implements QueryBuilder<ActualReserva
                 return builder.between(root.get(searchField.value()), (Integer) searchValueLowerBound, (Integer) searchValueUpperBound);
             case ENDS_AT:
             case STARTS_AT:
-            case CREATED_ON:
-            case UPDATED_ON:
+            case CREATED_AT:
+            case UPDATED_AT:
                 return builder.between(root.get(searchField.value()), (Timestamp) searchValueLowerBound, (Timestamp) searchValueUpperBound);
             case TYPE:
             case STATUS:

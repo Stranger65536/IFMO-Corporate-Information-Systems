@@ -29,7 +29,7 @@ public class DetailSoapFaultDefinitionExceptionResolver extends SoapFaultMapping
             log.error("Unknown error {}", errorId, ex);
             final SoapFaultDetail detail = fault.addFaultDetail();
             detail.addFaultDetailElement(CODE).addText(FaultCode.UNKNOWN_ERROR.value());
-            detail.addFaultDetailElement(DESCRIPTION).addText(ex.getMessage() + "; Error id: " + errorId);
+            detail.addFaultDetailElement(DESCRIPTION).addText("Error id: " + errorId + "; " + ex.getMessage());
         }
     }
 }

@@ -35,11 +35,14 @@ import java.util.Properties;
 public class WebServiceConfig extends WsConfigurerAdapter {
     public static final String API_NAMESPACE_URI = "https://internal.emc.com/reserv-io/schema/api";
     public static final String REGISTER_NAMESPACE_URI = "https://internal.emc.com/reserv-io/schema/register";
+    public static final String REPORT_NAMESPACE_URI = "https://internal.emc.com/reserv-io/schema/report";
     public static final String SERVLET_ENDPOINT = "/ws/*";
     public static final String REGISTER_WS_ENDPOINT = "/ws/register";
     public static final String API_WS_ENDPOINT = "/ws/api";
+    public static final String REPORT_WS_ENDPOINT = "/ws/report";
     public static final String REGISTER_SCHEMA = "register.xsd";
     public static final String API_SCHEMA = "api.xsd";
+    public static final String REPORT_SCHEMA = "report.xsd";
 
     @Value("${server.redirect-from-port}")
     private int httpPort;
@@ -93,6 +96,16 @@ public class WebServiceConfig extends WsConfigurerAdapter {
         return wsdlDefinition;
     }
 
+    @Bean(name = "report")
+    public DefaultWsdl11Definition reportWsdlDefinition(@Qualifier("reportSchema") final XsdSchema schema) {
+        final DefaultWsdl11Definition wsdlDefinition = new DefaultWsdl11Definition();
+        wsdlDefinition.setPortTypeName("ReservIOReportPort");
+        wsdlDefinition.setLocationUri(REPORT_WS_ENDPOINT);
+        wsdlDefinition.setTargetNamespace(REPORT_NAMESPACE_URI);
+        wsdlDefinition.setSchema(schema);
+        return wsdlDefinition;
+    }
+
     @Bean
     public XsdSchema apiSchema() {
         return new SimpleXsdSchema(new FileSystemResource(schemaDirectory + API_SCHEMA));
@@ -101,6 +114,11 @@ public class WebServiceConfig extends WsConfigurerAdapter {
     @Bean
     public XsdSchema registerSchema() {
         return new SimpleXsdSchema(new FileSystemResource(schemaDirectory + REGISTER_SCHEMA));
+    }
+
+    @Bean
+    public XsdSchema reportSchema() {
+        return new SimpleXsdSchema(new FileSystemResource(schemaDirectory + REPORT_SCHEMA));
     }
 
     @Bean

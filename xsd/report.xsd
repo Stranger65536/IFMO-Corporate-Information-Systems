@@ -1,0 +1,27 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://internal.emc.com/reserv-io/schema/report"
+           elementFormDefault="qualified">
+    <xs:simpleType name="GetReservationsReportRequestField">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="userId"/>
+            <xs:enumeration value="resourceId"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="GetReservationsReportRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="userId" type="xs:int"/>
+                <xs:element name="resourceId" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="GetReservationsReportResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="reservationNumber" type="xs:long"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

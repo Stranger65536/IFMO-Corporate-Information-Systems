@@ -6,6 +6,7 @@ buildscript {
         mavenCentral()
         maven { url 'https://repo.spring.io/snapshot' }
         maven { url 'https://repo.spring.io/milestone' }
+        maven { url 'http://repository.pentaho.org/artifactory/repo' }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -29,6 +30,7 @@ repositories {
     mavenCentral()
     maven { url 'https://repo.spring.io/snapshot' }
     maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'http://repository.pentaho.org/artifactory/repo' }
 }
 
 final frontendDir = "${project.projectDir}/frontend"
@@ -39,8 +41,9 @@ final staticSchemaDir = staticDir + '/schema'
 def updateSchemaLocation(final def filePath) {
     final proj = file(filePath)
     final text = proj.getText("UTF-8")
-            .replaceAll('common.xsd', 'https://internal.emc.com/reserv-io/schema/common.xsd')
-            .replaceAll('register.xsd', 'https://internal.emc.com/reserv-io/schema/register.xsd')
+            .replaceAll('"common.xsd"', '"https://internal.emc.com/reserv-io/schema/common.xsd"')
+            .replaceAll('"register.xsd"', '"https://internal.emc.com/reserv-io/schema/register.xsd"')
+            .replaceAll('"report.xsd"', '"https://internal.emc.com/reserv-io/schema/report.xsd"')
     proj.write(text, "UTF-8")
 }
 
@@ -107,6 +110,7 @@ war {
 
 configurations {
     all*.exclude module: 'spring-boot-starter-logging'
+    all*.exclude group: 'javax.servlet', module: 'servlet-api'
     providedRuntime
     jaxb
 }
@@ -137,6 +141,8 @@ final jaxb2CommonsLangVersion = '2.3'
 final jaxb2BasicsVersion = '0.11.1'
 final apacheCommonsLangVersion = '3.5'
 final jade4jVersion = '1.1.4'
+final pentahoVersion = '4.3.1.8-209'
+final olap4jVersion = '1.2.0'
 
 node {
     version = '7.7.2'
@@ -174,6 +180,9 @@ dependencies {
 
             [group: 'org.activiti', name: 'activiti-spring-boot-starter-jpa', version: activityVersion],
             [group: 'org.activiti', name: 'activiti-spring-boot-starter-basic', version: activityVersion],
+
+            [group: 'pentaho', name: 'mondrian', version: pentahoVersion],
+            [group: 'org.olap4j', name: 'olap4j', version: olap4jVersion],
 
             [group: 'wsdl4j', name: 'wsdl4j', version: wsdl4jVersion],
             [group: 'com.google.guava', name: 'guava', version: guavaVersion],

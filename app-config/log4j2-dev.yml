@@ -37,13 +37,18 @@ Configutation:
         - name: org.activiti
           additivity: false
           level: off
-        - name: org.apache.ibatis
-          additivity: false
-          level: off
-        - name: org.springframework.orm
+        - name: org.apache
           additivity: false
           level: off
         - name: org.springframework
+          additivity: false
+          level: info
+          AppenderRef:
+            - ref: Console_Appender
+              level: info
+            - ref: RollingFile_Appender
+              level: info
+        - name: mondrian
           additivity: false
           level: info
           AppenderRef:
