@@ -9,8 +9,8 @@ import ActionDone from "material-ui/svg-icons/action/done";
 import AutoComplete from "material-ui/AutoComplete";
 import DatePicker from "material-ui/DatePicker";
 import TimePicker from "material-ui/TimePicker";
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
+import DropDownMenu from "material-ui/DropDownMenu";
+import MenuItem from "material-ui/MenuItem";
 import FloatingActionButton from "material-ui/FloatingActionButton";
 import {MuiThemeProvider} from "material-ui/styles";
 
@@ -408,10 +408,15 @@ export class Appointments extends React.Component {
     };
 
     onRowSelection = (selectedRows) => {
-        if (selectedRows === 'all' || selectedRows === 'none') {
+        if (selectedRows === 'all') {
             this.setState({
                 ...this.state,
-                selectedRows: selectedRows
+                selectedRows: _.range(this.state.tableData.length)
+            });
+        } else if (selectedRows === 'none') {
+            this.setState({
+                ...this.state,
+                selectedRows: []
             });
         } else {
             const diff = [...new Set(selectedRows)].filter(x => !new Set(this.state.selectedRows).has(x))[0];
@@ -539,7 +544,7 @@ export class Appointments extends React.Component {
                             height={'auto'}
                             enableSelectAll={true}
                             filterHintText={this.constants.filterHint}
-                            title={this.constants.title}
+                            title={this.constants.loggingIn}
                             showHeaderToolbar={true}
                             selectable={true}
                             multiSelectable={true}
@@ -577,7 +582,7 @@ export class Appointments extends React.Component {
                     <ContentAdd />
                 </FloatingActionButton>
                 <Dialog
-                    title={this.constants.actionsModal.title}
+                    title={this.constants.actionsModal.loggingIn}
                     actions={actionsDialogActions}
                     modal={true}
                     open={this.state.actionsModal.opened}>
@@ -597,7 +602,7 @@ export class Appointments extends React.Component {
                 </Dialog>
                 <Dialog
                     contentClassName='create-dialog'
-                    title={this.constants.createModal.title}
+                    title={this.constants.createModal.loggingIn}
                     actions={createDialogActions}
                     modal={true}
                     open={this.state.createModal.opened}>

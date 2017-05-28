@@ -3,7 +3,6 @@ import _ from "underscore";
 import XRegExp from "xregexp";
 import * as $ from "jquery.soap";
 import TextField from "material-ui/TextField";
-import Dialog from "material-ui/Dialog";
 import getMuiTheme from "material-ui/styles/getMuiTheme";
 import CircularProgress from "material-ui/CircularProgress";
 
@@ -122,54 +121,21 @@ export class ValidTextField extends React.Component {
     }
 }
 
-export class InfoModal extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            opened: props.opened,
-            title: props.title,
-            actions: props.actions,
-            content: props.content
-        }
-    }
-
-    render() {
-        return (
-            <Dialog
-                contentClassName='info-dialog'
-                title={this.state.title}
-                actions={this.state.actions}
-                modal={true}
-                open={this.state.opened}>
-                {this.props.children}
-            </Dialog>
-        )
-    }
-}
-
-export function getCookie(n) {
-    let a = `; ${document.cookie}`.match(`;\\s*${n}=([^;]+)`);
-    return a ? a[1] : '';
-}
-
-//noinspection OverlyComplexFunctionJS
-export function sendApiRequest(method, data, login, password, beforeSend, success, error) {
-    const token = getCookie('XSRF-TOKEN');
+export function sendApiRequest(options) {
     try {
         $.default({
             url: 'https://internal.emc.com:443/reserv-io/ws/api/',
             appendMethodToURL: false,
-            method: method,
+            method: options.method,
             namespaceQualifier: 'api',
             namespaceURL: 'https://internal.emc.com/reserv-io/schema/api',
-            data: data,
+            data: options.data,
             HTTPHeaders: {
-                'Authorization': 'Basic ' + btoa(login + ':' + password),
-                'X-XSRF-TOKEN': token
+                'Authorization': 'Basic ' + btoa(options.login + ':' + options.password)
             },
-            beforeSend: beforeSend,
-            success: success,
-            error: error
+            beforeSend: options.beforeSend,
+            success: options.success,
+            error: options.error
         });
     } catch (e) {
         console.log(e);

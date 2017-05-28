@@ -29,7 +29,6 @@ public class CustomBasicAuthenticationEntryPoint extends BasicAuthenticationEntr
             final HttpServletResponse response,
             final AuthenticationException authEx)
             throws IOException, ServletException {
-        response.addHeader("WWW-Authenticate", "Basic realm=\"" + getRealmName() + '"');
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         final PrintWriter writer = response.getWriter();
         writer.println("HTTP Status 401 - " + authEx.getMessage());

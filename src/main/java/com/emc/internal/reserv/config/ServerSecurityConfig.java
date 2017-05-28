@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import static com.emc.internal.reserv.config.WebServiceConfig.REGISTER_WS_ENDPOINT;
 
@@ -31,8 +31,9 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/", "/*.html", "/**/*.xsd", "/*.ico", "/js/**", "/css/**", "/img/**", "/**/*.wsdl", "/error", REGISTER_WS_ENDPOINT).permitAll()
                 .anyRequest().authenticated()
-                //csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers(REGISTER_WS_ENDPOINT)
                 .and().httpBasic().authenticationEntryPoint(authenticationEntryPoint)
                 .and().csrf().disable();
+        http.sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 }

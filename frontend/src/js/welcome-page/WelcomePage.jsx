@@ -15,6 +15,7 @@ import {ForgotPassword} from "./ForgotPassword.jsx";
 export default class WelcomePage extends React.Component {
     constructor(props) {
         super(props);
+
         this.state = {
             loginUsername: '',
             loginPassword: '',
@@ -27,7 +28,7 @@ export default class WelcomePage extends React.Component {
             signUpLastName: '',
             signUpMiddleName: '',
             forgotPasswordUsername: '',
-            activeForm: WelcomePageForm.LOGIN
+            activeForm: WelcomePageForm.LOGIN,
         };
 
         this.constants = {
@@ -48,7 +49,7 @@ export default class WelcomePage extends React.Component {
                     formIndicator: WelcomePageForm.SIGN_UP,
                     viewElement: () => {
                         return <SignUp
-                            onLogin={this.props.onLogin}
+                            onSignUp={this.props.onLogin}
                             username={this.state.signUpUsername}
                             email={this.state.signUpEmail}
                             password={this.state.signUpPassword}
@@ -72,8 +73,7 @@ export default class WelcomePage extends React.Component {
     }
 
     updateStateProperty(property, value) {
-        this.state[property] = value;
-        this.setState(this.state);
+        this.setState({...this.state, property: value});
     }
 
     getCurrentViewElement = () => {

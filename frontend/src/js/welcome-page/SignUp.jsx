@@ -1,5 +1,6 @@
 import React from "react";
 import _ from "underscore";
+import Dialog from "material-ui/Dialog";
 import FlatButton from "material-ui/FlatButton";
 import RaisedButton from "material-ui/RaisedButton";
 import AccountCircle from "material-ui/svg-icons/action/account-circle";
@@ -7,13 +8,13 @@ import Email from "material-ui/svg-icons/communication/email";
 import Lock from "material-ui/svg-icons/action/lock";
 import {
     emailPattern,
-    usernamePattern,
-    passwordPattern,
-    namePattern,
-    validateForm,
     iconStyle,
-    WelcomePageForm,
-    ValidTextField
+    namePattern,
+    passwordPattern,
+    usernamePattern,
+    validateForm,
+    ValidTextField,
+    WelcomePageForm
 } from "../Common.jsx";
 
 export class SignUp extends React.Component {
@@ -26,7 +27,14 @@ export class SignUp extends React.Component {
             signUpPasswordAgain: props.passwordAgain,
             signUpFirstName: props.firstName,
             signUpLastName: props.lastName,
-            signUpMiddleName: props.middleName
+            signUpMiddleName: props.middleName,
+            infoModal: {
+                opened: false,
+                title: null,
+                actions: [],
+                content: () => {
+                }
+            }
         };
 
         this.constants = {
@@ -91,6 +99,11 @@ export class SignUp extends React.Component {
                     floatingLabelText: 'Middle name',
                     errorText: 'Middle name must be up to 35 characters length'
                 }
+            },
+            infoModal: {
+                title: 'Registering',
+                emailTaken: 'Specified email is already registered!',
+                usernameTaken: 'Specified username is already registered!'
             }
         }
     }
@@ -105,7 +118,7 @@ export class SignUp extends React.Component {
 
     onSignUpTouchTap = () => {
         if (validateForm(this)) {
-            this.props.onLogin();
+            this.props.onSignUp();
             //TODO sign up
         } else {
             const instance = this;
@@ -129,6 +142,13 @@ export class SignUp extends React.Component {
     render() {
         return (
             <div>
+                <Dialog
+                    contentClassName='info-dialog'
+                    title={this.state.infoModal.loggingIn}
+                    actions={this.state.infoModal.actions}
+                    modal={true}
+                    open={this.state.infoModal.opened}>
+                </Dialog>
                 <AccountCircle style={iconStyle}/>
                 <ValidTextField
                     className='login-input'

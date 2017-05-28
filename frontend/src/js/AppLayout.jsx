@@ -13,7 +13,7 @@ import AccountCircle from "material-ui/svg-icons/action/account-circle";
 import {MuiThemeProvider} from "material-ui/styles";
 import WelcomePage from "./welcome-page/WelcomePage.jsx";
 import {Appointments} from "./Appointments.jsx";
-import {emcMuiTheme, InfoModal, ProgressCircle, sendApiRequest} from "./Common.jsx";
+import {clearCookie, emcMuiTheme} from "./Common.jsx";
 
 //TODO modal warn before logout
 //TODO state clear on logout
@@ -64,80 +64,37 @@ export default class AppLayout extends React.Component {
                         }
                     }
                 }
-            },
-            infoModal: {
-                login: {
-                    title: 'Logging in',
-                    invalidLogin: 'Invalid credentials!'
-                },
-                register: {
-                    title: 'Registering',
-                    emailTaken: 'Specified email is already registered!',
-                    usernameTaken: 'Specified username is already registered!'
-                },
-                progress: <ProgressCircle/>,
             }
         };
 
         this.state = {
             menuOpened: false,
-            loggedIn: false,
-            user: {
-                username: 'username',
-                id: 'ID',
-                firstName: 'Firstname',
-                lastName: 'Lastname',
-                middleNAme: 'Middlename',
-                email: ''
-            },
+            loggedIn: true,
+            user: {},
             pageIndicator: Page.APPOINTMENTS,
-            infoModal: {
-                opened: false,
-                title: null,
-                actions: [],
-                content: () => {
-                }
-            }
         };
     }
 
-    beforeLogin = () => {
+    //noinspection OverlyComplexFunctionJS
+    onLogin = (options) => {
         this.setState({
             ...this.state,
-            infoModal: {
-                ...this.state.infoModal,
-                opened: true,
-                title: this.constants.infoModal.login.title,
-                content: () => this.constants.infoModal.progress
+            loggedIn: true,
+            user: {
+                id: options.id,
+                username: options.username,
+                email: options.email,
+                password: options.password,
+                firstName: options.firstName,
+                lastName: options.lastName,
+                middleName: options.middleName,
+                role: options.role
             }
-        })
-    };
-
-    onLogin = (login, password) => {
-        sendApiRequest('GetUsersRequest', {
-                page: 1,
-                pageSize: 1,
-                searchField: 'email',
-                searchType: 'equals',
-                searchValue: login
-            }, login, password,
-            this.beforeLogin,
-            (soapResponse) => {
-                console.log(soapResponse);
-                this.setState({...this.state, loggedIn: true});
-                // do stuff with soapResponse
-                // if you want to have the response as JSON use soapResponse.toJSON();
-                // or soapResponse.toString() to get XML string
-                // or soapResponse.toXML() to get XML DOM
-            },
-            (SOAPResponse) => {
-                console.log(SOAPResponse);
-            }
-        );
+        });
     };
 
     onLogoutTouchTap = () => {
-        this.setState({...this.state, loggedIn: false});
+        this.setState({...this.state, loggedIn: false, user: {}});
     };
 
     getLoggedInViewElement = () => {
@@ -160,23 +117,11 @@ export default class AppLayout extends React.Component {
     getCurrentViewElement = () => {
         if (!this.state.loggedIn) {
             return <div>
-                <InfoModal
-                    title={this.state.infoModal.title}
-                    actions={this.state.infoModal.actions}
-                    opened={this.state.infoModal.opened}>
-                    {this.state.infoModal.content()}
-                </InfoModal>
                 <WelcomePage onLogin={this.onLogin}/>
             </div>;
         }
 
         return <div>
-            <InfoModal
-                title={this.state.infoModal.title}
-                actions={this.state.infoModal.actions}
-                opened={this.state.infoModal.opened}>
-                {this.state.infoModal.content()}
-            </InfoModal>
             <AppBar
                 className='app-bar'
                 title={this.constants.pageTitle}
@@ -223,6 +168,7 @@ export default class AppLayout extends React.Component {
                 </Menu>
             </Drawer>
             {this.getLoggedInViewElement()}
+            {/*{this.getModalElement()}*/}
         </div>
     };
 
