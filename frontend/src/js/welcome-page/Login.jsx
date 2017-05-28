@@ -11,6 +11,9 @@ import {
     passwordPattern,
     ProgressCircle,
     sendApiRequest,
+    userByEmailRequest,
+    userByUsernameRequest,
+    updateStateWithUserInfo,
     usernamePattern,
     validateForm,
     ValidTextField,
@@ -27,8 +30,7 @@ export class Login extends React.Component {
                 opened: false,
                 title: null,
                 actions: [],
-                content: () => {
-                }
+                content: <div/>
             }
         };
 
@@ -53,7 +55,8 @@ export class Login extends React.Component {
             },
             infoModal: {
                 loggingIn: 'Logging in',
-                invalidLogin: 'Invalid credentials!'
+                invalidLogin: 'Invalid credentials!',
+                unknownError: 'Unknown error'
             }
         }
     }
@@ -79,25 +82,14 @@ export class Login extends React.Component {
         this.props.rootStateUpdater('activeForm', WelcomePageForm.SIGN_UP);
     };
 
-    updateStateWithUserInfo = (users) => {
-        this.props.onLogin({
-            id: Number(users[0].getElementsByTagName('id')[0].textContent),
-            email: users[0].getElementsByTagName('email')[0].textContent,
-            username: users[0].getElementsByTagName('username')[0].textContent,
-            firstname: users[0].getElementsByTagName('firstname')[0] ? users[0].getElementsByTagName('firstname')[0].textContent : undefined,
-            lastName: users[0].getElementsByTagName('lastName')[0] ? users[0].getElementsByTagName('lastName')[0].textContent : undefined,
-            middleName: users[0].getElementsByTagName('middleName')[0] ? users[0].getElementsByTagName('middleName')[0].textContent : undefined,
-            role: users[0].getElementsByTagName('role')[0].textContent,
-        })
-    };
-
     beforeLogin = () => {
         this.setState({
             ...this.state,
             infoModal: {
                 opened: true,
                 title: this.constants.infoModal.loggingIn,
-                content: <ProgressCircle/>
+                content: <ProgressCircle/>,
+                actions: []
             }
         })
     };
@@ -112,13 +104,14 @@ export class Login extends React.Component {
         })
     };
 
-    showInvalidCredentialsModal = () => {
+    showErrorModal = (title) => {
         this.setState({
             ...this.state,
             infoModal: {
                 ...this.state.infoModal,
                 opened: true,
-                title: this.constants.infoModal.invalidLogin,
+                title: title,
+                content: <div/>,
                 actions: [<FlatButton
                     label='Accept'
                     primary={true}
@@ -129,60 +122,49 @@ export class Login extends React.Component {
     };
 
     performLogin = (login, password) => {
-        const userByEmailRequest = {
-            page: 1,
-            pageSize: 1,
-            searchField: 'email',
-            searchType: 'equals',
-            searchValue: login
-        };
-
-        const userByUsernameRequest = {
-            page: 1,
-            pageSize: 1,
-            searchField: 'username',
-            searchType: 'equals',
-            searchValue: login
-        };
-
         sendApiRequest({
             method: 'GetUsersRequest',
-            data: userByEmailRequest,
+            data: userByEmailRequest(login),
             login: login,
             password: password,
             beforeSend: this.beforeLogin,
             success: (soapResponse) => {
-                const users = soapResponse.content.getElementsByTagName("Body")[0].getElementsByTagName("GetUsersResponse")[0].children;
+                const users = soapResponse.content
+                    .getElementsByTagName("Body")[0]
+                    .getElementsByTagName("GetUsersResponse")[0]
+                    .children;
                 if (users.length === 1) {
-                    this.updateStateWithUserInfo(users);
+                    this.updateStateWithUserInfo(users, password, this.props.onLogin);
                 } else {
                     sendApiRequest({
                         method: 'GetUsersRequest',
-                        data: userByUsernameRequest,
+                        data: userByUsernameRequest(login),
                         login: login,
                         password: password,
                         beforeSend: this.beforeLogin,
                         success: (soapResponse) => {
-                            const users = soapResponse.content.getElementsByTagName("Body")[0].getElementsByTagName("GetUsersResponse")[0].children;
+                            const users = soapResponse.content
+                                .getElementsByTagName("Body")[0]
+                                .getElementsByTagName("GetUsersResponse")[0]
+                                .children;
                             if (users.length === 1) {
-                                this.updateStateWithUserInfo(users);
+                                this.updateStateWithUserInfo(users, password);
                             } else {
                                 //TODO api error
+                                this.showErrorModal(this.constants.infoModal.unknownError);
                                 console.log('API error', soapResponse)
                             }
                         },
                         error: (soapResponse) => {
                             //TODO another errors handling
-                            console.log('Invalid login', soapResponse);
-                            this.showInvalidCredentialsModal();
+                            this.showErrorModal(this.constants.infoModal.invalidLogin);
                         }
                     });
                 }
             },
             error: (soapResponse) => {
                 //TODO another errors handling
-                console.log('Invalid login', soapResponse);
-                this.showInvalidCredentialsModal();
+                this.showErrorModal(this.constants.infoModal.invalidLogin);
             }
         });
     };
@@ -197,6 +179,7 @@ export class Login extends React.Component {
                     actions={this.state.infoModal.actions}
                     modal={true}
                     open={this.state.infoModal.opened}>
+                    {this.state.infoModal.content}
                 </Dialog>
                 <AccountCircle style={iconStyle}/>
                 <ValidTextField

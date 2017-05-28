@@ -73,7 +73,8 @@ export default class WelcomePage extends React.Component {
     }
 
     updateStateProperty(property, value) {
-        this.setState({...this.state, property: value});
+        this.state[property] = value;
+        this.setState(this.state);
     }
 
     getCurrentViewElement = () => {

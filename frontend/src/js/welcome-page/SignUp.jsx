@@ -11,6 +11,12 @@ import {
     iconStyle,
     namePattern,
     passwordPattern,
+    ProgressCircle,
+    registrationRequest,
+    sendApiRequest,
+    sendRegistrationRequest,
+    updateStateWithUserInfo,
+    userByUsernameRequest,
     usernamePattern,
     validateForm,
     ValidTextField,
@@ -32,8 +38,7 @@ export class SignUp extends React.Component {
                 opened: false,
                 title: null,
                 actions: [],
-                content: () => {
-                }
+                content: <div/>
             }
         };
 
@@ -101,7 +106,7 @@ export class SignUp extends React.Component {
                 }
             },
             infoModal: {
-                title: 'Registering',
+                signingUp: 'Signing up',
                 emailTaken: 'Specified email is already registered!',
                 usernameTaken: 'Specified username is already registered!'
             }
@@ -116,10 +121,99 @@ export class SignUp extends React.Component {
         this.props.rootStateUpdater('activeForm', WelcomePageForm.LOGIN);
     };
 
+    beforeSignUp = () => {
+        this.setState({
+            ...this.state,
+            infoModal: {
+                opened: true,
+                title: this.constants.infoModal.signingUp,
+                content: <ProgressCircle/>,
+                actions: []
+            }
+        })
+    };
+
+    closeModal = () => {
+        this.setState({
+            ...this.state,
+            infoModal: {
+                ...this.state.infoModal,
+                opened: false,
+            }
+        })
+    };
+
+    showErrorModal = (title) => {
+        this.setState({
+            ...this.state,
+            infoModal: {
+                ...this.state.infoModal,
+                opened: true,
+                title: title,
+                content: <div/>,
+                actions: [<FlatButton
+                    label='Accept'
+                    primary={true}
+                    disabled={false}
+                    onTouchTap={this.closeModal}/>]
+            }
+        })
+    };
+
+    performSignUp = () => {
+        sendRegistrationRequest({
+            method: 'RegistrationRequest',
+            data: registrationRequest({
+                username: this.state.signUpUsername,
+                email: this.state.signUpEmail,
+                password: this.state.signUpPassword,
+                firstName: this.state.signUpFirstName,
+                lastName: this.state.signUpLastName,
+                middleName: this.state.signUpMiddleName
+            }),
+            beforeSend: this.beforeSignUp,
+            success: (soapResponse) => {
+                sendApiRequest({
+                    method: 'GetUsersRequest',
+                    data: userByUsernameRequest(this.state.signUpUsername),
+                    login: this.state.signUpUsername,
+                    password: this.state.signUpPassword,
+                    success: (soapResponse) => {
+                        const users = soapResponse.content
+                            .getElementsByTagName("Body")[0]
+                            .getElementsByTagName("GetUsersResponse")[0]
+                            .children;
+                        if (users.length === 1) {
+                            updateStateWithUserInfo(users, this.state.signUpPassword, this.props.onSignUp);
+                        } else {
+                            //TODO api error
+                            this.showErrorModal(this.constants.infoModal.unknownError);
+                            console.log('API error', soapResponse)
+                        }
+                    },
+                    error: (soapResponse) => {
+                        //TODO api error
+                        this.showErrorModal(this.constants.infoModal.unknownError);
+                        console.log('API error', soapResponse)
+                    }
+                });
+            },
+            error: (soapResponse) => {
+                //TODO another errors handling
+                const description = soapResponse.content
+                    .getElementsByTagName("Body")[0]
+                    .getElementsByTagName("Fault")[0]
+                    .getElementsByTagName("detail")[0]
+                    .getElementsByTagName("description")[0]
+                    .textContent;
+                this.showErrorModal(description);
+            }
+        });
+    };
+
     onSignUpTouchTap = () => {
         if (validateForm(this)) {
-            this.props.onSignUp();
-            //TODO sign up
+            this.performSignUp();
         } else {
             const instance = this;
             _.each(
@@ -144,10 +238,11 @@ export class SignUp extends React.Component {
             <div>
                 <Dialog
                     contentClassName='info-dialog'
-                    title={this.state.infoModal.loggingIn}
+                    title={this.state.infoModal.title}
                     actions={this.state.infoModal.actions}
                     modal={true}
                     open={this.state.infoModal.opened}>
+                    {this.state.infoModal.content}
                 </Dialog>
                 <AccountCircle style={iconStyle}/>
                 <ValidTextField

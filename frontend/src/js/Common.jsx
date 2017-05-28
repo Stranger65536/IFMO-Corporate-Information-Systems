@@ -1,7 +1,7 @@
 import React from "react";
 import _ from "underscore";
 import XRegExp from "xregexp";
-import * as $ from "jquery.soap";
+import * as $ from "./jsoap.js";
 import TextField from "material-ui/TextField";
 import getMuiTheme from "material-ui/styles/getMuiTheme";
 import CircularProgress from "material-ui/CircularProgress";
@@ -28,6 +28,37 @@ export const emcMuiTheme = getMuiTheme({
         headerColor: '#2c95dd',
     },
 });
+
+export const registrationRequest = (options) => {
+    return {
+        username: options.username,
+        email: options.email,
+        password: options.password,
+        firstName: options.firstName,
+        lastName: options.lastName,
+        middleName: options.middleName
+    }
+};
+
+export const userByEmailRequest = (login) => {
+    return {
+        page: 1,
+        pageSize: 1,
+        searchField: 'email',
+        searchType: 'equals',
+        searchValue: login
+    }
+};
+
+export const userByUsernameRequest = (login) => {
+    return {
+        page: 1,
+        pageSize: 1,
+        searchField: 'username',
+        searchType: 'equals',
+        searchValue: login
+    }
+};
 
 export const iconStyle = {
     position: 'relative',
@@ -140,4 +171,35 @@ export function sendApiRequest(options) {
     } catch (e) {
         console.log(e);
     }
+}
+
+export function sendRegistrationRequest(options) {
+    try {
+        $.default({
+            url: 'https://internal.emc.com:443/reserv-io/ws/register',
+            appendMethodToURL: false,
+            method: options.method,
+            namespaceQualifier: 'api',
+            namespaceURL: 'https://internal.emc.com/reserv-io/schema/register',
+            data: options.data,
+            beforeSend: options.beforeSend,
+            success: options.success,
+            error: options.error
+        });
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+export function updateStateWithUserInfo(users, password, callback) {
+    callback({
+        id: Number(users[0].getElementsByTagName('id')[0].textContent),
+        email: users[0].getElementsByTagName('email')[0].textContent,
+        username: users[0].getElementsByTagName('username')[0].textContent,
+        firstname: users[0].getElementsByTagName('firstname')[0] ? users[0].getElementsByTagName('firstname')[0].textContent : undefined,
+        lastName: users[0].getElementsByTagName('lastName')[0] ? users[0].getElementsByTagName('lastName')[0].textContent : undefined,
+        middleName: users[0].getElementsByTagName('middleName')[0] ? users[0].getElementsByTagName('middleName')[0].textContent : undefined,
+        role: users[0].getElementsByTagName('role')[0].textContent,
+        password: password
+    })
 }
