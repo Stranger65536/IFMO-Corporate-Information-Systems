@@ -34,6 +34,8 @@ spring:
   resources:
     add-mappings: true
     static-locations: file:${spring.config.location}../static/
+    chain:
+      cache: false
   activity:
     rest-api-enabled: false
 olap:

@@ -19,7 +19,6 @@ plugins {
     id 'org.flywaydb.flyway' version '4.1.2'
 }
 
-apply plugin: 'war'
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 
@@ -101,7 +100,7 @@ task genJaxb {
     }
 }
 
-war {
+jar {
     baseName = 'reserv-io'
     version = '0.0.1-SNAPSHOT'
     //noinspection GroovyAssignabilityCheck
