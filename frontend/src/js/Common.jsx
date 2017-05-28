@@ -1,13 +1,20 @@
 import React from "react";
 import _ from "underscore";
 import XRegExp from "xregexp";
+import * as $ from "jquery.soap";
 import TextField from "material-ui/TextField";
+import Dialog from "material-ui/Dialog";
 import getMuiTheme from "material-ui/styles/getMuiTheme";
+import CircularProgress from "material-ui/CircularProgress";
 
 export const emailPattern = /^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 export const usernamePattern = XRegExp('^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]{5,32}$');
 export const passwordPattern = /.{5,32}/;
 export const namePattern = XRegExp('^[\\p{L} .\'\-]{0,35}$');
+
+export const apiEndpoint = 'https://internal.emc.com/reserv-io/ws/api.wsdl';
+export const registerEndpoint = 'https://internal.emc.com/reserv-io/ws/register.wsdl';
+export const reportEndpoint = 'https://internal.emc.com/reserv-io/ws/report.wsdl';
 
 export const emcMuiTheme = getMuiTheme({
     palette: {
@@ -36,6 +43,10 @@ export const WelcomePageForm = {
     LOGIN: 'login',
     SIGN_UP: 'sign-up',
     FORGOT_PASSWORD: 'forgot-password',
+};
+
+export const ProgressCircle = () => {
+    return <CircularProgress/>
 };
 
 function validatePatterns(patterns, value) {
@@ -108,5 +119,59 @@ export class ValidTextField extends React.Component {
                 floatingLabelText={this.props.floatingLabelText}
             />
         )
+    }
+}
+
+export class InfoModal extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            opened: props.opened,
+            title: props.title,
+            actions: props.actions,
+            content: props.content
+        }
+    }
+
+    render() {
+        return (
+            <Dialog
+                contentClassName='info-dialog'
+                title={this.state.title}
+                actions={this.state.actions}
+                modal={true}
+                open={this.state.opened}>
+                {this.props.children}
+            </Dialog>
+        )
+    }
+}
+
+export function getCookie(n) {
+    let a = `; ${document.cookie}`.match(`;\\s*${n}=([^;]+)`);
+    return a ? a[1] : '';
+}
+
+//noinspection OverlyComplexFunctionJS
+export function sendApiRequest(method, data, login, password, beforeSend, success, error) {
+    const token = getCookie('XSRF-TOKEN');
+    try {
+        $.default({
+            url: 'https://internal.emc.com:443/reserv-io/ws/api/',
+            appendMethodToURL: false,
+            method: method,
+            namespaceQualifier: 'api',
+            namespaceURL: 'https://internal.emc.com/reserv-io/schema/api',
+            data: data,
+            HTTPHeaders: {
+                'Authorization': 'Basic ' + btoa(login + ':' + password),
+                'X-XSRF-TOKEN': token
+            },
+            beforeSend: beforeSend,
+            success: success,
+            error: error
+        });
+    } catch (e) {
+        console.log(e);
     }
 }

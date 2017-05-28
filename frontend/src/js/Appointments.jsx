@@ -49,6 +49,8 @@ export class Appointments extends React.Component {
     constructor(props) {
         super(props);
 
+        this.clients = props.clients;
+
         this.state = {
             searchFilter: null,
             sortField: null,

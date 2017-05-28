@@ -1,7 +1,7 @@
 import React from "react";
 import _ from "underscore";
 import Paper from "material-ui/Paper";
-import {WelcomePageForm} from "../Common.jsx";
+import {WelcomePageForm, wsdlUrls} from "../Common.jsx";
 import {Login} from "./Login.jsx";
 import {SignUp} from "./SignUp.jsx";
 import {ForgotPassword} from "./ForgotPassword.jsx";

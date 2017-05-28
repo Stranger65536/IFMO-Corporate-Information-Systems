@@ -13,7 +13,7 @@ import AccountCircle from "material-ui/svg-icons/action/account-circle";
 import {MuiThemeProvider} from "material-ui/styles";
 import WelcomePage from "./welcome-page/WelcomePage.jsx";
 import {Appointments} from "./Appointments.jsx";
-import {emcMuiTheme} from "./Common.jsx";
+import {emcMuiTheme, InfoModal, ProgressCircle, sendApiRequest} from "./Common.jsx";
 
 //TODO modal warn before logout
 //TODO state clear on logout
@@ -29,7 +29,6 @@ const Page = {
 export default class AppLayout extends React.Component {
     constructor(props) {
         super(props);
-
         this.constants = {
             pageTitle: <div className='header-logo'/>,
             nav: {
@@ -65,13 +64,24 @@ export default class AppLayout extends React.Component {
                         }
                     }
                 }
+            },
+            infoModal: {
+                login: {
+                    title: 'Logging in',
+                    invalidLogin: 'Invalid credentials!'
+                },
+                register: {
+                    title: 'Registering',
+                    emailTaken: 'Specified email is already registered!',
+                    usernameTaken: 'Specified username is already registered!'
+                },
+                progress: <ProgressCircle/>,
             }
         };
 
         this.state = {
             menuOpened: false,
-            loggedIn: true,
-            token: null,
+            loggedIn: false,
             user: {
                 username: 'username',
                 id: 'ID',
@@ -80,12 +90,50 @@ export default class AppLayout extends React.Component {
                 middleNAme: 'Middlename',
                 email: ''
             },
-            pageIndicator: Page.APPOINTMENTS
+            pageIndicator: Page.APPOINTMENTS,
+            infoModal: {
+                opened: false,
+                title: null,
+                actions: [],
+                content: () => {
+                }
+            }
         };
     }
 
-    onLoggedIn = () => {
-        this.setState({...this.state, loggedIn: true});
+    beforeLogin = () => {
+        this.setState({
+            ...this.state,
+            infoModal: {
+                ...this.state.infoModal,
+                opened: true,
+                title: this.constants.infoModal.login.title,
+                content: () => this.constants.infoModal.progress
+            }
+        })
+    };
+
+    onLogin = (login, password) => {
+        sendApiRequest('GetUsersRequest', {
+                page: 1,
+                pageSize: 1,
+                searchField: 'email',
+                searchType: 'equals',
+                searchValue: login
+            }, login, password,
+            this.beforeLogin,
+            (soapResponse) => {
+                console.log(soapResponse);
+                this.setState({...this.state, loggedIn: true});
+                // do stuff with soapResponse
+                // if you want to have the response as JSON use soapResponse.toJSON();
+                // or soapResponse.toString() to get XML string
+                // or soapResponse.toXML() to get XML DOM
+            },
+            (SOAPResponse) => {
+                console.log(SOAPResponse);
+            }
+        );
     };
 
     onLogoutTouchTap = () => {
@@ -111,10 +159,24 @@ export default class AppLayout extends React.Component {
     //noinspection FunctionWithMultipleReturnPointsJS
     getCurrentViewElement = () => {
         if (!this.state.loggedIn) {
-            return <WelcomePage onLogin={this.onLoggedIn}/>;
+            return <div>
+                <InfoModal
+                    title={this.state.infoModal.title}
+                    actions={this.state.infoModal.actions}
+                    opened={this.state.infoModal.opened}>
+                    {this.state.infoModal.content()}
+                </InfoModal>
+                <WelcomePage onLogin={this.onLogin}/>
+            </div>;
         }
 
         return <div>
+            <InfoModal
+                title={this.state.infoModal.title}
+                actions={this.state.infoModal.actions}
+                opened={this.state.infoModal.opened}>
+                {this.state.infoModal.content()}
+            </InfoModal>
             <AppBar
                 className='app-bar'
                 title={this.constants.pageTitle}

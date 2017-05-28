@@ -46,8 +46,7 @@ export class Login extends React.Component {
 
     onLoginTouchTap = () => {
         if (validateForm(this, this.props.validationFunction, this.props.afterGeneralValidation)) {
-            this.props.onLogin();
-            //TODO login
+            this.props.onLogin(this.state.loginUsername, this.state.loginPassword);
         } else {
             const instance = this;
             _.each(

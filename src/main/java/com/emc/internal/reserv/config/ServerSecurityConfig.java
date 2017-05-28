@@ -31,7 +31,8 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/", "/*.html", "/**/*.xsd", "/*.ico", "/js/**", "/css/**", "/img/**", "/**/*.wsdl", "/error", REGISTER_WS_ENDPOINT).permitAll()
                 .anyRequest().authenticated()
-                .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers(REGISTER_WS_ENDPOINT)
-                .and().httpBasic().authenticationEntryPoint(authenticationEntryPoint);
+                //csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers(REGISTER_WS_ENDPOINT)
+                .and().httpBasic().authenticationEntryPoint(authenticationEntryPoint)
+                .and().csrf().disable();
     }
 }
