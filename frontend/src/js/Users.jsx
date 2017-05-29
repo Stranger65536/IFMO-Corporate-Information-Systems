@@ -76,7 +76,6 @@ export class Users extends React.Component {
                 username: {
                     patterns: [usernamePattern],
                     ref: 'username',
-                    stateField: 'signUpUsername',
                     hintText: 'Username',
                     floatingLabelText: 'Username',
                     errorText: 'Username must be 5-32 characters length and must be not email-like',
@@ -86,7 +85,6 @@ export class Users extends React.Component {
                 email: {
                     patterns: [emailPattern],
                     ref: 'email',
-                    stateField: 'signUpEmail',
                     hintText: 'Email',
                     floatingLabelText: 'Email',
                     errorText: 'Invalid email'
@@ -94,7 +92,6 @@ export class Users extends React.Component {
                 firstName: {
                     patterns: [namePattern],
                     ref: 'firstName',
-                    stateField: 'signUpFirstName',
                     hintText: 'First name',
                     floatingLabelText: 'First name',
                     errorText: 'First name must be up to 35 characters length'
@@ -102,7 +99,6 @@ export class Users extends React.Component {
                 lastName: {
                     patterns: [namePattern],
                     ref: 'lastName',
-                    stateField: 'signUpLastName',
                     hintText: 'Last name',
                     floatingLabelText: 'Last name',
                     errorText: 'Last name must be up to 35 characters length'
@@ -110,7 +106,6 @@ export class Users extends React.Component {
                 middleName: {
                     patterns: [namePattern],
                     ref: 'middleName',
-                    stateField: 'signUpMiddleName',
                     hintText: 'Middle name',
                     floatingLabelText: 'Middle name',
                     errorText: 'Middle name must be up to 35 characters length'

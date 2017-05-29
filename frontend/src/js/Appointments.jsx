@@ -4,16 +4,13 @@ import DataTables from "material-ui-datatables";
 import ContentAdd from "material-ui/svg-icons/content/add";
 import Dialog from "material-ui/Dialog";
 import FlatButton from "material-ui/FlatButton";
-import ActionDeleteForever from "material-ui/svg-icons/action/delete-forever";
-import ActionDone from "material-ui/svg-icons/action/done";
-import AutoComplete from "material-ui/AutoComplete";
 import DatePicker from "material-ui/DatePicker";
 import TimePicker from "material-ui/TimePicker";
 import DropDownMenu from "material-ui/DropDownMenu";
 import MenuItem from "material-ui/MenuItem";
 import FloatingActionButton from "material-ui/FloatingActionButton";
 import {MuiThemeProvider} from "material-ui/styles";
-import {ReservationStatuses, ReservationTypes, UserRoles} from "./Common.jsx";
+import {ProgressCircle, ReservationTypes, sendApiRequest} from "./Common.jsx";
 
 //TODO converting WS calls to convenient state
 //TODO modals for API errors
@@ -32,232 +29,13 @@ export class Appointments extends React.Component {
     constructor(props) {
         super(props);
 
-        this.clients = props.clients;
-
-        this.state = {
-            searchFilter: null,
-            sortField: null,
-            sortOrder: null,
-            selectedRows: [],
-            page: 1,
-            rowsPerPage: 10,
-            rowsNumber: 5,
-            timeZone: 'Z',
-
-            actionsModal: {
-                opened: false,
-                actionsTableData: null,
-                actionsPage: null,
-                actionsRowsNumber: null,
-                actionsRowsPerPage: null
-            },
-
-            createModal: {
-                opened: false,
-                resource: '',
-                startsAt: '',
-                endsAt: '',
-                type: ReservationTypes.REGULAR
-            },
-
-            users: {
-                1: {
-                    id: 1,
-                    username: 'sergeevm',
-                    firstName: 'Marina',
-                    lastName: 'Sergeeva',
-                    middleName: '',
-                    role: UserRoles.MODERATOR
-                },
-                2: {
-                    id: 2,
-                    username: 'trofiv',
-                    firstName: 'Vlad',
-                    lastName: 'Trofimov',
-                    middleName: '',
-                    role: UserRoles.ADMIN
-                },
-                3: {
-                    id: 3,
-                    username: 'glaznevm',
-                    firstName: 'Mark',
-                    lastName: 'Glaznev',
-                    middleName: '',
-                    role: UserRoles.USER
-                },
-                4: {
-                    id: 4,
-                    username: 'vinograp',
-                    firstName: 'Pavel',
-                    lastName: 'Vinogradov',
-                    middleName: '',
-                    role: UserRoles.USER
-                }
-            },
-            resources: {
-                1: {
-                    id: 1,
-                    name: 'Ping-Pong table',
-                    location: 'SPb Development Center LLC'
-                },
-                2: {
-                    id: 2,
-                    name: 'Kicker table',
-                    location: 'SPb Development Center LLC'
-                }
-            }
-        };
-        this.state = {
-            ...this.state,
-            data: {
-                1: {
-                    actions: [
-                        {
-                            id: 1,
-                            startsAt: '2017-02-22 17:00',
-                            endsAt: '2017-02-22 18:00',
-                            time: '2017-02-21 15:00',
-                            type: ReservationTypes.REGULAR,
-                            status: ReservationStatuses.WAITING_FOR_APPROVAL,
-                            updatedBy: this.state.users[1],
-                            resource: this.state.resources[1]
-                        },
-                        {
-                            id: 2,
-                            startsAt: '2017-02-22 17:00',
-                            endsAt: '2017-02-22 18:00',
-                            time: '2017-02-21 15:17',
-                            type: ReservationTypes.REGULAR,
-                            status: ReservationStatuses.APPROVED,
-                            updatedBy: this.state.users[1],
-                            resource: this.state.resources[1],
-                        }
-                    ],
-                    owner: this.state.users[1]
-                },
-                2: {
-                    actions: [
-                        {
-                            id: 3,
-                            startsAt: '2017-02-22 17:00',
-                            endsAt: '2017-02-22 18:00',
-                            time: '2017-02-22 16:00',
-                            type: ReservationTypes.REGULAR,
-                            status: ReservationStatuses.WAITING_FOR_APPROVAL,
-                            updatedBy: this.state.users[2],
-                            resource: this.state.resources[2]
-                        }
-                    ],
-                    owner: this.state.users[2]
-                },
-                3: {
-                    actions: [
-                        {
-                            id: 4,
-                            startsAt: '2017-02-22 17:00',
-                            endsAt: '2017-02-22 18:00',
-                            time: '2017-02-21 15:05',
-                            type: ReservationTypes.REGULAR,
-                            status: ReservationStatuses.WAITING_FOR_APPROVAL,
-                            updatedBy: this.state.users[3],
-                            resource: this.state.resources[1],
-                        },
-                        {
-                            id: 5,
-                            startsAt: '2017-02-22 17:00',
-                            endsAt: '2017-02-22 18:00',
-                            time: '2017-02-21 15:20',
-                            type: ReservationTypes.REGULAR,
-                            status: ReservationStatuses.CANCELED,
-                            updatedBy: this.state.users[3],
-                            resource: this.state.resources[1],
-                        }
-                    ],
-                    owner: this.state.users[3]
-                },
-                4: {
-                    actions: [
-                        {
-                            id: 6,
-                            startsAt: '2017-02-22 17:00',
-                            endsAt: '2017-02-22 18:00',
-                            time: '2017-02-21 15:10',
-                            type: ReservationTypes.REGULAR,
-                            status: ReservationStatuses.WAITING_FOR_APPROVAL,
-                            updatedBy: this.state.users[4],
-                            resource: this.state.resources[1],
-                        },
-                        {
-                            id: 7,
-                            startsAt: '2017-02-22 18:00',
-                            endsAt: '2017-02-22 19:00',
-                            time: '2017-02-21 15:22',
-                            type: ReservationTypes.REGULAR,
-                            status: ReservationStatuses.NEW_TIME_PROPOSED,
-                            updatedBy: this.state.users[1],
-                            resource: this.state.resources[1],
-                        }
-                    ],
-                    owner: this.state.users[4]
-                }
-            }
-        };
-        this.state = {
-            ...this.state,
-            tableData: [
-                {
-                    reservation: 1,
-                    type: [...this.state.data[1].actions].pop().type,
-                    resource: [...this.state.data[1].actions].pop().resource.name,
-                    status: [...this.state.data[1].actions].pop().status,
-                    owner: this.state.data[1].owner.username,
-                    startsAt: [...this.state.data[1].actions].pop().startsAt,
-                    endsAt: [...this.state.data[1].actions].pop().endsAt,
-                    createdOn: this.state.data[1].actions[0].time,
-                    updatedOn: [...this.state.data[1].actions].pop().time
-                },
-                {
-                    reservation: 2,
-                    type: [...this.state.data[2].actions].pop().type,
-                    resource: [...this.state.data[2].actions].pop().resource.name,
-                    status: [...this.state.data[2].actions].pop().status,
-                    owner: this.state.data[2].owner.username,
-                    startsAt: [...this.state.data[2].actions].pop().startsAt,
-                    endsAt: [...this.state.data[2].actions].pop().endsAt,
-                    createdOn: this.state.data[2].actions[0].time,
-                    updatedOn: [...this.state.data[2].actions].pop().time
-                },
-                {
-                    reservation: 3,
-                    type: [...this.state.data[3].actions].pop().type,
-                    resource: [...this.state.data[3].actions].pop().resource.name,
-                    status: [...this.state.data[3].actions].pop().status,
-                    owner: this.state.data[3].owner.username,
-                    startsAt: [...this.state.data[3].actions].pop().startsAt,
-                    endsAt: [...this.state.data[3].actions].pop().endsAt,
-                    createdOn: this.state.data[3].actions[0].time,
-                    updatedOn: [...this.state.data[3].actions].pop().time
-                },
-                {
-                    reservation: 4,
-                    type: [...this.state.data[4].actions].pop().type,
-                    resource: [...this.state.data[4].actions].pop().resource.name,
-                    status: [...this.state.data[4].actions].pop().status,
-                    owner: this.state.data[4].owner.username,
-                    startsAt: [...this.state.data[4].actions].pop().startsAt,
-                    endsAt: [...this.state.data[4].actions].pop().endsAt,
-                    createdOn: this.state.data[4].actions[0].time,
-                    updatedOn: [...this.state.data[4].actions].pop().time
-                }
-            ],
-        };
-
         this.constants = {
             title: 'Appointments',
-            filterHint: 'Search ("Field: value" to search over specific column)',
+            filterHint: 'Search ("Field [equals, contains, less, greater, lessEqual, greaterEqual] value" to search over specific column)',
+            pageSizes: [10, 25, 50, 100],
             columns: [
                 {
-                    key: 'reservation',
+                    key: 'id',
                     sortable: true,
                     label: 'Reservation ID',
                     className: 'id-column'
@@ -299,66 +77,131 @@ export class Appointments extends React.Component {
                     className: 'datetime-column'
                 },
                 {
-                    key: 'createdOn',
+                    key: 'createdAt',
                     sortable: true,
-                    label: 'Created on',
+                    label: 'Created at',
                     className: 'datetime-column'
                 },
                 {
-                    key: 'updatedOn',
+                    key: 'updatedAt',
                     sortable: true,
-                    label: 'Updated on',
+                    label: 'Updated at',
                     className: 'datetime-column'
                 }
             ],
-            actionsModal: {
-                title: 'Actions',
-                columns: [
-                    {
-                        key: 'id',
-                        label: 'Action ID',
-                        className: 'id-column'
-                    },
-                    {
-                        key: 'resource',
-                        label: 'Resource',
-                        className: 'resource-column'
-                    },
-                    {
-                        key: 'type',
-                        label: 'Type',
-                        className: 'type-column'
-                    },
-                    {
-                        key: 'status',
-                        label: 'Status',
-                        className: 'status-column'
-                    },
-                    {
-                        key: 'updatedBy',
-                        label: 'User',
-                        className: 'owner-column'
-                    },
-                    {
-                        key: 'startsAt',
-                        label: 'Start',
-                        className: 'datetime-column'
-                    },
-                    {
-                        key: 'endsAt',
-                        label: 'End',
-                        className: 'datetime-column'
-                    },
-                    {
-                        key: 'time',
-                        label: 'Time',
-                        className: 'datetime-column'
-                    }
-                ]
-            },
-            createModal: {
-                title: 'Create an appointment'
+            modal: {
+                types: {
+                    LOADING: 'loading',
+                    CREATE: 'create',
+                    ACTIONS_LIST: 'actionsList',
+                    MESSAGE: 'message',
+                },
+                loading: {
+                    title: 'Loading',
+                    className: 'info-dialog'
+                },
+                create: {
+                    title: 'Create appointment',
+                    className: ''
+                },
+                message: {
+                    className: 'info-dialog',
+                    accessDeniedTitle: 'Access denied',
+                    unknownError: 'Unknown error',
+                    invalidStateTitle: 'Reservation has been changed',
+                    overlapsTitle: 'Can\'t do action',
+                },
+                actionsList: {
+                    title: 'Actions',
+                    className: '',
+                    columns: [
+                        {
+                            key: 'id',
+                            label: 'Action ID',
+                            className: 'id-column'
+                        },
+                        {
+                            key: 'resource',
+                            label: 'Resource',
+                            className: 'resource-column'
+                        },
+                        {
+                            key: 'type',
+                            label: 'Type',
+                            className: 'type-column'
+                        },
+                        {
+                            key: 'status',
+                            label: 'Status',
+                            className: 'status-column'
+                        },
+                        {
+                            key: 'updatedBy',
+                            label: 'User',
+                            className: 'owner-column'
+                        },
+                        {
+                            key: 'startsAt',
+                            label: 'Start',
+                            className: 'datetime-column'
+                        },
+                        {
+                            key: 'endsAt',
+                            label: 'End',
+                            className: 'datetime-column'
+                        },
+                        {
+                            key: 'time',
+                            label: 'Time',
+                            className: 'datetime-column'
+                        }
+                    ]
+                },
             }
+        };
+
+        this.state = {
+            searchField: '',
+            searchType: '',
+            searchValue: '',
+            sortingField: '',
+            sortingOrder: '',
+            page: 1,
+            pageSize: 10,
+
+            modal: {
+                opened: false,
+                type: this.constants.modal.types.LOADING,
+                loading: {
+                    title: this.constants.modal.loading.title,
+                    className: this.constants.modal.loading.className,
+                },
+                create: {
+                    title: this.constants.modal.create.title,
+                    className: this.constants.modal.create.className,
+                    resource: '',
+                    startsAt: '',
+                    endsAt: '',
+                    type: ReservationTypes.REGULAR
+                },
+                actionsList: {
+                    title: this.constants.modal.actionsList.title,
+                    className: this.constants.modal.actionsList.className,
+                    actionsTableData: [],
+                    actionsPage: 1,
+                    actionsRowsNumber: Infinity,
+                    actionsRowsPerPage: 10,
+                },
+                message: {
+                    title: '',
+                    className: this.constants.modal.message.className,
+                }
+            },
+
+            users: {},
+            resources: {},
+            originalReservations: [],
+            reservations: [],
         };
     }
 
@@ -367,15 +210,45 @@ export class Appointments extends React.Component {
     };
 
     onNextPageClick = (event) => {
-        console.log('Next page clicked!');
+        this.state.page++;
+        this.setState(this.state);
+        this.performSearch({
+            page: this.state.page,
+            pageSize: this.state.pageSize,
+            searchField: this.state.searchField,
+            searchType: this.state.searchType,
+            searchValue: this.state.searchValue,
+            sortingOrder: this.state.sortingOrder,
+            sortingField: this.state.sortingField
+        });
     };
 
     onPreviousPageClick = (event) => {
-        console.log('Previous page clicked!');
+        this.state.page--;
+        this.setState(this.state);
+        this.performSearch({
+            page: this.state.page,
+            pageSize: this.state.pageSize,
+            searchField: this.state.searchField,
+            searchType: this.state.searchType,
+            searchValue: this.state.searchValue,
+            sortingOrder: this.state.sortingOrder,
+            sortingField: this.state.sortingField
+        });
     };
 
     onRowSizeChange = (value) => {
-        console.log('Row size changed!');
+        this.state.pageSize = this.constants.infoModal.pageSizes[value];
+        this.setState(this.state);
+        this.performSearch({
+            page: this.state.page,
+            pageSize: this.state.pageSize,
+            searchField: this.state.searchField,
+            searchType: this.state.searchType,
+            searchValue: this.state.searchValue,
+            sortingOrder: this.state.sortingOrder,
+            sortingField: this.state.sortingField
+        });
     };
 
     onModalNextPageClick = (event) => {
@@ -390,92 +263,22 @@ export class Appointments extends React.Component {
         console.log('Modal row size changed!');
     };
 
-    onRowSelection = (selectedRows) => {
-        if (selectedRows === 'all') {
-            this.setState({
-                ...this.state,
-                selectedRows: _.range(this.state.tableData.length)
-            });
-        } else if (selectedRows === 'none') {
-            this.setState({
-                ...this.state,
-                selectedRows: []
-            });
-        } else {
-            const diff = [...new Set(selectedRows)].filter(x => !new Set(this.state.selectedRows).has(x))[0];
-
-            if (diff === undefined) {
-
-            } else {
-                const id = this.state.tableData[diff].reservation;
-                const actions = _.map(this.state.data[id].actions, (e) => {
-                    return {
-                        ...e,
-                        updatedBy: e.updatedBy.username,
-                        resource: e.resource.name
-                    }
-                });
-
-                this.setState({
-                    ...this.state,
-                    selectedRows: selectedRows,
-                    actionsModal: {
-                        ...this.state.actionsModal,
-                        opened: true,
-                        actionsTableData: actions,
-                        actionsPage: 1,
-                        actionsRowsNumber: this.state.data[id].actions.length,
-                        actionsRowsPerPage: 5
-                    }
-                });
-            }
-        }
+    onRowSelection = (rowNumber) => {
+        console.log('Row selected!');
     };
 
     onSortOrderChange = (key, order) => {
-        console.log('Sort order changed!');
-    };
-
-    onAddButtonTouchTap = (event) => {
-        this.setState({
-            ...this.state, createModal: {
-                ...this.state.createModal,
-                opened: true
-            }
-        });
-    };
-
-    onDoneButtonTouchTap = (event) => {
-        console.log('Accept reservation(s) pressed!');
-    };
-
-    onRemoveButtonTouchTap = (event) => {
-        console.log('Remove reservation(s) pressed!');
-    };
-
-    onActionsCloseButtonTouchTap = () => {
-        this.setState({
-            ...this.state, actionsModal: {
-                opened: false
-            }
-        });
-    };
-
-    onCreateCloseButtonTouchTap = () => {
-        this.setState({
-            ...this.state, createModal: {
-                ...this.state.createModal,
-                opened: false
-            }
-        });
-    };
-
-    onCreateTypeChange = (e, key, value) => {
-        this.setState({
-            ...this.state, createModal: {
-                ...this.state.createModal,
-                type: value
-            }
+        this.state.sortingField = key;
+        this.state.sortingOrder = order;
+        this.setState(this.state);
+        this.performSearch({
+            page: this.state.page,
+            pageSize: this.state.pageSize,
+            searchField: this.state.searchField,
+            searchType: this.state.searchType,
+            searchValue: this.state.searchValue,
+            sortingOrder: this.state.sortingOrder,
+            sortingField: this.state.sortingField
         });
     };
 
@@ -483,41 +286,314 @@ export class Appointments extends React.Component {
         width: '100%'
     };
 
+    showLoadingModal = (event) => {
+        this.setState({
+            ...this.state, modal: {
+                ...this.state.modal,
+                opened: true,
+                type: this.constants.modal.types.LOADING
+            }
+        });
+    };
+
+    onAddButtonTouchTap = () => {
+        this.setState({
+            ...this.state, modal: {
+                ...this.state.modal,
+                opened: true,
+                type: this.constants.modal.types.CREATE
+            }
+        });
+    };
+
+    onModalClose = () => {
+        this.setState({
+            ...this.state, modal: {
+                ...this.state.modal,
+                opened: false
+            }
+        });
+    };
+
+    showErrorModal = (title) => {
+        this.setState({
+            ...this.state,
+            modal: {
+                ...this.state.modal,
+                opened: true,
+                type: this.constants.modal.types.MESSAGE,
+                message: {
+                    ...this.state.modal.message,
+                    title: title
+                }
+            }
+        })
+    };
+
+    performSearch = (options) => {
+        sendApiRequest({
+            method: 'GetReservationsRequest',
+            data: {
+                page: options.page,
+                pageSize: options.pageSize,
+                searchField: options.searchField,
+                searchType: options.searchType,
+                searchValue: options.searchValue,
+                searchValueLowerBound: options.searchValueLowerBound,
+                searchValueUpperBound: options.searchValueUpperBound,
+                sortingOrder: options.sortingOrder,
+                sortingField: options.sortingField
+            },
+            login: this.props.user.username,
+            password: this.props.user.password,
+            beforeSend: this.showLoadingModal,
+            success: (soapResponse) => {
+                const users = soapResponse.content
+                    .getElementsByTagName("Body")[0]
+                    .getElementsByTagName("GetReservationsResponse")[0]
+                    .children;
+                const originalReservations = _.map(users, (reservation) => {
+                    return {
+                        id: Number(reservation.getElementsByTagName('id')[0].textContent),
+                        ownerId: Number(reservation.getElementsByTagName('ownerId')[0].textContent),
+                        lastActionUserId: Number(reservation.getElementsByTagName('lastActionUserId')[0].textContent),
+                        resourceId: Number(reservation.getElementsByTagName('resourceId')[0].textContent),
+                        type: reservation.getElementsByTagName('type')[0].textContent,
+                        status: reservation.getElementsByTagName('status')[0].textContent,
+                        startsAt: new Date(reservation.getElementsByTagName('startsAt')[0].textContent),
+                        endsAt: new Date(reservation.getElementsByTagName('endsAt')[0].textContent),
+                        createdAt: new Date(reservation.getElementsByTagName('createdAt')[0].textContent),
+                        updatedAt: new Date(reservation.getElementsByTagName('updatedAt')[0].textContent),
+                    }
+                });
+                const reservations = _.map(originalReservations, (reserv) => {
+                    const resourceId = reserv.resourceId;
+                    const ownerId = reserv.ownerId;
+                    if (!(ownerId in this.state.users)) {
+                        sendApiRequest({
+                            method: 'GetUserRequest',
+                            data: {
+                                id: ownerId,
+                            },
+                            async: false,
+                            login: this.props.user.username,
+                            password: this.props.user.password,
+                            success: (soapResponse) => {
+                                const user = soapResponse.content
+                                    .getElementsByTagName("Body")[0]
+                                    .getElementsByTagName("GetUserResponse")[0]
+                                    .children[0];
+                                this.state.users[ownerId] = {
+                                    id: Number(user.getElementsByTagName('id')[0].textContent),
+                                    username: user.getElementsByTagName('username')[0].textContent,
+                                    email: user.getElementsByTagName('email')[0].textContent,
+                                    firstName: user.getElementsByTagName('firstName')[0] ? user.getElementsByTagName('firstName')[0].textContent : '',
+                                    lastName: user.getElementsByTagName('lastName')[0] ? user.getElementsByTagName('lastName')[0].textContent : '',
+                                    middleName: user.getElementsByTagName('middleName')[0] ? user.getElementsByTagName('middleName')[0].textContent : '',
+                                    role: user.getElementsByTagName('role')[0] ? user.getElementsByTagName('role')[0].textContent : '',
+                                };
+                            },
+                            error: (soapResponse) => {
+                                //TODO another errors handling
+                                this.showErrorModal(this.constants.modal.unknownError);
+                            }
+                        });
+                    }
+                    if (!(resourceId in this.state.resources)) {
+                        sendApiRequest({
+                            method: 'GetResourceRequest',
+                            data: {
+                                id: resourceId,
+                            },
+                            async: false,
+                            login: this.props.user.username,
+                            password: this.props.user.password,
+                            success: (soapResponse) => {
+                                const resource = soapResponse.content
+                                    .getElementsByTagName("Body")[0]
+                                    .getElementsByTagName("GetResourceResponse")[0]
+                                    .children[0];
+                                this.state.resources[resourceId] = {
+                                    id: Number(resource.getElementsByTagName('id')[0].textContent),
+                                    name: resource.getElementsByTagName('name')[0].textContent,
+                                    location: resource.getElementsByTagName('location')[0] ? resource.getElementsByTagName('location')[0].textContent : '',
+                                };
+                            },
+                            error: (soapResponse) => {
+                                //TODO another errors handling
+                                this.showErrorModal(this.constants.modal.unknownError);
+                            }
+                        });
+                    }
+                    return {
+                        id: reserv.id,
+                        resource: this.state.resources[reserv.resourceId].name + ' / ' + this.state.resources[reserv.resourceId].location,
+                        type: reserv.type,
+                        status: reserv.status,
+                        owner: this.state.users[reserv.ownerId].username,
+                        startsAt: reserv.startsAt.toISOString(),
+                        endsAt: reserv.endsAt.toISOString(),
+                        createdAt: reserv.createdAt.toISOString(),
+                        updatedAt: reserv.updatedAt.toISOString()
+                    }
+                });
+                this.setState({
+                    ...this.state,
+                    originalReservations: originalReservations,
+                    reservations: reservations,
+                    users: this.state.users,
+                    resources: this.state.resources
+                });
+                this.onModalClose();
+            },
+            error: (soapResponse) => {
+                //TODO another errors handling
+                this.showErrorModal(this.constants.modal.unknownError);
+            }
+        });
+    };
+
+    componentDidMount() {
+        this.performSearch({
+            page: this.state.page,
+            pageSize: this.state.pageSize,
+            searchField: this.state.searchField,
+            searchType: this.state.searchType,
+            searchValue: this.state.searchValue,
+            searchValueLowerBound: undefined,
+            searchValueUpperBound: undefined,
+            sortingOrder: this.state.sortingOrder,
+            sortingField: this.state.sortingField
+        });
+    }
+
     //noinspection JSMethodCanBeStatic
     render() {
-        const actionsDialogActions = [
-            <FlatButton
-                label='Accept'
-                primary={true}
-                disabled={true}/>,
-            <FlatButton
-                label='Propose new time'
-                primary={true}
-                disabled={true}/>,
-            <FlatButton
-                label='Cancel'
-                primary={true}
-                disabled={true}/>,
-            <FlatButton
-                label='Update'
-                primary={true}
-                disabled={true}/>,
-            <FlatButton
-                label='Close'
-                primary={true}
-                onTouchTap={this.onActionsCloseButtonTouchTap}/>,
-        ];
-
-        const createDialogActions = [
-            <FlatButton
-                label='Create'
-                primary={true}
-                disabled={true}/>,
-            <FlatButton
-                label='Close'
-                primary={true}
-                onTouchTap={this.onCreateCloseButtonTouchTap}/>,
-        ];
+        const getDialog = () => {
+            const type = this.state.modal.type;
+            let title, actions, content, className;
+            switch (type) {
+                case this.constants.modal.types.MESSAGE:
+                    title = this.state.modal.message.title;
+                    actions = [<FlatButton
+                        label='Accept'
+                        primary={true}
+                        disabled={false}
+                        onTouchTap={this.onModalClose}/>];
+                    content = <div/>;
+                    className = this.constants.modal.message.className;
+                    break;
+                case this.constants.modal.types.LOADING:
+                    title = this.state.modal[type].title;
+                    actions = [];
+                    content = <ProgressCircle/>;
+                    className = this.constants.modal.loading.className;
+                    break;
+                case this.constants.modal.types.ACTIONS_LIST:
+                    title = this.state.modal[type].title;
+                    actions = [
+                        <FlatButton
+                            label='Accept'
+                            primary={true}
+                            disabled={true}/>,
+                        <FlatButton
+                            label='Propose new time'
+                            primary={true}
+                            disabled={true}/>,
+                        <FlatButton
+                            label='Cancel'
+                            primary={true}
+                            disabled={true}/>,
+                        <FlatButton
+                            label='Update'
+                            primary={true}
+                            disabled={true}/>,
+                        <FlatButton
+                            label='Close'
+                            primary={true}
+                            onTouchTap={this.onModalClose}/>,
+                    ];
+                    content = <DataTables
+                        height={'auto'}
+                        showRowHover={true}
+                        columns={this.constants.modal.columns}
+                        data={this.state.modal.actionsList.actionsTableData}
+                        onNextPageClick={this.onModalNextPageClick}
+                        onPreviousPageClick={this.onModalPreviousPageClick}
+                        onRowSizeChange={this.onModalRowSizeChange}
+                        page={this.state.modal.actionsList.actionsPage}
+                        count={this.state.modal.actionsList.actionsRowsNumber}
+                        rowSize={this.state.modal.actionsList.actionsRowsPerPage}
+                        rowSizeList={this.constants.pageSizes}
+                    />;
+                    className = this.constants.modal.actionsList.className;
+                    break;
+                case this.constants.modal.types.CREATE:
+                    title = this.state.modal[type].title;
+                    actions = [
+                        <FlatButton
+                            label='Create'
+                            primary={true}
+                            disabled={true}/>,
+                        <FlatButton
+                            label='Close'
+                            primary={true}
+                            onTouchTap={this.onModalClose}/>,
+                    ];
+                    content = <div>
+                        {/*<AutoComplete*/}
+                        {/*hintText='Resource'*/}
+                        {/*fullWidth={true}*/}
+                        {/*filter={AutoComplete.fuzzyFilter}*/}
+                        {/*dataSource={_.map(_.values(this.state.resources), (e) => {*/}
+                        {/*return e.name;*/}
+                        {/*})}*/}
+                        {/*maxSearchResults={5}*/}
+                        {/*/>*/}
+                        <DatePicker
+                            hintText='Start date'
+                            fullWidth={true}
+                            textFieldStyle={this.datetimePickerInputStyle}/>
+                        <TimePicker
+                            format='24hr'
+                            fullWidth={true}
+                            hintText='Start time'
+                            textFieldStyle={this.datetimePickerInputStyle}/>
+                        <DatePicker
+                            hintText='End date'
+                            fullWidth={true}
+                            textFieldStyle={this.datetimePickerInputStyle}/>
+                        <TimePicker
+                            format='24hr'
+                            fullWidth={true}
+                            hintText='End time'
+                            textFieldStyle={this.datetimePickerInputStyle}/>
+                        <DropDownMenu
+                            value={this.state.modal.create.type}
+                            onChange={() => {
+                            }}>
+                            <MenuItem
+                                value={ReservationTypes.REGULAR}
+                                primaryText={ReservationTypes.REGULAR}/>
+                            <MenuItem
+                                value={ReservationTypes.UNAVAILABLE}
+                                primaryText={ReservationTypes.UNAVAILABLE}/>
+                        </DropDownMenu>
+                    </div>;
+                    className = this.constants.modal.create.className;
+                    break;
+                default:
+                    throw new Error('ERROR');
+            }
+            return <Dialog
+                contentClassName={className}
+                title={title}
+                actions={this.state.modal.actions}
+                modal={true}
+                open={this.state.modal.opened}>
+                {this.state.modal.content}
+            </Dialog>
+        };
 
         return (
             <div>
@@ -525,17 +601,16 @@ export class Appointments extends React.Component {
                     <div className='content-table'>
                         <DataTables
                             height={'auto'}
-                            enableSelectAll={true}
+                            enableSelectAll={false}
                             filterHintText={this.constants.filterHint}
                             title={this.constants.title}
                             showHeaderToolbar={true}
                             selectable={true}
-                            multiSelectable={true}
+                            multiSelectable={false}
                             showRowHover={true}
                             columns={this.constants.columns}
-                            selectedRows={this.state.selectedRows}
-                            data={this.state.tableData}
-                            showCheckboxes={true}
+                            data={this.state.reservations}
+                            showCheckboxes={false}
                             onFilterValueChange={this.onFilterValueChange}
                             onNextPageClick={this.onNextPageClick}
                             onPreviousPageClick={this.onPreviousPageClick}
@@ -543,90 +618,18 @@ export class Appointments extends React.Component {
                             onRowSizeChange={this.onRowSizeChange}
                             onSortOrderChange={this.onSortOrderChange}
                             page={this.state.page}
-                            count={this.state.totalPages}
+                            count={Infinity}
                             rowSize={this.state.pageSize}
-                            rowSizeList={[10, 25, 50, 100]}
+                            rowSizeList={this.constants.pageSizes}
                         />
                     </div>
                 </div>
-                <FloatingActionButton
-                    className='third-button'
-                    onTouchTap={this.onDoneButtonTouchTap}>
-                    <ActionDone />
-                </FloatingActionButton>
-                <FloatingActionButton
-                    className='second-button'
-                    onTouchTap={this.onRemoveButtonTouchTap}>
-                    <ActionDeleteForever />
-                </FloatingActionButton>
                 <FloatingActionButton
                     className='first-button'
                     onTouchTap={this.onAddButtonTouchTap}>
                     <ContentAdd />
                 </FloatingActionButton>
-                <Dialog
-                    title={this.constants.actionsModal.loggingIn}
-                    actions={actionsDialogActions}
-                    modal={true}
-                    open={this.state.actionsModal.opened}>
-                    <DataTables
-                        height={'auto'}
-                        showRowHover={true}
-                        columns={this.constants.actionsModal.columns}
-                        data={this.state.actionsModal.actionsTableData}
-                        onNextPageClick={this.onModalNextPageClick}
-                        onPreviousPageClick={this.onModalPreviousPageClick}
-                        onRowSizeChange={this.onModalRowSizeChange}
-                        page={this.state.actionsModal.actionsPage}
-                        count={this.state.actionsModal.actionsRowsNumber}
-                        rowSize={this.state.actionsModal.actionsRowsPerPage}
-                        rowSizeList={[5, 10]}
-                    />
-                </Dialog>
-                <Dialog
-                    contentClassName='create-dialog'
-                    title={this.constants.createModal.loggingIn}
-                    actions={createDialogActions}
-                    modal={true}
-                    open={this.state.createModal.opened}>
-                    <AutoComplete
-                        hintText='Resource'
-                        fullWidth={true}
-                        filter={AutoComplete.fuzzyFilter}
-                        dataSource={_.map(_.values(this.state.resources), (e) => {
-                            return e.name;
-                        })}
-                        maxSearchResults={5}
-                    />
-                    <DatePicker
-                        hintText='Start date'
-                        fullWidth={true}
-                        textFieldStyle={this.datetimePickerInputStyle}/>
-                    <TimePicker
-                        format='24hr'
-                        fullWidth={true}
-                        hintText='Start time'
-                        textFieldStyle={this.datetimePickerInputStyle}/>
-                    <DatePicker
-                        hintText='End date'
-                        fullWidth={true}
-                        textFieldStyle={this.datetimePickerInputStyle}/>
-                    <TimePicker
-                        format='24hr'
-                        fullWidth={true}
-                        hintText='End time'
-                        textFieldStyle={this.datetimePickerInputStyle}/>
-                    <DropDownMenu
-                        value={this.state.createModal.type}
-                        onChange={this.onCreateTypeChange}>
-                        <MenuItem
-                            value={ReservationTypes.REGULAR}
-                            primaryText={ReservationTypes.REGULAR}/>
-                        <MenuItem
-                            value={ReservationTypes.UNAVAILABLE}
-                            primaryText={ReservationTypes.UNAVAILABLE}/>
-                    </DropDownMenu>
-                </Dialog>
+                {getDialog()}
             </div>
         )
     }

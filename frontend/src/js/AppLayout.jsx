@@ -82,7 +82,7 @@ export default class AppLayout extends React.Component {
             menuOpened: false,
             loggedIn: false,
             user: {},
-            pageIndicator: Page.RESOURCES,
+            pageIndicator: Page.APPOINTMENTS,
         };
     }
 

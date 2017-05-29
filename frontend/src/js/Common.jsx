@@ -176,6 +176,7 @@ export function sendApiRequest(options) {
             namespaceQualifier: 'api',
             namespaceURL: 'https://internal.emc.com/reserv-io/schema/api',
             data: options.data,
+            async: (options.async === undefined ? true: options.async),
             HTTPHeaders: {
                 'Authorization': 'Basic ' + btoa(options.login + ':' + options.password)
             },
