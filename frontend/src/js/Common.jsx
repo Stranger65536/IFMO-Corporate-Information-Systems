@@ -10,6 +10,8 @@ export const emailPattern = /^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)
 export const usernamePattern = XRegExp('^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]{5,32}$');
 export const passwordPattern = /.{5,32}/;
 export const namePattern = XRegExp('^[\\p{L} .\'\-]{0,35}$');
+export const resourceNamePattern = XRegExp('^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]{1,25}$');
+export const resourceLocationPattern = XRegExp('^[\\p{L} .\'\-]{0,35}$');
 
 export const apiEndpoint = 'https://internal.emc.com/reserv-io/ws/api.wsdl';
 export const registerEndpoint = 'https://internal.emc.com/reserv-io/ws/register.wsdl';

@@ -277,16 +277,20 @@ export class Users extends React.Component {
     };
 
     usersDialogActions = () => {
+        const isSameUser = this.state.infoModal.info.id === this.props.user.id;
+        const currentUserRolePriority = UserRolesPriorities[this.props.user.role];
+        const targetUserRolePriority = UserRolesPriorities[this.state.infoModal.originalRole];
+        const targetUserNewRolePriority = UserRolesPriorities[this.state.infoModal.info.role];
         return [
             <FlatButton
                 label='Save'
                 primary={true}
-                disabled={!(this.state.infoModal.info.id === this.props.user.id || UserRolesPriorities[this.props.user.role] > UserRolesPriorities[UserRoles.USER])}
+                disabled={!(isSameUser || currentUserRolePriority > UserRolesPriorities[UserRoles.USER])}
                 onTouchTap={this.onSaveChanges}/>,
             <FlatButton
                 label='Update role'
                 primary={true}
-                disabled={!(UserRolesPriorities[this.props.user.role] < UserRolesPriorities[this.state.infoModal.originalRole] || UserRolesPriorities[this.state.infoModal.info.role] > UserRolesPriorities[this.props.user.role])}
+                disabled={!(currentUserRolePriority < targetUserRolePriority || targetUserNewRolePriority > currentUserRolePriority)}
                 onTouchTap={this.onUpdateRole}/>,
             <FlatButton
                 label='Cancel'

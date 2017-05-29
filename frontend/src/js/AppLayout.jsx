@@ -7,14 +7,16 @@ import MenuItem from "material-ui/MenuItem";
 import IconButton from "material-ui/IconButton";
 import SocialPublic from "material-ui/svg-icons/social/public";
 import ActionSettings from "material-ui/svg-icons/action/settings";
+import ActionAssessment from "material-ui/svg-icons/action/assessment";
 import ActionExitToApp from "material-ui/svg-icons/action/exit-to-app";
 import ActionDateRange from "material-ui/svg-icons/action/date-range";
 import AccountCircle from "material-ui/svg-icons/action/account-circle";
 import {MuiThemeProvider} from "material-ui/styles";
 import WelcomePage from "./welcome-page/WelcomePage.jsx";
 import {Appointments} from "./Appointments.jsx";
-import {clearCookie, emcMuiTheme} from "./Common.jsx";
+import {emcMuiTheme} from "./Common.jsx";
 import {Users} from "./Users.jsx";
+import {Resources} from "./Resources.jsx";
 
 //TODO modal warn before logout
 //TODO state clear on logout
@@ -24,6 +26,7 @@ const Page = {
     APPOINTMENTS: 'appointments',
     RESOURCES: 'resources',
     USERS: 'users',
+    REPORTS: 'reports',
     SETTINGS: 'settings',
 };
 
@@ -40,14 +43,14 @@ export default class AppLayout extends React.Component {
                         pageIndicator: Page.APPOINTMENTS,
                         label: 'Appointments',
                         viewElement: () => {
-                            return <Appointments/>
+                            return <Appointments user={this.state.user}/>
                         }
                     },
                     resources: {
                         pageIndicator: Page.RESOURCES,
                         label: 'Resources',
                         viewElement: () => {
-                            return <div>Will look the same as the Appointments page</div>
+                            return <Resources user={this.state.user}/>
                         }
                     },
                     users: {
@@ -55,6 +58,13 @@ export default class AppLayout extends React.Component {
                         label: 'Users',
                         viewElement: () => {
                             return <Users user={this.state.user}/>
+                        }
+                    },
+                    reports: {
+                        pageIndicator: Page.REPORTS,
+                        label: 'Reports',
+                        viewElement: () => {
+                            return <div>Reports</div>
                         }
                     },
                     settings: {
@@ -72,11 +82,10 @@ export default class AppLayout extends React.Component {
             menuOpened: false,
             loggedIn: false,
             user: {},
-            pageIndicator: Page.USERS,
+            pageIndicator: Page.RESOURCES,
         };
     }
 
-    //noinspection OverlyComplexFunctionJS
     onLogin = (options) => {
         this.setState({
             ...this.state,
@@ -162,6 +171,11 @@ export default class AppLayout extends React.Component {
                         leftIcon={<AccountCircle/>}
                     />
                     <MenuItem
+                        onTouchTap={(event) => this.onMenuItemTouchTap(event, this.constants.nav.items.reports.pageIndicator)}
+                        primaryText={this.constants.nav.items.reports.label}
+                        leftIcon={<ActionAssessment/>}
+                    />
+                    <MenuItem
                         onTouchTap={(event) => this.onMenuItemTouchTap(event, this.constants.nav.items.settings.pageIndicator)}
                         primaryText={this.constants.nav.items.settings.label}
                         leftIcon={<ActionSettings/>}
@@ -169,7 +183,6 @@ export default class AppLayout extends React.Component {
                 </Menu>
             </Drawer>
             {this.getLoggedInViewElement()}
-            {/*{this.getModalElement()}*/}
         </div>
     };
 
