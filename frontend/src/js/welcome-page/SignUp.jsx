@@ -12,7 +12,6 @@ import {
     namePattern,
     passwordPattern,
     ProgressCircle,
-    registrationRequest,
     sendApiRequest,
     sendRegistrationRequest,
     updateStateWithUserInfo,
@@ -163,14 +162,14 @@ export class SignUp extends React.Component {
     performSignUp = () => {
         sendRegistrationRequest({
             method: 'RegistrationRequest',
-            data: registrationRequest({
+            data: {
                 username: this.state.signUpUsername,
                 email: this.state.signUpEmail,
                 password: this.state.signUpPassword,
                 firstName: this.state.signUpFirstName,
                 lastName: this.state.signUpLastName,
                 middleName: this.state.signUpMiddleName
-            }),
+            },
             beforeSend: this.beforeSignUp,
             success: (soapResponse) => {
                 sendApiRequest({

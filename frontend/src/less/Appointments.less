@@ -1,24 +1,27 @@
 @import "AppLayout.less";
 
-@add-button-size: 50px;
-@add-button-margin: 20px;
+@button-size: 50px;
+@first-button-margin: 20px;
 
-.done-button {
+.third-button {
   position: absolute;
-  right: 3 * @add-button-margin + 2 * @add-button-size;;
-  bottom: @add-button-margin;
+  right: 3 * @first-button-margin + 2 * @button-size;
+  bottom: @first-button-margin;
 }
 
-.add-button {
+.first-button {
   position: absolute;
-  right: @add-button-margin;
-  bottom: @add-button-margin;
+  right: @first-button-margin;
+  bottom: @first-button-margin;
 }
 
-.remove-button {
+.second-button {
   position: absolute;
-  right: 2 * @add-button-margin + @add-button-size;
-  bottom: @add-button-margin;
+  right: 2 * @first-button-margin + @button-size;
+  bottom: @first-button-margin;
+}
+
+.red {
   button {
     background-color: @rsa-red !important;
   }
@@ -27,11 +30,14 @@
 .content-table-wrapper {
   width: 100%;
   overflow: auto;
-  height: calc(~"100% - "@bar-height + @add-button-size + 2 * @add-button-margin);
+  height: calc(~"100% - "@bar-height + @button-size + 2 * @first-button-margin);
+  &.full {
+    height: calc(~"100% - "@bar-height);
+  }
 }
 
 .content-table {
-  min-width: 1350px;
+  min-width: 1300px;
   font-family: Roboto, serif;
   td {
     overflow: hidden;

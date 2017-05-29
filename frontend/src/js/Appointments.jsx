@@ -13,6 +13,7 @@ import DropDownMenu from "material-ui/DropDownMenu";
 import MenuItem from "material-ui/MenuItem";
 import FloatingActionButton from "material-ui/FloatingActionButton";
 import {MuiThemeProvider} from "material-ui/styles";
+import {ReservationStatuses, ReservationTypes, UserRoles} from "./Common.jsx";
 
 //TODO converting WS calls to convenient state
 //TODO modals for API errors
@@ -26,24 +27,6 @@ import {MuiThemeProvider} from "material-ui/styles";
 //TODO Modal for delete
 //TODO modal for group approve
 //TODO create modal validation
-
-const ReservationTypes = {
-    REGULAR: 'Regular',
-    UNAVAILABLE: 'Unavailable'
-};
-
-const ReservationStatuses = {
-    APPROVED: 'Approved',
-    CANCELED: 'Canceled',
-    WAITING_FOR_APPROVAL: 'Waiting for approval',
-    NEW_TIME_PROPOSED: 'New time proposed'
-};
-
-const UserRoles = {
-    USER: 'user',
-    MODERATOR: 'moderator',
-    ADMIN: 'admin'
-};
 
 export class Appointments extends React.Component {
     constructor(props) {
@@ -544,7 +527,7 @@ export class Appointments extends React.Component {
                             height={'auto'}
                             enableSelectAll={true}
                             filterHintText={this.constants.filterHint}
-                            title={this.constants.loggingIn}
+                            title={this.constants.title}
                             showHeaderToolbar={true}
                             selectable={true}
                             multiSelectable={true}
@@ -560,24 +543,24 @@ export class Appointments extends React.Component {
                             onRowSizeChange={this.onRowSizeChange}
                             onSortOrderChange={this.onSortOrderChange}
                             page={this.state.page}
-                            count={this.state.rowsNumber}
-                            rowSize={this.state.rowsPerPage}
+                            count={this.state.totalPages}
+                            rowSize={this.state.pageSize}
                             rowSizeList={[10, 25, 50, 100]}
                         />
                     </div>
                 </div>
                 <FloatingActionButton
-                    className='done-button'
+                    className='third-button'
                     onTouchTap={this.onDoneButtonTouchTap}>
                     <ActionDone />
                 </FloatingActionButton>
                 <FloatingActionButton
-                    className='remove-button'
+                    className='second-button'
                     onTouchTap={this.onRemoveButtonTouchTap}>
                     <ActionDeleteForever />
                 </FloatingActionButton>
                 <FloatingActionButton
-                    className='add-button'
+                    className='first-button'
                     onTouchTap={this.onAddButtonTouchTap}>
                     <ContentAdd />
                 </FloatingActionButton>

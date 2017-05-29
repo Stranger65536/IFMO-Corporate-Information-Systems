@@ -14,6 +14,7 @@ import {MuiThemeProvider} from "material-ui/styles";
 import WelcomePage from "./welcome-page/WelcomePage.jsx";
 import {Appointments} from "./Appointments.jsx";
 import {clearCookie, emcMuiTheme} from "./Common.jsx";
+import {Users} from "./Users.jsx";
 
 //TODO modal warn before logout
 //TODO state clear on logout
@@ -53,7 +54,7 @@ export default class AppLayout extends React.Component {
                         pageIndicator: Page.USERS,
                         label: 'Users',
                         viewElement: () => {
-                            return <div>Will look the same as the Appointments page</div>
+                            return <Users user={this.state.user}/>
                         }
                     },
                     settings: {
@@ -69,9 +70,9 @@ export default class AppLayout extends React.Component {
 
         this.state = {
             menuOpened: false,
-            loggedIn: true,
+            loggedIn: false,
             user: {},
-            pageIndicator: Page.APPOINTMENTS,
+            pageIndicator: Page.USERS,
         };
     }
 

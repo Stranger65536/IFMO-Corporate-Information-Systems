@@ -29,17 +29,6 @@ export const emcMuiTheme = getMuiTheme({
     },
 });
 
-export const registrationRequest = (options) => {
-    return {
-        username: options.username,
-        email: options.email,
-        password: options.password,
-        firstName: options.firstName,
-        lastName: options.lastName,
-        middleName: options.middleName
-    }
-};
-
 export const userByEmailRequest = (login) => {
     return {
         page: 1,
@@ -73,6 +62,30 @@ export const WelcomePageForm = {
     LOGIN: 'login',
     SIGN_UP: 'sign-up',
     FORGOT_PASSWORD: 'forgot-password',
+};
+
+export const ReservationStatuses = {
+    APPROVED: 'APPROVED',
+    CANCELED: 'CANCELED',
+    WAITING_FOR_APPROVAL: 'WAITING_FOR_APPROVAL',
+    NEW_TIME_PROPOSED: 'NEW_TIME_PROPOSED'
+};
+
+export const ReservationTypes = {
+    REGULAR: 'REGULAR',
+    UNAVAILABLE: 'UNAVAILABLE'
+};
+
+export const UserRoles = {
+    USER: 'USER',
+    MODERATOR: 'MODERATOR',
+    ADMIN: 'ADMIN'
+};
+
+export const UserRolesPriorities = {
+    'USER': 0,
+    'MODERATOR': 1,
+    'ADMIN': 2
 };
 
 export const ProgressCircle = () => {

@@ -134,7 +134,7 @@ export class Login extends React.Component {
                     .getElementsByTagName("GetUsersResponse")[0]
                     .children;
                 if (users.length === 1) {
-                    this.updateStateWithUserInfo(users, password, this.props.onLogin);
+                    updateStateWithUserInfo(users, password, this.props.onLogin);
                 } else {
                     sendApiRequest({
                         method: 'GetUsersRequest',
@@ -148,7 +148,7 @@ export class Login extends React.Component {
                                 .getElementsByTagName("GetUsersResponse")[0]
                                 .children;
                             if (users.length === 1) {
-                                this.updateStateWithUserInfo(users, password);
+                                updateStateWithUserInfo(users, password, this.props.onLogin);
                             } else {
                                 //TODO api error
                                 this.showErrorModal(this.constants.infoModal.unknownError);
