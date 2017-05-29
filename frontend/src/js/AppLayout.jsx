@@ -17,6 +17,7 @@ import {Appointments} from "./Appointments.jsx";
 import {emcMuiTheme} from "./Common.jsx";
 import {Users} from "./Users.jsx";
 import {Resources} from "./Resources.jsx";
+import {Reports} from "./Reports.jsx";
 
 //TODO modal warn before logout
 //TODO state clear on logout
@@ -64,7 +65,7 @@ export default class AppLayout extends React.Component {
                         pageIndicator: Page.REPORTS,
                         label: 'Reports',
                         viewElement: () => {
-                            return <div>Reports</div>
+                            return <Reports user={this.state.user}/>
                         }
                     },
                     settings: {
@@ -82,7 +83,7 @@ export default class AppLayout extends React.Component {
             menuOpened: false,
             loggedIn: false,
             user: {},
-            pageIndicator: Page.APPOINTMENTS,
+            pageIndicator: Page.REPORTS,
         };
     }
 

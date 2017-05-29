@@ -207,6 +207,28 @@ export function sendRegistrationRequest(options) {
     }
 }
 
+export function sendReportRequest(options) {
+    try {
+        $.default({
+            url: 'https://internal.emc.com:443/reserv-io/ws/report/',
+            appendMethodToURL: false,
+            method: options.method,
+            namespaceQualifier: 'rep',
+            namespaceURL: 'https://internal.emc.com/reserv-io/schema/report',
+            data: options.data,
+            async: (options.async === undefined ? true: options.async),
+            HTTPHeaders: {
+                'Authorization': 'Basic ' + btoa(options.login + ':' + options.password)
+            },
+            beforeSend: options.beforeSend,
+            success: options.success,
+            error: options.error
+        });
+    } catch (e) {
+        console.log(e);
+    }
+}
+
 export function updateStateWithUserInfo(users, password, callback) {
     callback({
         id: Number(users[0].getElementsByTagName('id')[0].textContent),

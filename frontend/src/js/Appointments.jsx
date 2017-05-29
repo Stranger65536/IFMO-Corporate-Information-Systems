@@ -107,10 +107,7 @@ export class Appointments extends React.Component {
                 },
                 message: {
                     className: 'info-dialog',
-                    accessDeniedTitle: 'Access denied',
                     unknownError: 'Unknown error',
-                    invalidStateTitle: 'Reservation has been changed',
-                    overlapsTitle: 'Can\'t do action',
                 },
                 actionsList: {
                     title: 'Actions',
