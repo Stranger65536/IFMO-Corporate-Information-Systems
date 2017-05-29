@@ -185,12 +185,10 @@ export class Appointments extends React.Component {
                     type: ReservationTypes.REGULAR
                 },
                 actionsList: {
+                    reservationId: 0,
                     title: this.constants.modal.actionsList.title,
                     className: this.constants.modal.actionsList.className,
                     actionsTableData: [],
-                    actionsPage: 1,
-                    actionsRowsNumber: Infinity,
-                    actionsRowsPerPage: 10,
                 },
                 message: {
                     title: '',
@@ -264,7 +262,130 @@ export class Appointments extends React.Component {
     };
 
     onRowSelection = (rowNumber) => {
-        console.log('Row selected!');
+        sendApiRequest({
+            method: 'GetReservationRequest',
+            data: {
+                id: this.state.reservations[rowNumber].id,
+            },
+            login: this.props.user.username,
+            password: this.props.user.password,
+            beforeSend: this.showLoadingModal,
+            success: (soapResponse) => {
+                const actionsXml = soapResponse.content
+                    .getElementsByTagName("Body")[0]
+                    .getElementsByTagName("GetReservationResponse")[0]
+                    .getElementsByTagName("ReservationInfo")[0]
+                    .getElementsByTagName("ActionInfo");
+                const originalActions = _.map(actionsXml, (action) => {
+                    return {
+                        id: Number(action.getElementsByTagName("id")[0].textContent),
+                        resourceId: Number(action.getElementsByTagName("resourceId")[0].textContent),
+                        type: action.getElementsByTagName("type")[0].textContent,
+                        status: action.getElementsByTagName("status")[0].textContent,
+                        userId: action.getElementsByTagName("userId")[0].textContent,
+                        startsAt: action.getElementsByTagName("startsAt")[0].textContent,
+                        endsAt: action.getElementsByTagName("endsAt")[0].textContent,
+                        time: action.getElementsByTagName("time")[0].textContent
+                    }
+                });
+                const actions = _.map(originalActions, (act) => {
+                    const resourceId = act.resourceId;
+                    const userId = act.userId;
+                    if (!(userId in this.state.users)) {
+                        sendApiRequest({
+                            method: 'GetUserRequest',
+                            data: {
+                                id: userId,
+                            },
+                            async: false,
+                            login: this.props.user.username,
+                            password: this.props.user.password,
+                            success: (soapResponse) => {
+                                const user = soapResponse.content
+                                    .getElementsByTagName("Body")[0]
+                                    .getElementsByTagName("GetUserResponse")[0]
+                                    .children[0];
+                                this.state.users[userId] = {
+                                    id: Number(user.getElementsByTagName('id')[0].textContent),
+                                    username: user.getElementsByTagName('username')[0].textContent,
+                                    email: user.getElementsByTagName('email')[0].textContent,
+                                    firstName: user.getElementsByTagName('firstName')[0] ? user.getElementsByTagName('firstName')[0].textContent : '',
+                                    lastName: user.getElementsByTagName('lastName')[0] ? user.getElementsByTagName('lastName')[0].textContent : '',
+                                    middleName: user.getElementsByTagName('middleName')[0] ? user.getElementsByTagName('middleName')[0].textContent : '',
+                                    role: user.getElementsByTagName('role')[0] ? user.getElementsByTagName('role')[0].textContent : '',
+                                };
+                            },
+                            error: (soapResponse) => {
+                                //TODO another errors handling
+                                this.showErrorModal(this.constants.modal.unknownError);
+                            }
+                        });
+                    }
+                    if (!(resourceId in this.state.resources)) {
+                        sendApiRequest({
+                            method: 'GetResourceRequest',
+                            data: {
+                                id: resourceId,
+                            },
+                            async: false,
+                            login: this.props.user.username,
+                            password: this.props.user.password,
+                            success: (soapResponse) => {
+                                const resource = soapResponse.content
+                                    .getElementsByTagName("Body")[0]
+                                    .getElementsByTagName("GetResourceResponse")[0]
+                                    .children[0];
+                                this.state.resources[resourceId] = {
+                                    id: Number(resource.getElementsByTagName('id')[0].textContent),
+                                    name: resource.getElementsByTagName('name')[0].textContent,
+                                    location: resource.getElementsByTagName('location')[0] ? resource.getElementsByTagName('location')[0].textContent : '',
+                                };
+                            },
+                            error: (soapResponse) => {
+                                //TODO another errors handling
+                                this.showErrorModal(this.constants.modal.unknownError);
+                            }
+                        });
+                    }
+                    return {
+                        id: act.id,
+                        resource: this.state.resources[act.resourceId].name + ' / ' + this.state.resources[act.resourceId].location,
+                        type: act.type,
+                        status: act.status,
+                        updatedBy: act.userId,
+                        startsAt: act.startsAt,
+                        endsAt: act.endsAt,
+                        time: act.time
+                    }
+                });
+                this.state.modal.actionsList.actionsTableData = actions;
+                this.setState({
+                    ...this.state,
+                    modal: {
+                        ...this.state.modal,
+                        opened: true,
+                        users: this.state.users,
+                        resources: this.state.resources,
+                        type: this.constants.modal.types.ACTIONS_LIST,
+                        actionsList: {
+                            ...this.state.modal.actionsList,
+                            reservationId: this.state.reservations[rowNumber].id,
+                            actionsTableData: actions
+                        }
+                    }
+                });
+            },
+            error: (soapResponse) => {
+                //TODO another errors handling
+                const description = soapResponse.content
+                    .getElementsByTagName("Body")[0]
+                    .getElementsByTagName("Fault")[0]
+                    .getElementsByTagName("detail")[0]
+                    .getElementsByTagName("description")[0]
+                    .textContent;
+                this.showErrorModal(description);
+            }
+        });
     };
 
     onSortOrderChange = (key, order) => {
@@ -538,6 +659,90 @@ export class Appointments extends React.Component {
         });
     };
 
+    onCancel = () => {
+        const id = this.state.modal.actionsList.reservationId;
+        const reservationsMap = _.object(_.map(this.state.originalReservations, (i) => {return [i.id, i]}));
+        sendApiRequest({
+            method: 'CancelReservationRequest',
+            data: {
+                reservationId: id,
+                resourceId: reservationsMap[id].resourceId,
+                startsAt: reservationsMap[id].startsAt,
+                endsAt: reservationsMap[id].endsAt,
+                type: reservationsMap[id].type
+            },
+            login: this.props.user.username,
+            password: this.props.user.password,
+            beforeSend: this.beforeSearch,
+            success: (soapResponse) => {
+                this.performSearch({
+                    page: this.state.page,
+                    pageSize: this.state.pageSize,
+                    searchField: this.state.searchField,
+                    searchType: this.state.searchType,
+                    searchValue: this.state.searchValue,
+                    searchValueLowerBound: undefined,
+                    searchValueUpperBound: undefined,
+                    sortingOrder: this.state.sortingOrder,
+                    sortingField: this.state.sortingField
+                });
+                this.onModalClose();
+            },
+            error: (soapResponse) => {
+                //TODO another errors handling
+                const description = soapResponse.content
+                    .getElementsByTagName("Body")[0]
+                    .getElementsByTagName("Fault")[0]
+                    .getElementsByTagName("detail")[0]
+                    .getElementsByTagName("description")[0]
+                    .textContent;
+                this.showErrorModal(description);
+            }
+        });
+    };
+
+    onAccept = () => {
+        const id = this.state.modal.actionsList.reservationId;
+        const reservationsMap = _.object(_.map(this.state.originalReservations, (i) => {return [i.id, i]}));
+        sendApiRequest({
+            method: 'ApproveReservationRequest',
+            data: {
+                reservationId: id,
+                resourceId: reservationsMap[id].resourceId,
+                startsAt: reservationsMap[id].startsAt,
+                endsAt: reservationsMap[id].endsAt,
+                type: reservationsMap[id].type
+            },
+            login: this.props.user.username,
+            password: this.props.user.password,
+            beforeSend: this.beforeSearch,
+            success: (soapResponse) => {
+                this.performSearch({
+                    page: this.state.page,
+                    pageSize: this.state.pageSize,
+                    searchField: this.state.searchField,
+                    searchType: this.state.searchType,
+                    searchValue: this.state.searchValue,
+                    searchValueLowerBound: undefined,
+                    searchValueUpperBound: undefined,
+                    sortingOrder: this.state.sortingOrder,
+                    sortingField: this.state.sortingField
+                });
+                this.onModalClose();
+            },
+            error: (soapResponse) => {
+                //TODO another errors handling
+                const description = soapResponse.content
+                    .getElementsByTagName("Body")[0]
+                    .getElementsByTagName("Fault")[0]
+                    .getElementsByTagName("detail")[0]
+                    .getElementsByTagName("description")[0]
+                    .textContent;
+                this.showErrorModal(description);
+            }
+        });
+    };
+
     componentDidMount() {
         this.loadResources();
         this.performSearch({
@@ -581,7 +786,8 @@ export class Appointments extends React.Component {
                         <FlatButton
                             label='Accept'
                             primary={true}
-                            disabled={true}/>,
+                            disabled={false}
+                            onTouchTap={this.onAccept}/>,
                         <FlatButton
                             label='Propose new time'
                             primary={true}
@@ -589,7 +795,8 @@ export class Appointments extends React.Component {
                         <FlatButton
                             label='Cancel'
                             primary={true}
-                            disabled={true}/>,
+                            disabled={false}
+                            onTouchTap={this.onCancel}/>,
                         <FlatButton
                             label='Update'
                             primary={true}
@@ -604,13 +811,6 @@ export class Appointments extends React.Component {
                         showRowHover={true}
                         columns={this.constants.modal.columns}
                         data={this.state.modal.actionsList.actionsTableData}
-                        onNextPageClick={this.onModalNextPageClick}
-                        onPreviousPageClick={this.onModalPreviousPageClick}
-                        onRowSizeChange={this.onModalRowSizeChange}
-                        page={this.state.modal.actionsList.actionsPage}
-                        count={this.state.modal.actionsList.actionsRowsNumber}
-                        rowSize={this.state.modal.actionsList.actionsRowsPerPage}
-                        rowSizeList={this.constants.pageSizes}
                     />;
                     className = this.constants.modal.actionsList.className;
                     break;
