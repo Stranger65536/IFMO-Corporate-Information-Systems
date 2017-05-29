@@ -3,6 +3,7 @@ import _ from "underscore";
 import DataTables from "material-ui-datatables";
 import ContentAdd from "material-ui/svg-icons/content/add";
 import Dialog from "material-ui/Dialog";
+import AutoComplete from "material-ui/AutoComplete";
 import FlatButton from "material-ui/FlatButton";
 import DatePicker from "material-ui/DatePicker";
 import TimePicker from "material-ui/TimePicker";
@@ -180,8 +181,10 @@ export class Appointments extends React.Component {
                     title: this.constants.modal.create.title,
                     className: this.constants.modal.create.className,
                     resource: '',
-                    startsAt: '',
-                    endsAt: '',
+                    startsAtDate: '',
+                    startsAtTime: '',
+                    endsAtDate: '',
+                    endsAtTime: '',
                     type: ReservationTypes.REGULAR
                 },
                 actionsList: {
@@ -311,6 +314,63 @@ export class Appointments extends React.Component {
             ...this.state, modal: {
                 ...this.state.modal,
                 opened: false
+            }
+        });
+    };
+
+    pad = (n) => {
+        return (n < 10) ? ("0" + n) : n.toString();
+    };
+
+    placeReservation = () => {
+        const startYear = this.state.modal.create.startsAtDate.getFullYear().toString();
+        const startMonth = this.pad(this.state.modal.create.startsAtDate.getMonth() + 1);
+        const startDay = this.pad(this.state.modal.create.startsAtDate.getDate());
+        const startHour = this.pad(this.state.modal.create.startsAtTime.getHours());
+        const startMin = this.pad(this.state.modal.create.startsAtTime.getMinutes());
+        const startSec = this.pad(this.state.modal.create.startsAtTime.getSeconds());
+        const endYear = this.state.modal.create.endsAtDate.getFullYear().toString();
+        const endMonth = this.pad(this.state.modal.create.endsAtDate.getMonth() + 1);
+        const endDay = this.pad(this.state.modal.create.endsAtDate.getDate());
+        const endHour = this.pad(this.state.modal.create.endsAtTime.getHours());
+        const endMin = this.pad(this.state.modal.create.endsAtTime.getMinutes());
+        const endSec = this.pad(this.state.modal.create.endsAtTime.getSeconds());
+        const startsAt = startYear + '-' + startMonth + '-' + startDay + 'T' + startHour + ':' + startMin + ':' + startSec + '.000Z';
+        const endsAt = endYear + '-' + endMonth + '-' + endDay + 'T' + endHour + ':' + endMin + ':' + endSec + '.000Z';
+        sendApiRequest({
+            method: 'PlaceReservationRequest',
+            data: {
+                resourceId: this.state.modal.create.resource,
+                startsAt: startsAt,
+                endsAt: endsAt,
+                type: this.state.modal.create.type,
+            },
+            login: this.props.user.username,
+            password: this.props.user.password,
+            beforeSend: this.showLoadingModal,
+            success: (soapResponse) => {
+                this.performSearch({
+                    page: this.state.page,
+                    pageSize: this.state.pageSize,
+                    searchField: this.state.searchField,
+                    searchType: this.state.searchType,
+                    searchValue: this.state.searchValue,
+                    searchValueLowerBound: undefined,
+                    searchValueUpperBound: undefined,
+                    sortingOrder: this.state.sortingOrder,
+                    sortingField: this.state.sortingField
+                });
+                this.onModalClose();
+            },
+            error: (soapResponse) => {
+                //TODO another errors handling
+                const description = soapResponse.content
+                    .getElementsByTagName("Body")[0]
+                    .getElementsByTagName("Fault")[0]
+                    .getElementsByTagName("detail")[0]
+                    .getElementsByTagName("description")[0]
+                    .textContent;
+                this.showErrorModal(description);
             }
         });
     };
@@ -453,7 +513,36 @@ export class Appointments extends React.Component {
         });
     };
 
+    loadResources = () => {
+        sendApiRequest({
+            method: 'GetResourcesRequest',
+            data: {},
+            login: this.props.user.username,
+            password: this.props.user.password,
+            beforeSend: this.beforeSearch,
+            success: (soapResponse) => {
+                const resources = soapResponse.content
+                    .getElementsByTagName("Body")[0]
+                    .getElementsByTagName("GetResourcesResponse")[0]
+                    .children;
+                this.state.resources = _.object(_.map(_.map(resources, (resource) => {
+                    return {
+                        id: Number(resource.getElementsByTagName('id')[0].textContent),
+                        name: resource.getElementsByTagName('name')[0].textContent,
+                        location: resource.getElementsByTagName('location')[0] ? resource.getElementsByTagName('location')[0].textContent : '',
+                    }
+                }), (i) => [i.id, i]));
+                this.setState({...this.state, resources: this.state.resources});
+            },
+            error: (soapResponse) => {
+                //TODO another errors handling
+                this.showErrorModal(this.constants.infoModal.unknownError);
+            }
+        });
+    };
+
     componentDidMount() {
+        this.loadResources();
         this.performSearch({
             page: this.state.page,
             pageSize: this.state.pageSize,
@@ -534,43 +623,63 @@ export class Appointments extends React.Component {
                         <FlatButton
                             label='Create'
                             primary={true}
-                            disabled={true}/>,
+                            onTouchTap={this.placeReservation}/>,
                         <FlatButton
                             label='Close'
                             primary={true}
                             onTouchTap={this.onModalClose}/>,
                     ];
                     content = <div>
-                        {/*<AutoComplete*/}
-                        {/*hintText='Resource'*/}
-                        {/*fullWidth={true}*/}
-                        {/*filter={AutoComplete.fuzzyFilter}*/}
-                        {/*dataSource={_.map(_.values(this.state.resources), (e) => {*/}
-                        {/*return e.name;*/}
-                        {/*})}*/}
-                        {/*maxSearchResults={5}*/}
-                        {/*/>*/}
+                        <AutoComplete
+                            hintText='Resource'
+                            fullWidth={true}
+                            filter={AutoComplete.fuzzyFilter}
+                            dataSource={_.map(_.values(this.state.resources), (e) => {
+                                return e.id + ': ' + e.name;
+                            })}
+                            maxSearchResults={10}
+                            onNewRequest={(name, index) => {
+                                this.state.modal.create.resource = Number(name.split(':')[0]);
+                            }}/>
                         <DatePicker
                             hintText='Start date'
                             fullWidth={true}
-                            textFieldStyle={this.datetimePickerInputStyle}/>
+                            textFieldStyle={this.datetimePickerInputStyle}
+                            onChange={(e, time) => {
+                                this.state.modal.create.startsAtDate = time;
+                                this.setState(this.state);
+                            }}/>
                         <TimePicker
                             format='24hr'
                             fullWidth={true}
                             hintText='Start time'
-                            textFieldStyle={this.datetimePickerInputStyle}/>
+                            textFieldStyle={this.datetimePickerInputStyle}
+                            onChange={(e, time) => {
+                                this.state.modal.create.startsAtTime = time;
+                                this.setState(this.state);
+                            }}/>
                         <DatePicker
                             hintText='End date'
                             fullWidth={true}
-                            textFieldStyle={this.datetimePickerInputStyle}/>
+                            textFieldStyle={this.datetimePickerInputStyle}
+                            onChange={(e, time) => {
+                                this.state.modal.create.endsAtDate = time;
+                                this.setState(this.state);
+                            }}/>
                         <TimePicker
                             format='24hr'
                             fullWidth={true}
                             hintText='End time'
-                            textFieldStyle={this.datetimePickerInputStyle}/>
+                            textFieldStyle={this.datetimePickerInputStyle}
+                            onChange={(e, time) => {
+                                this.state.modal.create.endsAtTime = time;
+                                this.setState(this.state);
+                            }}/>
                         <DropDownMenu
                             value={this.state.modal.create.type}
-                            onChange={() => {
+                            onChange={(event, index, value) => {
+                                this.state.modal.create.type = value;
+                                this.setState(this.state);
                             }}>
                             <MenuItem
                                 value={ReservationTypes.REGULAR}
@@ -588,10 +697,10 @@ export class Appointments extends React.Component {
             return <Dialog
                 contentClassName={className}
                 title={title}
-                actions={this.state.modal.actions}
+                actions={actions}
                 modal={true}
                 open={this.state.modal.opened}>
-                {this.state.modal.content}
+                {content}
             </Dialog>
         };
 
